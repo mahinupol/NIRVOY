@@ -607,12 +607,11 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
             {/* Viewport Content: Original Image or Digitized Slip */}
             {viewMode === 'image' ? (
               <div 
-                ref={imageContainerRef}
                 style={{
                   position: 'relative',
                   width: '100%',
                   borderRadius: '12px',
-                  overflow: 'auto',
+                  overflow: 'hidden',
                   border: '1px solid #cbd5e1',
                   background: '#0f172a',
                   display: 'flex',
@@ -625,19 +624,20 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                 {/* Laser scan animation when actively scanning */}
                 {isScanning && <div className="laser-line" />}
 
-                {/* Prescription Image & Canvas Overlay */}
+                {/* Prescription Image & Percentage Bounding Box Overlay */}
                 <div style={{
                   position: 'relative',
-                  display: 'inline-block',
                   transform: `scale(${zoomLevel})`,
                   transformOrigin: 'top center',
-                  transition: 'transform 0.15s ease'
+                  transition: 'transform 0.15s ease',
+                  maxWidth: '100%',
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'center'
                 }}>
                   <img
-                    ref={imageRef}
                     src={currentRx.customImageUrl || `/prescription/${currentRx.imageFileName || 'IMG_8391.jpg'}`}
                     alt="Prescription Scan"
-                    onLoad={handleImageLoaded}
                     style={{
                       maxWidth: '100%',
                       maxHeight: '600px',
@@ -646,34 +646,39 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                       borderRadius: '8px'
                     }}
                   />
-                  {/* Bounding Box Rectangles Layer */}
-                  {imageLoaded && currentRx.boundingBoxes.map((box, idx) => {
-                    const rect = getBoxPixels(box);
-                    const isActive = activeBoxIndex === idx;
+
+                  {/* Overlaid Interactive Bounding Boxes */}
+                  {currentRx.boundingBoxes?.map((box, index) => {
+                    const isActive = activeBoxIndex === index;
+                    const topPos = box.box?.top ?? (15 + index * 12);
+                    const leftPos = box.box?.left ?? 15;
+                    const boxWidth = box.box?.width ?? 65;
+                    const boxHeight = box.box?.height ?? 8;
 
                     return (
                       <div
-                        key={box.id || idx}
-                        onClick={() => handleBoxClick(idx)}
+                        key={box.id || index}
+                        onClick={() => setActiveBoxIndex(isActive ? null : index)}
                         style={{
                           position: 'absolute',
-                          left: `${rect.left}px`,
-                          top: `${rect.top}px`,
-                          width: `${rect.width}px`,
-                          height: `${rect.height}px`,
-                          border: isActive ? '2.5px solid #0284c7' : '1.5px solid #10b981',
-                          background: isActive ? 'rgba(2, 132, 199, 0.25)' : 'rgba(16, 185, 129, 0.12)',
-                          boxShadow: isActive ? '0 0 12px rgba(2, 132, 199, 0.6)' : 'none',
-                          borderRadius: '4px',
+                          top: `${topPos}%`,
+                          left: `${leftPos}%`,
+                          width: `${boxWidth}%`,
+                          height: `${boxHeight}%`,
+                          border: `2px solid ${isActive ? '#0284c7' : 'rgba(16, 185, 129, 0.85)'}`,
+                          background: isActive ? 'rgba(2, 132, 199, 0.25)' : 'rgba(16, 185, 129, 0.15)',
+                          borderRadius: '6px',
                           cursor: 'pointer',
-                          zIndex: isActive ? 20 : 10,
-                          transition: 'all 0.15s ease'
+                          transition: 'all 0.15s ease',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          justifyContent: 'space-between',
+                          padding: '2px 4px',
+                          boxShadow: isActive ? '0 0 12px rgba(2, 132, 199, 0.6)' : 'none',
+                          zIndex: isActive ? 20 : 10
                         }}
                       >
                         <span style={{
-                          position: 'absolute',
-                          top: '-18px',
-                          left: '0',
                           background: isActive ? '#0284c7' : '#059669',
                           color: '#ffffff',
                           fontSize: '0.65rem',
@@ -681,16 +686,26 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                           padding: '1px 5px',
                           borderRadius: '4px',
                           whiteSpace: 'nowrap',
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          maxWidth: '85%'
                         }}>
-                          {idx + 1}. {box.detectedMedicine || box.rawText}
+                          #{index + 1} {box.detectedMedicine || box.rawText}
+                        </span>
+                        <span style={{
+                          background: 'rgba(0,0,0,0.65)',
+                          color: '#ffffff',
+                          fontSize: '0.6rem',
+                          fontWeight: 700,
+                          padding: '1px 4px',
+                          borderRadius: '3px'
+                        }}>
+                          {box.confidence}%
                         </span>
                       </div>
                     );
                   })}
                 </div>
-
-                {isScanning && <div className="laser-line" />}
               </div>
             ) : (
               <div style={{
