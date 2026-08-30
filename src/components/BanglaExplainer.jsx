@@ -196,8 +196,8 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
         {/* Medicine Bangla Breakdown Cards Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
-          gap: '16px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+          gap: '20px'
         }}>
           {items.map((item, idx) => {
             const medInfo = BANGLADESHI_MEDICINES.find(m => m.brandName.toLowerCase().includes((item.detectedMedicine || '').toLowerCase())) || BANGLADESHI_MEDICINES[0];
@@ -209,40 +209,42 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                 key={item.id || idx}
                 className="clean-card"
                 style={{
-                  padding: '18px',
+                  padding: '22px',
                   background: isCardActive ? '#f0fdf4' : '#ffffff',
-                  border: isCardActive ? '1px solid #059669' : '1px solid #e2e8f0',
-                  borderRadius: '14px',
+                  border: isCardActive ? '2px solid #059669' : '1px solid #e2e8f0',
+                  borderRadius: '16px',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  gap: '12px'
+                  gap: '16px',
+                  boxShadow: isCardActive ? '0 8px 24px rgba(5, 150, 105, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)'
                 }}
               >
-                <div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   {/* Top Bar: Med Name & Audio Speaker */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{
                           background: '#0284c7',
                           color: '#ffffff',
-                          width: '22px',
-                          height: '22px',
+                          width: '26px',
+                          height: '26px',
                           borderRadius: '50%',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontWeight: 700,
-                          fontSize: '0.75rem'
+                          fontWeight: 800,
+                          fontSize: '0.8rem',
+                          flexShrink: 0
                         }}>
                           {idx + 1}
                         </span>
-                        <h3 style={{ fontSize: '1.05rem', color: '#0f172a', margin: 0, fontWeight: 700 }}>
+                        <h3 style={{ fontSize: '1.15rem', color: '#0f172a', margin: 0, fontWeight: 800 }}>
                           {item.detectedMedicine}
                         </h3>
                       </div>
-                      <p style={{ margin: '2px 0 0 28px', fontSize: '0.75rem', color: '#64748b' }}>
+                      <p style={{ margin: '4px 0 0 34px', fontSize: '0.8rem', color: '#64748b', lineHeight: 1.5 }}>
                         {medInfo.generic}
                       </p>
                     </div>
@@ -254,61 +256,63 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                         background: '#f0fdf4',
                         border: '1px solid #bbf7d0',
                         color: '#059669',
-                        width: '32px',
-                        height: '32px',
+                        width: '36px',
+                        height: '36px',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        boxShadow: '0 2px 6px rgba(5, 150, 105, 0.15)'
                       }}
                     >
-                      <Volume2 size={16} />
+                      <Volume2 size={18} />
                     </button>
                   </div>
 
                   {/* Purpose Box */}
                   <div style={{
                     background: '#f8fafc',
-                    padding: '8px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
-                    marginBottom: '10px'
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    border: '1px solid #e2e8f0'
                   }}>
-                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#0369a1', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Sparkles size={12} />
-                      <span>Purpose / ঔষধের কাজ:</span>
+                    <div style={{ fontSize: '0.74rem', fontWeight: 700, color: '#0369a1', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <Sparkles size={13} />
+                      <span>ঔষধের কাজ ও লক্ষণ (Indication):</span>
                     </div>
-                    <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600 }}>
+                    <div style={{ fontSize: '0.88rem', color: '#1e293b', fontWeight: 600, lineHeight: 1.6 }}>
                       {medInfo.purposeBn}
                     </div>
                   </div>
 
                   {/* Meal Timing & Dosage Badges */}
                   <div style={{
-                    background: '#fef3c7',
+                    background: '#fffbeb',
                     border: '1px solid #fde68a',
-                    padding: '10px 12px',
-                    borderRadius: '10px',
-                    marginBottom: '10px'
+                    padding: '14px 16px',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', fontWeight: 700, color: '#b45309', marginBottom: '2px' }}>
-                      <Utensils size={13} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', fontWeight: 700, color: '#b45309' }}>
+                      <Utensils size={14} />
                       <span>সেবন বিধি ও সময় (Instructions):</span>
                     </div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#92400e' }}>
+                    <div style={{ fontSize: '0.94rem', fontWeight: 800, color: '#92400e', lineHeight: 1.5 }}>
                       {parsedDosage.bn}
                     </div>
                     {item.duration && (
-                      <div style={{ fontSize: '0.75rem', color: '#b45309', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Clock size={12} />
-                        <span>Duration: <strong>{item.duration}</strong></span>
+                      <div style={{ fontSize: '0.78rem', color: '#b45309', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <Clock size={13} />
+                        <span>চলবে / মেয়াদ: <strong>{item.duration}</strong></span>
                       </div>
                     )}
                   </div>
 
-                  {/* Time of day cards */}
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  {/* Time of day cards with Spacious Visuals */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                     {(() => {
                       const dParts = (item.dosage || '1+0+1').split('+');
                       const morning = (dParts[0] || '0').trim();
@@ -318,47 +322,44 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                       return (
                         <>
                           <div style={{
-                            flex: 1,
-                            minWidth: '80px',
                             background: morning !== '0' ? '#e0f2fe' : '#f1f5f9',
                             color: morning !== '0' ? '#0369a1' : '#94a3b8',
-                            padding: '6px 8px',
-                            borderRadius: '8px',
+                            padding: '10px 8px',
+                            borderRadius: '10px',
                             textAlign: 'center',
-                            fontSize: '0.72rem',
-                            fontWeight: 700
+                            fontSize: '0.78rem',
+                            fontWeight: 800,
+                            border: morning !== '0' ? '1px solid #bae6fd' : '1px solid transparent'
                           }}>
-                            <Sun size={14} style={{ margin: '0 auto 2px', display: 'block' }} />
+                            <Sun size={16} style={{ margin: '0 auto 4px', display: 'block' }} />
                             <span>সকাল: {morning} টি</span>
                           </div>
 
                           <div style={{
-                            flex: 1,
-                            minWidth: '80px',
                             background: noon !== '0' ? '#fef3c7' : '#f1f5f9',
                             color: noon !== '0' ? '#b45309' : '#94a3b8',
-                            padding: '6px 8px',
-                            borderRadius: '8px',
+                            padding: '10px 8px',
+                            borderRadius: '10px',
                             textAlign: 'center',
-                            fontSize: '0.72rem',
-                            fontWeight: 700
+                            fontSize: '0.78rem',
+                            fontWeight: 800,
+                            border: noon !== '0' ? '1px solid #fde68a' : '1px solid transparent'
                           }}>
-                            <Coffee size={14} style={{ margin: '0 auto 2px', display: 'block' }} />
+                            <Coffee size={16} style={{ margin: '0 auto 4px', display: 'block' }} />
                             <span>দুপুর: {noon} টি</span>
                           </div>
 
                           <div style={{
-                            flex: 1,
-                            minWidth: '80px',
                             background: night !== '0' ? '#ede9fe' : '#f1f5f9',
                             color: night !== '0' ? '#6d28d9' : '#94a3b8',
-                            padding: '6px 8px',
-                            borderRadius: '8px',
+                            padding: '10px 8px',
+                            borderRadius: '10px',
                             textAlign: 'center',
-                            fontSize: '0.72rem',
-                            fontWeight: 700
+                            fontSize: '0.78rem',
+                            fontWeight: 800,
+                            border: night !== '0' ? '1px solid #ddd6fe' : '1px solid transparent'
                           }}>
-                            <Moon size={14} style={{ margin: '0 auto 2px', display: 'block' }} />
+                            <Moon size={16} style={{ margin: '0 auto 4px', display: 'block' }} />
                             <span>রাত: {night} টি</span>
                           </div>
                         </>
@@ -369,18 +370,19 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
 
                 {/* Precaution warning banner */}
                 <div style={{
-                  fontSize: '0.73rem',
+                  fontSize: '0.76rem',
                   color: '#991b1b',
                   background: '#fef2f2',
-                  padding: '6px 10px',
+                  padding: '8px 12px',
                   borderRadius: '8px',
                   border: '1px solid #fecaca',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '5px'
+                  gap: '6px',
+                  lineHeight: 1.5
                 }}>
-                  <AlertCircle size={13} color="#dc2626" />
-                  <span><strong>Warning:</strong> {medInfo.precautionsBn}</span>
+                  <AlertCircle size={14} style={{ flexShrink: 0 }} />
+                  <span><strong>সতর্কতা:</strong> {medInfo.precautionsBn}</span>
                 </div>
               </div>
             );

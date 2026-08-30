@@ -924,7 +924,7 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
               </div>
 
               {/* Medicine Cards List with Autocomplete & Predict Features */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                 {currentRx.boundingBoxes.map((item, idx) => {
                   const pred = fuzzyPredictMedicine(item.detectedMedicine || item.rawText);
                   const medInfo = pred?.med || BANGLADESHI_MEDICINES[0];
@@ -943,30 +943,33 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                     <div
                       key={item.id}
                       style={{
-                        padding: '14px',
-                        borderRadius: '12px',
-                        background: isActive ? '#f0f9ff' : '#f8fafc',
+                        padding: '20px',
+                        borderRadius: '16px',
+                        background: isActive ? '#f0f9ff' : '#ffffff',
                         border: '1px solid',
                         borderColor: isActive ? '#0284c7' : '#e2e8f0',
-                        transition: 'all 0.15s ease',
-                        boxShadow: isActive ? '0 2px 8px rgba(2, 132, 199, 0.12)' : 'none',
-                        position: 'relative'
+                        transition: 'all 0.2s ease',
+                        boxShadow: isActive ? '0 4px 16px rgba(2, 132, 199, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)',
+                        position: 'relative',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '14px'
                       }}
                     >
-                      {/* Top Bar: Name, Input & Match Badge */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, position: 'relative' }}>
+                      {/* Top Row: Index Badge, Brand Name Input & Action Badges */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: '220px' }}>
                           <span style={{
                             background: '#0284c7',
                             color: '#ffffff',
-                            width: '22px',
-                            height: '22px',
+                            width: '26px',
+                            height: '26px',
                             borderRadius: '50%',
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '0.72rem',
-                            fontWeight: 700,
+                            fontSize: '0.8rem',
+                            fontWeight: 800,
                             flexShrink: 0
                           }}>
                             {idx + 1}
@@ -984,16 +987,17 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                                 setSuggestQuery(e.target.value);
                                 handleUpdateMedicine(idx, 'detectedMedicine', e.target.value);
                               }}
-                              placeholder="Type to search preloaded medicines..."
+                              placeholder="Type or search medicine name..."
                               style={{
-                                fontSize: '0.92rem',
-                                fontWeight: 700,
+                                fontSize: '1.05rem',
+                                fontWeight: 800,
                                 color: '#0f172a',
                                 border: '1px solid #cbd5e1',
-                                borderRadius: '6px',
-                                padding: '4px 8px',
-                                width: '92%',
-                                background: '#ffffff'
+                                borderRadius: '8px',
+                                padding: '6px 12px',
+                                width: '100%',
+                                background: '#ffffff',
+                                boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.03)'
                               }}
                             />
 
@@ -1006,21 +1010,21 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                                 right: 0,
                                 background: '#ffffff',
                                 border: '1px solid #cbd5e1',
-                                borderRadius: '8px',
-                                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                                borderRadius: '10px',
+                                boxShadow: '0 12px 24px rgba(0, 0, 0, 0.12)',
                                 zIndex: 50,
-                                marginTop: '4px',
+                                marginTop: '6px',
                                 overflow: 'hidden'
                               }}>
-                                <div style={{ background: '#f1f5f9', padding: '4px 8px', fontSize: '0.68rem', fontWeight: 700, color: '#475569' }}>
-                                  PRELOADED BANGLADESHI MEDICINE MATCHES:
+                                <div style={{ background: '#f8fafc', padding: '6px 12px', fontSize: '0.72rem', fontWeight: 700, color: '#475569', borderBottom: '1px solid #e2e8f0' }}>
+                                  MATCHING BANGLADESHI MEDICINES:
                                 </div>
                                 {suggestions.map(s => (
                                   <div
                                     key={s.id}
                                     onClick={() => handleSelectSuggestion(idx, s)}
                                     style={{
-                                      padding: '6px 10px',
+                                      padding: '8px 12px',
                                       cursor: 'pointer',
                                       borderBottom: '1px solid #f1f5f9',
                                       display: 'flex',
@@ -1032,52 +1036,48 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                                     onMouseLeave={(e) => e.currentTarget.style.background = '#ffffff'}
                                   >
                                     <div>
-                                      <strong style={{ fontSize: '0.82rem', color: '#0f172a' }}>{s.brandName}</strong>
-                                      <span style={{ fontSize: '0.72rem', color: '#64748b', marginLeft: '6px' }}>{s.generic}</span>
+                                      <strong style={{ fontSize: '0.88rem', color: '#0f172a' }}>{s.brandName}</strong>
+                                      <span style={{ fontSize: '0.76rem', color: '#64748b', marginLeft: '8px' }}>{s.generic}</span>
                                     </div>
-                                    <span style={{ fontSize: '0.65rem', background: '#dcfce7', color: '#15803d', padding: '1px 5px', borderRadius: '4px', fontWeight: 600 }}>
+                                    <span style={{ fontSize: '0.68rem', background: '#dcfce7', color: '#15803d', padding: '2px 7px', borderRadius: '4px', fontWeight: 600 }}>
                                       {s.category.split(' ')[0]}
                                     </span>
                                   </div>
                                 ))}
                               </div>
                             )}
-
-                            <div style={{ fontSize: '0.73rem', color: '#64748b', marginTop: '2px' }}>
-                              {medInfo.generic} • <em>{medInfo.manufacturer}</em>
-                            </div>
                           </div>
                         </div>
 
-                        {/* Match & Action Badges */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        {/* Match Confidence & Action Badges */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <button
                             onClick={() => handleFuzzyAutoPredict(idx)}
                             style={{
                               background: '#eff6ff',
                               color: '#1d4ed8',
                               border: '1px solid #bfdbfe',
-                              padding: '2px 6px',
-                              borderRadius: '4px',
-                              fontSize: '0.68rem',
+                              padding: '4px 8px',
+                              borderRadius: '6px',
+                              fontSize: '0.72rem',
                               fontWeight: 700,
                               cursor: 'pointer',
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: '2px'
+                              gap: '4px'
                             }}
                             title="Auto-predict & snap against preloaded dataset"
                           >
-                            <Zap size={11} />
+                            <Zap size={12} />
                             <span>Auto-Snap</span>
                           </button>
 
                           <span style={{
                             background: item.confidence > 90 ? '#dcfce7' : '#fef3c7',
                             color: item.confidence > 90 ? '#15803d' : '#b45309',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            fontSize: '0.68rem',
+                            padding: '4px 8px',
+                            borderRadius: '6px',
+                            fontSize: '0.72rem',
                             fontWeight: 700
                           }}>
                             {item.confidence}% Match
@@ -1090,29 +1090,52 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                               color: '#dc2626',
                               border: 'none',
                               borderRadius: '6px',
-                              padding: '4px',
-                              cursor: 'pointer'
+                              padding: '6px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
                             }}
                             title="Remove Medicine"
                           >
-                            <Trash2 size={13} />
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </div>
 
-                      {/* Dosage, Duration, Timing inputs */}
+                      {/* Generic & Manufacturer Subtitle */}
                       <div style={{
-                        marginTop: '10px',
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+                        fontSize: '0.8rem',
+                        color: '#475569',
+                        lineHeight: 1.5,
+                        display: 'flex',
+                        alignItems: 'center',
                         gap: '8px',
-                        background: '#ffffff',
-                        padding: '10px',
-                        borderRadius: '8px',
+                        flexWrap: 'wrap'
+                      }}>
+                        <span style={{ fontWeight: 600, color: '#0369a1' }}>{medInfo.generic}</span>
+                        <span style={{ color: '#cbd5e1' }}>•</span>
+                        <span style={{ color: '#64748b' }}>{medInfo.manufacturer}</span>
+                        <span style={{ color: '#cbd5e1' }}>•</span>
+                        <span style={{ background: '#f1f5f9', padding: '1px 6px', borderRadius: '4px', fontSize: '0.7rem', color: '#475569' }}>
+                          {medInfo.category}
+                        </span>
+                      </div>
+
+                      {/* Dosage, Duration, Timing Input Grid with Generous Spacing */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                        gap: '12px',
+                        background: '#f8fafc',
+                        padding: '14px',
+                        borderRadius: '10px',
                         border: '1px solid #e2e8f0'
                       }}>
                         <div>
-                          <span style={{ fontSize: '0.68rem', color: '#64748b', display: 'block', fontWeight: 600 }}>Dosage (মাত্রা)</span>
+                          <label style={{ fontSize: '0.74rem', color: '#475569', display: 'block', fontWeight: 700, marginBottom: '4px' }}>
+                            Dosage (মাত্রা):
+                          </label>
                           <input
                             type="text"
                             value={item.dosage}
@@ -1120,35 +1143,43 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                             placeholder="e.g. 1+0+1"
                             style={{
                               border: '1px solid #cbd5e1',
-                              borderRadius: '4px',
-                              padding: '3px 6px',
-                              fontSize: '0.78rem',
+                              borderRadius: '6px',
+                              padding: '6px 10px',
+                              fontSize: '0.84rem',
                               fontWeight: 700,
-                              width: '90%'
+                              color: '#0f172a',
+                              width: '100%',
+                              background: '#ffffff'
                             }}
                           />
                         </div>
 
                         <div>
-                          <span style={{ fontSize: '0.68rem', color: '#64748b', display: 'block', fontWeight: 600 }}>Duration (মেয়াদ)</span>
+                          <label style={{ fontSize: '0.74rem', color: '#475569', display: 'block', fontWeight: 700, marginBottom: '4px' }}>
+                            Duration (মেয়াদ):
+                          </label>
                           <input
                             type="text"
                             value={item.duration}
                             onChange={(e) => handleUpdateMedicine(idx, 'duration', e.target.value)}
-                            placeholder="e.g. 5 days"
+                            placeholder="e.g. 7 days"
                             style={{
                               border: '1px solid #cbd5e1',
-                              borderRadius: '4px',
-                              padding: '3px 6px',
-                              fontSize: '0.78rem',
+                              borderRadius: '6px',
+                              padding: '6px 10px',
+                              fontSize: '0.84rem',
                               fontWeight: 700,
-                              width: '90%'
+                              color: '#0f172a',
+                              width: '100%',
+                              background: '#ffffff'
                             }}
                           />
                         </div>
 
                         <div>
-                          <span style={{ fontSize: '0.68rem', color: '#64748b', display: 'block', fontWeight: 600 }}>Timing (খাওয়ার সময়)</span>
+                          <label style={{ fontSize: '0.74rem', color: '#475569', display: 'block', fontWeight: 700, marginBottom: '4px' }}>
+                            Timing (খাওয়ার নিয়ম):
+                          </label>
                           <input
                             type="text"
                             value={item.timing}
@@ -1156,49 +1187,57 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                             placeholder="খাবার পর / আগে"
                             style={{
                               border: '1px solid #cbd5e1',
-                              borderRadius: '4px',
-                              padding: '3px 6px',
-                              fontSize: '0.78rem',
+                              borderRadius: '6px',
+                              padding: '6px 10px',
+                              fontSize: '0.84rem',
                               fontWeight: 600,
-                              width: '90%'
+                              color: '#0f172a',
+                              width: '100%',
+                              background: '#ffffff'
                             }}
                           />
                         </div>
                       </div>
 
-                      {/* Purpose & Alphabet Match Breakdown */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '8px' }}>
+                      {/* Purpose & Handwriting Overlap Breakdown with Breathable Spacing */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {/* Purpose Badge */}
                         <div style={{
-                          fontSize: '0.75rem',
+                          fontSize: '0.8rem',
                           color: '#065f46',
                           background: '#f0fdf4',
-                          padding: '6px 10px',
-                          borderRadius: '6px',
+                          border: '1px solid #bbf7d0',
+                          padding: '10px 14px',
+                          borderRadius: '8px',
                           display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px'
+                          alignItems: 'flex-start',
+                          gap: '8px',
+                          lineHeight: 1.6
                         }}>
-                          <Activity size={13} />
-                          <span><strong>কাজ / Purpose:</strong> {medInfo.purposeBn}</span>
+                          <Activity size={15} color="#059669" style={{ marginTop: '2px', flexShrink: 0 }} />
+                          <span>
+                            <strong style={{ color: '#047857' }}>কাজ / Indication:</strong> {medInfo.purposeBn}
+                          </span>
                         </div>
 
-                        {/* Alphabet Overlap Count Pill */}
+                        {/* Handwriting Alphabet Overlap Pill */}
                         <div style={{
-                          fontSize: '0.7rem',
+                          fontSize: '0.76rem',
                           color: '#0369a1',
                           background: '#f0f9ff',
-                          border: '1px dashed #bae6fd',
-                          padding: '4px 8px',
-                          borderRadius: '6px',
+                          border: '1px solid #bae6fd',
+                          padding: '8px 12px',
+                          borderRadius: '8px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          flexWrap: 'wrap'
+                          flexWrap: 'wrap',
+                          gap: '6px'
                         }}>
                           <span>
-                            🔤 <strong>Handwriting Overlap:</strong> "{item.rawText || item.detectedMedicine}" → {item.detectedMedicine}
+                            🔤 <strong>Handwriting Match:</strong> "{item.rawText || item.detectedMedicine}" → <strong>{item.detectedMedicine}</strong>
                           </span>
-                          <span style={{ fontWeight: 700, color: '#0284c7' }}>
+                          <span style={{ fontWeight: 800, color: '#0284c7' }}>
                             Alphabet Match: {item.confidence}%
                           </span>
                         </div>
