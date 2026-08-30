@@ -1,16 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Volume2, VolumeX, Play, Pause, Clock, AlertCircle, Sparkles, Coffee, Moon, Sun, Utensils } from 'lucide-react';
 import { ttsEngine } from '../utils/ttsHelper';
-import { parseDosageInstruction, generateBanglaVoiceScript } from '../utils/prescriptionParser';
+import { 
+  parseDosageInstruction, 
+  generateBanglaVoiceScript, 
+  generateEnglishVoiceScript 
+} from '../utils/prescriptionParser';
 import { BANGLADESHI_MEDICINES } from '../data/medicinesData';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function BanglaExplainer({ prescription, elderlyMode }) {
+  const { language, t } = useLanguage();
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeSpeechSpeed, setActiveSpeechSpeed] = useState(0.95);
   const [highlightedIndex, setHighlightedIndex] = useState(null);
 
   const items = prescription?.boundingBoxes || [];
-  const banglaScript = generateBanglaVoiceScript(prescription?.patientName, items);
+  const voiceScript = language === 'bn' 
+    ? generateBanglaVoiceScript(prescription?.patientName, items)
+    : generateEnglishVoiceScript(prescription?.patientName, items);
+
+  const voiceLangCode = language === 'bn' ? 'bn-BD' : 'en-US';
 
   const handlePlayVoice = () => {
     if (isPlaying) {
@@ -19,7 +29,7 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
       setHighlightedIndex(null);
     } else {
       setIsPlaying(true);
-      ttsEngine.speak(banglaScript, 'bn-BD', activeSpeechSpeed, {
+      ttsEngine.speak(voiceScript, voiceLangCode, activeSpeechSpeed, {
         onStart: () => setIsPlaying(true),
         onEnd: () => {
           setIsPlaying(false);
@@ -41,10 +51,13 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
 
   const handlePlaySingleMedicine = (item, index) => {
     const medInfo = parseDosageInstruction(item.dosage, item.timing);
-    const speech = `${item.detectedMedicine || item.rawText}। ${medInfo.bn}। ${item.duration ? `মেয়াদ: ${item.duration}` : ''}।`;
+    const speech = language === 'bn'
+      ? `${item.detectedMedicine || item.rawText}। ${medInfo.bn}। ${item.duration ? `মেয়াদ: ${item.duration}` : ''}।`
+      : `${item.detectedMedicine || item.rawText}. ${medInfo.en}. ${item.duration ? `Duration: ${item.duration}` : ''}.`;
+
     setHighlightedIndex(index);
     setIsPlaying(true);
-    ttsEngine.speak(speech, 'bn-BD', activeSpeechSpeed, {
+    ttsEngine.speak(speech, voiceLangCode, activeSpeechSpeed, {
       onEnd: () => {
         setIsPlaying(false);
         setHighlightedIndex(null);
@@ -75,13 +88,13 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
             fontWeight: 700,
             marginBottom: '6px'
           }}>
-            MODULE 2 • BANGLA EXPLANATION & TTS
+            {t('explainerBadge')}
           </div>
           <h2 style={{ fontSize: '1.75rem', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.02em' }}>
-            Bangla Voice & Dosage Instructions (বাংলা অডিও ও সেবন নিয়ম)
+            {t('explainerTitle')}
           </h2>
           <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '600px', margin: '0 auto' }}>
-            চিকিৎসকের সাংকেতিক ভাষা (1+0+1, AC, PC) এখন পরিষ্কার বাংলা ব্যাখ্যা এবং স্পিচ প্লেয়ারে শুনুন।
+            {t('explainerDesc')}
           </p>
         </div>
 
@@ -123,7 +136,7 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#ffffff' }}>
-                  {isPlaying ? 'Playing Audio (ভয়েস চলছে...)' : 'Listen to Full Prescription (বাংলা অডিও শুনুন)'}
+                  {isPlaying ? (language === 'bn' ? 'ভয়েস চলছে...' : 'Playing Speech Narration...') : (language === 'bn' ? 'সম্পূর্ণ প্রেসক্রিপশন শুনুন' : 'Listen to Full Prescription')}
                 </h3>
                 {isPlaying && (
                   <div style={{ display: 'flex', gap: '2px', alignItems: 'center', height: '16px' }}>
@@ -135,18 +148,20 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                 )}
               </div>
               <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: '#e0f2fe' }}>
-                Clear Bengali speech narration optimized for elderly patients & rural users.
+                {language === 'bn' 
+                  ? 'বয়স্ক রোগী ও সাধারণ ব্যবহারকারীদের জন্য সহজবোধ্য বাংলা ভয়েস নির্দেশনা।'
+                  : 'Clear speech narration optimized for easy comprehension.'}
               </p>
             </div>
           </div>
 
           {/* Speed & Control adjustments */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#e0f2fe' }}>Speed (গতি):</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#e0f2fe' }}>{t('speedLabel')}</span>
             {[
-              { rate: 0.8, label: '0.8x (Slow)' },
-              { rate: 0.95, label: '1.0x (Normal)' },
-              { rate: 1.2, label: '1.2x (Fast)' }
+              { rate: 0.8, label: '0.8x' },
+              { rate: 0.95, label: '1.0x' },
+              { rate: 1.2, label: '1.2x' }
             ].map(spd => (
               <button
                 key={spd.rate}
@@ -251,7 +266,7 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
 
                     <button
                       onClick={() => handlePlaySingleMedicine(item, idx)}
-                      title="Listen in Bangla"
+                      title={language === 'bn' ? 'বাংলায় শুনুন' : 'Listen in English'}
                       style={{
                         background: '#f0fdf4',
                         border: '1px solid #bbf7d0',
@@ -279,10 +294,10 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                   }}>
                     <div style={{ fontSize: '0.74rem', fontWeight: 700, color: '#0369a1', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
                       <Sparkles size={13} />
-                      <span>ঔষধের কাজ ও লক্ষণ (Indication):</span>
+                      <span>{t('indicationLabel')}</span>
                     </div>
                     <div style={{ fontSize: '0.88rem', color: '#1e293b', fontWeight: 600, lineHeight: 1.6 }}>
-                      {medInfo.purposeBn}
+                      {language === 'bn' ? medInfo.purposeBn : (medInfo.purposeEn || medInfo.purposeBn)}
                     </div>
                   </div>
 
@@ -298,15 +313,15 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.74rem', fontWeight: 700, color: '#b45309' }}>
                       <Utensils size={14} />
-                      <span>সেবন বিধি ও সময় (Instructions):</span>
+                      <span>{language === 'bn' ? 'সেবন বিধি ও সময়:' : 'Instructions & Timing:'}</span>
                     </div>
                     <div style={{ fontSize: '0.94rem', fontWeight: 800, color: '#92400e', lineHeight: 1.5 }}>
-                      {parsedDosage.bn}
+                      {language === 'bn' ? parsedDosage.bn : parsedDosage.en}
                     </div>
                     {item.duration && (
                       <div style={{ fontSize: '0.78rem', color: '#b45309', display: 'flex', alignItems: 'center', gap: '5px' }}>
                         <Clock size={13} />
-                        <span>চলবে / মেয়াদ: <strong>{item.duration}</strong></span>
+                        <span>{language === 'bn' ? 'চলবে / মেয়াদ:' : 'Duration:'} <strong>{item.duration}</strong></span>
                       </div>
                     )}
                   </div>
@@ -332,7 +347,7 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                             border: morning !== '0' ? '1px solid #bae6fd' : '1px solid transparent'
                           }}>
                             <Sun size={16} style={{ margin: '0 auto 4px', display: 'block' }} />
-                            <span>সকাল: {morning} টি</span>
+                            <span>{t('morningLabel')}: {morning} {t('tabletsUnit')}</span>
                           </div>
 
                           <div style={{
@@ -346,7 +361,7 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                             border: noon !== '0' ? '1px solid #fde68a' : '1px solid transparent'
                           }}>
                             <Coffee size={16} style={{ margin: '0 auto 4px', display: 'block' }} />
-                            <span>দুপুর: {noon} টি</span>
+                            <span>{t('noonLabel')}: {noon} {t('tabletsUnit')}</span>
                           </div>
 
                           <div style={{
@@ -360,7 +375,7 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                             border: night !== '0' ? '1px solid #ddd6fe' : '1px solid transparent'
                           }}>
                             <Moon size={16} style={{ margin: '0 auto 4px', display: 'block' }} />
-                            <span>রাত: {night} টি</span>
+                            <span>{t('nightLabel')}: {night} {t('tabletsUnit')}</span>
                           </div>
                         </>
                       );
@@ -382,7 +397,7 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                   lineHeight: 1.5
                 }}>
                   <AlertCircle size={14} style={{ flexShrink: 0 }} />
-                  <span><strong>সতর্কতা:</strong> {medInfo.precautionsBn}</span>
+                  <span><strong>{t('warningLabel')}</strong> {medInfo.precautionsBn}</span>
                 </div>
               </div>
             );

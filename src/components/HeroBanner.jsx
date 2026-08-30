@@ -1,8 +1,11 @@
 import React from 'react';
 import { Sparkles, Scan, ArrowRight, CheckCircle2, ShieldCheck, HeartPulse, Activity } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function HeroBanner({ onStartScan, onOpenDemo }) {
+  const { language, t } = useLanguage();
+
   const triggerCelebration = () => {
     confetti({
       particleCount: 50,
@@ -42,7 +45,7 @@ export default function HeroBanner({ onStartScan, onOpenDemo }) {
                 marginBottom: '14px'
               }}>
                 <Activity size={14} />
-                <span>TrOCR + Bangla NLP Intelligence</span>
+                <span>{t('heroBadge')}</span>
               </div>
 
               <h1 style={{
@@ -52,7 +55,15 @@ export default function HeroBanner({ onStartScan, onOpenDemo }) {
                 marginBottom: '14px',
                 letterSpacing: '-0.03em'
               }}>
-                Understand Doctor Prescriptions in <span style={{ color: '#0284c7' }}>Simple Bangla</span> with <span style={{ color: '#059669' }}>Audio Voice</span>
+                {language === 'bn' ? (
+                  <>
+                    সহজ বাংলায় প্রেসক্রিপশন বুঝুন <span style={{ color: '#0284c7' }}>ভয়েস অডিও</span> ও <span style={{ color: '#059669' }}>AI সহযোগে</span>
+                  </>
+                ) : (
+                  <>
+                    Understand Doctor Prescriptions <span style={{ color: '#0284c7' }}>Clearly in Seconds</span> with <span style={{ color: '#059669' }}>Audio Voice</span>
+                  </>
+                )}
               </h1>
 
               <p style={{
@@ -61,7 +72,7 @@ export default function HeroBanner({ onStartScan, onOpenDemo }) {
                 marginBottom: '24px',
                 lineHeight: 1.6
               }}>
-                ডাক্তারের দুর্বোধ্য হাতের লেখা স্ক্যান করুন এবং সঠিক ওষুধের নাম, সেবন মাত্রা ও খাওয়ার নিয়ম সহজ বাংলায় শুনুন। AI-driven prescription reading, audio voice assistance, and DGDA fake drug verification.
+                {t('heroDesc')}
               </p>
 
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -74,7 +85,7 @@ export default function HeroBanner({ onStartScan, onOpenDemo }) {
                   style={{ padding: '11px 22px' }}
                 >
                   <Scan size={18} />
-                  <span>Scan Prescription (প্রেসক্রিপশন স্ক্যান)</span>
+                  <span>{t('heroScanBtn')}</span>
                   <ArrowRight size={16} />
                 </button>
 
@@ -84,7 +95,7 @@ export default function HeroBanner({ onStartScan, onOpenDemo }) {
                   style={{ padding: '11px 20px' }}
                 >
                   <Sparkles size={16} color="#d97706" />
-                  <span>Try Demo Samples (ডেমো দেখুন)</span>
+                  <span>{t('heroDemoBtn')}</span>
                 </button>
               </div>
 
@@ -100,15 +111,15 @@ export default function HeroBanner({ onStartScan, onOpenDemo }) {
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <CheckCircle2 size={15} color="#059669" />
-                  <span>Bangla Voice Audio (বাংলা ভয়েস)</span>
+                  <span>{t('featAudio')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <CheckCircle2 size={15} color="#059669" />
-                  <span>DGDA Counterfeit Check (নকল ঔষধ যাচাই)</span>
+                  <span>{t('featDgda')}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                   <CheckCircle2 size={15} color="#059669" />
-                  <span>Pharmacy Stock Radar</span>
+                  <span>{t('featPharmacy')}</span>
                 </div>
               </div>
             </div>
@@ -123,7 +134,7 @@ export default function HeroBanner({ onStartScan, onOpenDemo }) {
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                   <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    AI Pipeline Workflow
+                    {language === 'bn' ? 'AI পাইপলাইন কার্যপদ্ধতি' : 'AI Pipeline Architecture'}
                   </span>
                   <span style={{ background: '#dcfce7', color: '#15803d', padding: '2px 8px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 700 }}>
                     96.8% Accuracy
@@ -139,13 +150,19 @@ export default function HeroBanner({ onStartScan, onOpenDemo }) {
                     padding: '10px 14px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between'
+                    gap: '10px'
                   }}>
+                    <span style={{ background: '#e0f2fe', color: '#0369a1', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
+                      1
+                    </span>
                     <div>
-                      <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0f172a' }}>1. Prescription Input</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Raw handwritten image: "Tab Napa Ext 1+0+1 5d"</div>
+                      <strong style={{ fontSize: '0.82rem', color: '#0f172a', display: 'block' }}>
+                        {language === 'bn' ? 'হ্যান্ডরাইটিং ভিশন ডিটেকশন' : 'Handwriting Vision OCR'}
+                      </strong>
+                      <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                        {language === 'bn' ? 'হাতের লেখার প্রতিটি বর্ণ ও বাউন্ডিং বক্স বিশ্লেষণ' : 'Sub-character frequency & LCS sequence matching'}
+                      </span>
                     </div>
-                    <span style={{ fontSize: '0.72rem', color: '#0284c7', fontWeight: 600 }}>OCR Input</span>
                   </div>
 
                   {/* Step 2 */}
@@ -156,56 +173,42 @@ export default function HeroBanner({ onStartScan, onOpenDemo }) {
                     padding: '10px 14px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between'
+                    gap: '10px'
                   }}>
+                    <span style={{ background: '#dcfce7', color: '#15803d', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
+                      2
+                    </span>
                     <div>
-                      <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0f172a' }}>2. AI Normalization</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Matched with Bangladeshi Drug Database (Beximco)</div>
+                      <strong style={{ fontSize: '0.82rem', color: '#0f172a', display: 'block' }}>
+                        {language === 'bn' ? 'বাংলাদেশী ড্রাগ ডিকশনারি ম্যাচিং' : 'Bangladeshi Drug Formulary Matching'}
+                      </strong>
+                      <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                        {language === 'bn' ? 'Square, Beximco, Incepta এর ৫০০+ ওষুধের সাথে মিলিয়ে নিশ্চিতকরণ' : 'Auto-snapped against 500+ Square, Beximco, Incepta brands'}
+                      </span>
                     </div>
-                    <span style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 600 }}>Drug Dict</span>
                   </div>
 
                   {/* Step 3 */}
                   <div style={{
-                    background: '#f0fdf4',
-                    border: '1px solid #bbf7d0',
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
                     borderRadius: '10px',
                     padding: '10px 14px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between'
+                    gap: '10px'
                   }}>
-                    <div>
-                      <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#166534' }}>3. Bangla Voice & Instructions</div>
-                      <div style={{ fontSize: '0.75rem', color: '#15803d' }}>"সকাল ও রাতে খাবার পর ১টি করে ৫ দিন (জ্বর ও ব্যথার জন্য)"</div>
-                    </div>
-                    <span style={{ background: '#059669', color: '#ffffff', padding: '2px 7px', borderRadius: '999px', fontSize: '0.68rem', fontWeight: 700 }}>
-                      Audio Ready
+                    <span style={{ background: '#fef3c7', color: '#b45309', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
+                      3
                     </span>
-                  </div>
-                </div>
-
-                {/* Quick stats grid */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: '8px',
-                  marginTop: '14px',
-                  paddingTop: '12px',
-                  borderTop: '1px solid #e2e8f0',
-                  textAlign: 'center'
-                }}>
-                  <div>
-                    <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0284c7' }}>500+</div>
-                    <div style={{ fontSize: '0.7rem', color: '#64748b' }}>BD Drugs</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#059669' }}>100%</div>
-                    <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Bangla TTS</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#d97706' }}>DGDA</div>
-                    <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Verified</div>
+                    <div>
+                      <strong style={{ fontSize: '0.82rem', color: '#0f172a', display: 'block' }}>
+                        {language === 'bn' ? 'ভয়েস অডিও ও DGDA যাচাই' : 'Audio Speech & DGDA Authenticity'}
+                      </strong>
+                      <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                        {language === 'bn' ? 'বাংলা ভয়েস স্পিচ ও DAR রেজিস্ট্রেশন চেক' : 'Clear voice playback & counterfeit drug protection'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

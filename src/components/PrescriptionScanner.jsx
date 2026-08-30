@@ -14,8 +14,10 @@ import {
   fuzzyPredictMedicine 
 } from '../utils/aiVisionOcr';
 import { parseDosageInstruction } from '../utils/prescriptionParser';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function PrescriptionScanner({ onScanComplete, selectedPrescription, setSelectedPrescription }) {
+  const { language, t } = useLanguage();
   const [isScanning, setIsScanning] = useState(false);
   const [scanStepText, setScanStepText] = useState('');
   const [scanProgress, setScanProgress] = useState(0);
@@ -362,7 +364,7 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>
-              Presets / স্যাম্পল:
+              {t('presetsLabel')}
             </span>
             {SAMPLE_PRESCRIPTIONS.map((sample, idx) => (
               <button
@@ -415,7 +417,7 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
               title="Explore Preloaded Medicine Dataset"
             >
               <Database size={13} />
-              <span>Browse Dataset ({BANGLADESHI_MEDICINES.length})</span>
+              <span>{t('btnBrowseDataset')} ({BANGLADESHI_MEDICINES.length})</span>
             </button>
 
             {/* API Key Configure Button */}
@@ -438,7 +440,7 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
               title="Configure Google Gemini API Key"
             >
               <Key size={14} color={hasApiKey ? '#16a34a' : '#64748b'} />
-              <span>{hasApiKey ? 'Gemini API: Set' : 'AI API Key'}</span>
+              <span>{hasApiKey ? (language === 'bn' ? 'Gemini AI: সেট' : 'Gemini AI: Set') : t('btnApiKey')}</span>
             </button>
 
             {/* AI Re-Scan Button */}
@@ -460,7 +462,7 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
               title="Run AI Vision on current prescription slip"
             >
               <Sparkles size={14} color="#2563eb" />
-              <span>Read with AI (AI প্রেসক্রিপশন রিডার)</span>
+              <span>{t('btnReadAi')}</span>
             </button>
 
             {/* Upload Button */}
@@ -477,7 +479,7 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
               style={{ padding: '6px 14px', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
               <Upload size={14} />
-              <span>Upload Prescription (ছবি আপলোড)</span>
+              <span>{t('btnUpload')}</span>
             </button>
           </div>
         </div>
@@ -546,7 +548,7 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                       }}
                     >
                       <ImageIcon size={13} />
-                      <span>Original Image & Overlays</span>
+                      <span>{t('tabOriginalImage')}</span>
                     </button>
                     <button
                       onClick={() => setViewMode('slip')}
@@ -566,119 +568,112 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                       }}
                     >
                       <FileText size={13} />
-                      <span>Digitized Slip</span>
+                      <span>{t('tabDigitizedSlip')}</span>
                     </button>
                   </div>
                 )}
-                {!hasCustomImage && (
-                  <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.92rem' }}>
-                    📄 {currentRx.title}
+              </div>
+
+              {/* Zoom Controls */}
+              {viewMode === 'image' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#f8fafc', padding: '2px 6px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <button
+                    onClick={() => setZoomLevel(prev => Math.max(0.7, prev - 0.15))}
+                    style={{ background: 'none', border: 'none', padding: '3px', cursor: 'pointer', color: '#64748b' }}
+                    title={t('zoomOut')}
+                  >
+                    <ZoomOut size={14} />
+                  </button>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', minWidth: '34px', textAlign: 'center' }}>
+                    {Math.round(zoomLevel * 100)}%
                   </span>
-                )}
-              </div>
-
-              {/* Accuracy & Zoom Controls */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {viewMode === 'image' && hasCustomImage && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <button
-                      onClick={() => setZoomLevel(prev => Math.max(0.8, prev - 0.2))}
-                      style={{ background: '#f1f5f9', border: 'none', borderRadius: '4px', padding: '4px', cursor: 'pointer' }}
-                      title="Zoom Out"
-                    >
-                      <ZoomOut size={13} />
-                    </button>
-                    <button
-                      onClick={() => setZoomLevel(1)}
-                      style={{ background: '#f1f5f9', border: 'none', borderRadius: '4px', padding: '2px 6px', fontSize: '0.7rem', cursor: 'pointer' }}
-                      title="Reset Zoom"
-                    >
-                      {Math.round(zoomLevel * 100)}%
-                    </button>
-                    <button
-                      onClick={() => setZoomLevel(prev => Math.min(2.0, prev + 0.2))}
-                      style={{ background: '#f1f5f9', border: 'none', borderRadius: '4px', padding: '4px', cursor: 'pointer' }}
-                      title="Zoom In"
-                    >
-                      <ZoomIn size={13} />
-                    </button>
-                  </div>
-                )}
-
-                <span style={{
-                  background: isScanning ? '#fef3c7' : '#dcfce7',
-                  color: isScanning ? '#b45309' : '#15803d',
-                  padding: '2px 8px',
-                  borderRadius: '999px',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
-                  {isScanning ? <RefreshCw size={11} className="animate-spin" /> : <CheckCircle2 size={11} />}
-                  {isScanning ? `OCR Running...` : `Accuracy: ${currentRx.ocrConfidence}%`}
-                </span>
-              </div>
+                  <button
+                    onClick={() => setZoomLevel(prev => Math.min(2.5, prev + 0.15))}
+                    style={{ background: 'none', border: 'none', padding: '3px', cursor: 'pointer', color: '#64748b' }}
+                    title={t('zoomIn')}
+                  >
+                    <ZoomIn size={14} />
+                  </button>
+                  <button
+                    onClick={() => setZoomLevel(1)}
+                    style={{ background: 'none', border: 'none', padding: '2px 4px', fontSize: '0.68rem', cursor: 'pointer', color: '#0284c7', fontWeight: 600 }}
+                  >
+                    {t('resetZoom')}
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Viewport: Original Image with Bounding Boxes OR Clean Slip */}
-            {viewMode === 'image' && hasCustomImage ? (
-              <div style={{
-                position: 'relative',
-                background: '#0f172a',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                border: '1px solid #cbd5e1',
-                minHeight: '420px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
+            {/* Viewport Content: Original Image or Digitized Slip */}
+            {viewMode === 'image' ? (
+              <div 
+                ref={imageContainerRef}
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  borderRadius: '12px',
+                  overflow: 'auto',
+                  border: '1px solid #cbd5e1',
+                  background: '#0f172a',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  minHeight: '460px',
+                  maxHeight: '620px'
+                }}
+              >
+                {/* Laser scan animation when actively scanning */}
+                {isScanning && <div className="laser-line" />}
+
+                {/* Prescription Image & Canvas Overlay */}
                 <div style={{
                   position: 'relative',
+                  display: 'inline-block',
                   transform: `scale(${zoomLevel})`,
-                  transformOrigin: 'center center',
-                  transition: 'transform 0.2s ease',
-                  maxWidth: '100%',
-                  width: '100%'
+                  transformOrigin: 'top center',
+                  transition: 'transform 0.15s ease'
                 }}>
                   <img
-                    src={currentRx.customImageUrl}
-                    alt="Prescription Slip"
+                    ref={imageRef}
+                    src={currentRx.customImageUrl || `/prescription/${currentRx.imageFileName || 'IMG_8391.jpg'}`}
+                    alt="Prescription Scan"
+                    onLoad={handleImageLoaded}
                     style={{
-                      width: '100%',
+                      maxWidth: '100%',
+                      maxHeight: '600px',
                       display: 'block',
+                      objectFit: 'contain',
                       borderRadius: '8px'
                     }}
                   />
+                  {/* Bounding Box Rectangles Layer */}
+                  {imageLoaded && currentRx.boundingBoxes.map((box, idx) => {
+                    const rect = getBoxPixels(box);
+                    const isActive = activeBoxIndex === idx;
 
-                  {/* Overlaid Interactive Bounding Boxes */}
-                  {currentRx.boundingBoxes.map((box, index) => {
-                    const isActive = activeBoxIndex === index;
                     return (
                       <div
-                        key={box.id}
-                        onClick={() => setActiveBoxIndex(isActive ? null : index)}
+                        key={box.id || idx}
+                        onClick={() => handleBoxClick(idx)}
                         style={{
                           position: 'absolute',
-                          top: `${box.box.top}%`,
-                          left: `${box.box.left}%`,
-                          width: `${box.box.width}%`,
-                          height: `${box.box.height}%`,
-                          border: `2px solid ${isActive ? '#0284c7' : 'rgba(16, 185, 129, 0.85)'}`,
-                          background: isActive ? 'rgba(2, 132, 199, 0.25)' : 'rgba(16, 185, 129, 0.15)',
-                          borderRadius: '6px',
+                          left: `${rect.left}px`,
+                          top: `${rect.top}px`,
+                          width: `${rect.width}px`,
+                          height: `${rect.height}px`,
+                          border: isActive ? '2.5px solid #0284c7' : '1.5px solid #10b981',
+                          background: isActive ? 'rgba(2, 132, 199, 0.25)' : 'rgba(16, 185, 129, 0.12)',
+                          boxShadow: isActive ? '0 0 12px rgba(2, 132, 199, 0.6)' : 'none',
+                          borderRadius: '4px',
                           cursor: 'pointer',
-                          transition: 'all 0.15s ease',
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          justifyContent: 'space-between',
-                          padding: '2px 4px',
-                          boxShadow: isActive ? '0 0 12px rgba(2, 132, 199, 0.6)' : 'none'
+                          zIndex: isActive ? 20 : 10,
+                          transition: 'all 0.15s ease'
                         }}
                       >
                         <span style={{
+                          position: 'absolute',
+                          top: '-18px',
+                          left: '0',
                           background: isActive ? '#0284c7' : '#059669',
                           color: '#ffffff',
                           fontSize: '0.65rem',
@@ -686,21 +681,9 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                           padding: '1px 5px',
                           borderRadius: '4px',
                           whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          maxWidth: '85%'
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
                         }}>
-                          #{index + 1} {box.detectedMedicine || box.rawText}
-                        </span>
-                        <span style={{
-                          background: 'rgba(0,0,0,0.65)',
-                          color: '#ffffff',
-                          fontSize: '0.6rem',
-                          fontWeight: 700,
-                          padding: '1px 4px',
-                          borderRadius: '3px'
-                        }}>
-                          {box.confidence}%
+                          {idx + 1}. {box.detectedMedicine || box.rawText}
                         </span>
                       </div>
                     );
