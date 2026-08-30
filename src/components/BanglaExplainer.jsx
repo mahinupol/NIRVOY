@@ -309,50 +309,61 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
 
                   {/* Time of day cards */}
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                    <div style={{
-                      flex: 1,
-                      minWidth: '80px',
-                      background: item.dosage.startsWith('1') ? '#e0f2fe' : '#f1f5f9',
-                      color: item.dosage.startsWith('1') ? '#0369a1' : '#94a3b8',
-                      padding: '6px 8px',
-                      borderRadius: '8px',
-                      textAlign: 'center',
-                      fontSize: '0.72rem',
-                      fontWeight: 700
-                    }}>
-                      <Sun size={14} style={{ margin: '0 auto 2px', display: 'block' }} />
-                      <span>সকাল: {item.dosage.split('+')[0] || '1'} টি</span>
-                    </div>
+                    {(() => {
+                      const dParts = (item.dosage || '1+0+1').split('+');
+                      const morning = (dParts[0] || '0').trim();
+                      const noon = (dParts[1] || '0').trim();
+                      const night = (dParts[2] || '0').trim();
 
-                    <div style={{
-                      flex: 1,
-                      minWidth: '80px',
-                      background: (item.dosage.split('+')[1] || '0') !== '0' ? '#fef3c7' : '#f1f5f9',
-                      color: (item.dosage.split('+')[1] || '0') !== '0' ? '#b45309' : '#94a3b8',
-                      padding: '6px 8px',
-                      borderRadius: '8px',
-                      textAlign: 'center',
-                      fontSize: '0.72rem',
-                      fontWeight: 700
-                    }}>
-                      <Coffee size={14} style={{ margin: '0 auto 2px', display: 'block' }} />
-                      <span>দুপুর: {item.dosage.split('+')[1] || '0'} টি</span>
-                    </div>
+                      return (
+                        <>
+                          <div style={{
+                            flex: 1,
+                            minWidth: '80px',
+                            background: morning !== '0' ? '#e0f2fe' : '#f1f5f9',
+                            color: morning !== '0' ? '#0369a1' : '#94a3b8',
+                            padding: '6px 8px',
+                            borderRadius: '8px',
+                            textAlign: 'center',
+                            fontSize: '0.72rem',
+                            fontWeight: 700
+                          }}>
+                            <Sun size={14} style={{ margin: '0 auto 2px', display: 'block' }} />
+                            <span>সকাল: {morning} টি</span>
+                          </div>
 
-                    <div style={{
-                      flex: 1,
-                      minWidth: '80px',
-                      background: (item.dosage.split('+')[2] || '0') !== '0' ? '#ede9fe' : '#f1f5f9',
-                      color: (item.dosage.split('+')[2] || '0') !== '0' ? '#6d28d9' : '#94a3b8',
-                      padding: '6px 8px',
-                      borderRadius: '8px',
-                      textAlign: 'center',
-                      fontSize: '0.72rem',
-                      fontWeight: 700
-                    }}>
-                      <Moon size={14} style={{ margin: '0 auto 2px', display: 'block' }} />
-                      <span>রাত: {item.dosage.split('+')[2] || '0'} টি</span>
-                    </div>
+                          <div style={{
+                            flex: 1,
+                            minWidth: '80px',
+                            background: noon !== '0' ? '#fef3c7' : '#f1f5f9',
+                            color: noon !== '0' ? '#b45309' : '#94a3b8',
+                            padding: '6px 8px',
+                            borderRadius: '8px',
+                            textAlign: 'center',
+                            fontSize: '0.72rem',
+                            fontWeight: 700
+                          }}>
+                            <Coffee size={14} style={{ margin: '0 auto 2px', display: 'block' }} />
+                            <span>দুপুর: {noon} টি</span>
+                          </div>
+
+                          <div style={{
+                            flex: 1,
+                            minWidth: '80px',
+                            background: night !== '0' ? '#ede9fe' : '#f1f5f9',
+                            color: night !== '0' ? '#6d28d9' : '#94a3b8',
+                            padding: '6px 8px',
+                            borderRadius: '8px',
+                            textAlign: 'center',
+                            fontSize: '0.72rem',
+                            fontWeight: 700
+                          }}>
+                            <Moon size={14} style={{ margin: '0 auto 2px', display: 'block' }} />
+                            <span>রাত: {night} টি</span>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
 

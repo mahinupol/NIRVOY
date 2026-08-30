@@ -1,6 +1,54 @@
-// Sample Real-world handwritten prescriptions for instant 1-click test drive
+// Sample Real-world handwritten and digitized prescriptions for instant 1-click test drive
 
 export const SAMPLE_PRESCRIPTIONS = [
+  {
+    id: "rx-real-1",
+    title: "Handwritten Rx Slip (Dr. MD. Bellal Hossain - Mitford/Mugda)",
+    doctorName: "Dr. MD. Bellal Hossain (ডাঃ মোঃ বিল্লাল হোসেন)",
+    qualifications: "MBBS (Dhaka), FCPS (Medicine), MACP (America)",
+    hospital: "Mugda Medical College Hospital, Dhaka (BMDC: A-46050)",
+    date: "2025-06-30",
+    patientName: "ফিকহা (Fikha)",
+    patientAge: 18,
+    patientGender: "Female",
+    diagnosis: "Hypothyroidism & Acute Respiratory Tract Infection (Hypo, HT, POA)",
+    customImageUrl: "/prescription/IMG_8391.jpg",
+    ocrConfidence: 97.5,
+    boundingBoxes: [
+      { id: "box-r1-1", label: "Tab. Thyrox (25)", rawText: "Tab. Thyrox (25)", detectedMedicine: "Thyrox 25", dosage: "1+0+0", duration: "চলবে (Continue)", confidence: 98, timing: "সকালে খালি পেটে", box: { top: 26, left: 42, width: 52, height: 6 } },
+      { id: "box-r1-2", label: "Tab. M-Kast (10)", rawText: "Tab. M-Kast (10)", detectedMedicine: "M-Kast 10", dosage: "0+0+1", duration: "১ মাস (30 days)", confidence: 97, timing: "রাতে ঘুমানোর আগে", box: { top: 31, left: 45, width: 49, height: 6 } },
+      { id: "box-r1-3", label: "Cap. Denvar (200)", rawText: "Cap. Denvar (200)", detectedMedicine: "Denvar 200", dosage: "1+0+1", duration: "৫ দিন (5 days)", confidence: 96, timing: "খাবার পর", box: { top: 35.5, left: 47, width: 47, height: 6 } },
+      { id: "box-r1-4", label: "Tab. Renova", rawText: "Tab. Renova", detectedMedicine: "Renova 500", dosage: "1+1+1", duration: "৫ দিন (5 days)", confidence: 95, timing: "খাবার পর", box: { top: 39.5, left: 52, width: 42, height: 6 } },
+      { id: "box-r1-5", label: "Napa supp (500)", rawText: "Napa supp (500)", detectedMedicine: "Napa Suppository 500", dosage: "P/R - SOS", duration: "প্রয়োজনে (SOS)", confidence: 96, timing: "তীব্র জ্বর হলে পায়ুপথে", box: { top: 43.5, left: 50, width: 44, height: 6 } },
+      { id: "box-r1-6", label: "Tab. Zodef (6)", rawText: "Tab. Zodef (6)", detectedMedicine: "Zodef 6", dosage: "1+0+1", duration: "৫ দিন (5 days)", confidence: 94, timing: "খাবার পর", box: { top: 47.5, left: 57, width: 37, height: 6 } }
+    ],
+    banglaSummary: "প্রেসক্রিপশনে ৬টি ওষুধ নির্দেশিত: ১) থাইরক্স ২৫ (থাইরয়েড হরমোনের জন্য সকালে খালি পেটে ১টি), ২) এম-কাস্ট ১০ (শ্বাসকষ্ট ও কাশির জন্য রাতে ১টি), ৩) ডেনভার ২০০ (অ্যান্টিবায়োটিক ৫ দিন), ৪) রেনোভা (জ্বর ও ব্যথায় দিনে ৩ বার), ৫) নাপা সাপোজিটরি (তীব্র জ্বর হলে পায়ুপথে), ৬) জোদেফ ৬ (প্রদাহ কমাতে সকাল ও রাতে)।"
+  },
+  {
+    id: "rx-real-2",
+    title: "Handwritten Rx Slip (Dr. MD. Bellal Hossain - RTI & Hypo)",
+    doctorName: "Dr. MD. Bellal Hossain (ডাঃ মোঃ বিল্লাল হোসেন)",
+    qualifications: "MBBS (Dhaka), FCPS (Medicine), MACP (America)",
+    hospital: "Mugda Medical College Hospital, Dhaka (BMDC: A-46050)",
+    date: "2025-06-30",
+    patientName: "ফিকহা (Fikha)",
+    patientAge: 18,
+    patientGender: "Female",
+    diagnosis: "Acute RTI (Respiratory Tract Infection) & Hypothyroidism",
+    customImageUrl: "/prescription/IMG_8392.jpg",
+    ocrConfidence: 96.8,
+    boundingBoxes: [
+      { id: "box-r2-1", label: "Tab. Xiclav (250)", rawText: "Tab. Xiclav (250)", detectedMedicine: "Xiclav 250", dosage: "1+0+1", duration: "৭ দিন (7 days)", confidence: 98, timing: "খাবার পর", box: { top: 34, left: 46, width: 48, height: 6 } },
+      { id: "box-r2-2", label: "Tab. Fenadin (120)", rawText: "Tab. Fenadin (120)", detectedMedicine: "Fenadin 120", dosage: "1+0+1", duration: "৭ দিন (7 days)", confidence: 97, timing: "খাবার পর", box: { top: 40, left: 48, width: 46, height: 6 } },
+      { id: "box-r2-3", label: "Cap. Sergel (20)", rawText: "Cap. Sergel (20)", detectedMedicine: "Sergel 20", dosage: "1+0+1", duration: "১৪ দিন (14 days)", confidence: 98, timing: "খাওয়ার ৩০ মিনিট আগে", box: { top: 46.5, left: 51, width: 43, height: 6 } },
+      { id: "box-r2-4", label: "Tab. Napa (500)", rawText: "Tab. Napa (500)", detectedMedicine: "Napa 500", dosage: "1+1+1", duration: "৫ দিন (5 days)", confidence: 96, timing: "খাবার পর", box: { top: 53, left: 54, width: 40, height: 6 } },
+      { id: "box-r2-5", label: "Antazol Nasal Drop", rawText: "Antazol ND", detectedMedicine: "Antazol Nasal Drop", dosage: "১ ফোঁটা x ২ বার", duration: "৩-৫ দিন (3-5 days)", confidence: 95, timing: "উভয় নাকে", box: { top: 59, left: 53, width: 41, height: 8 } },
+      { id: "box-r2-6", label: "Nystat Oral Drop", rawText: "Nystat drop", detectedMedicine: "Nystat Oral Drop", dosage: "১৫ ফোঁটা x ৩ বার", duration: "৭ দিন (7 days)", confidence: 94, timing: "খাবার পর মুখে রেখে গিলবেন", box: { top: 70.5, left: 18, width: 34, height: 6 } },
+      { id: "box-r2-7", label: "Tab. Thyrox (25)", rawText: "Tab. Thyrox (25)", detectedMedicine: "Thyrox 25", dosage: "1+0+0", duration: "চলবে (Continue)", confidence: 98, timing: "সকালে খালি পেটে", box: { top: 70.5, left: 48, width: 46, height: 6 } },
+      { id: "box-r2-8", label: "Tab. M-Kast (10)", rawText: "Tab. M-Kast (10)", detectedMedicine: "M-Kast 10", dosage: "0+0+1", duration: "১ মাস (30 days)", confidence: 97, timing: "রাতে ঘুমানোর আগে", box: { top: 75.5, left: 19, width: 35, height: 6 } }
+    ],
+    banglaSummary: "প্রেসক্রিপশনে ৮টি ওষুধ দেওয়া হয়েছে: ১) জিক্ল্যাভ ২৫০ (অ্যান্টিবায়োটিক ৭ দিন), ২) ফেনাদিন ১২০ (অ্যালার্জি ও সর্দির জন্য), ৩) সার্জেল ২০ (গ্যাস্ট্রিকের জন্য খাবার আগে), ৪) নাপা ৫০০ (জ্বরের জন্য দিনে ৩ বার), ৫) আনতাজল ড্রপ (নাকের জন্য), ৬) নাইস্ট্যাট ড্রপ (মুখের জন্য), ৭) থাইরক্স ২৫ (থাইরয়েড হরমোন), ৮) এম-কাস্ট ১০ (শ্বাসকষ্টের জন্য রাতে)।"
+  },
   {
     id: "rx-demo-1",
     title: "Seasonal Flu & Acidity Rx",

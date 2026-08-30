@@ -252,10 +252,10 @@ export default function PatientHistory({ onSelectPrescription }) {
 
                 <div style={{ marginBottom: '12px' }}>
                   <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '4px' }}>
-                    Prescribed Medicines ({rx.boundingBoxes.length}):
+                    Prescribed Medicines ({(rx.boundingBoxes || []).length}):
                   </span>
                   <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                    {rx.boundingBoxes.map((box, i) => (
+                    {(rx.boundingBoxes || []).map((box, i) => (
                       <span
                         key={i}
                         style={{
@@ -268,7 +268,7 @@ export default function PatientHistory({ onSelectPrescription }) {
                           color: '#1e293b'
                         }}
                       >
-                        {box.detectedMedicine} ({box.dosage})
+                        {box.detectedMedicine || box.rawText} ({box.dosage})
                       </span>
                     ))}
                   </div>
