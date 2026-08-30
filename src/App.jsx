@@ -10,15 +10,12 @@ import FakeMedicineVerifier from './components/FakeMedicineVerifier';
 import HealthChatbot from './components/HealthChatbot';
 import TeamShowcase from './components/TeamShowcase';
 import { SAMPLE_PRESCRIPTIONS } from './data/samplePrescriptions';
-import { Heart, Volume2, ShieldCheck, Sparkles, ArrowUpRight } from 'lucide-react';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState('scanner');
-  const [lang, setLang] = useState('bn');
   const [elderlyMode, setElderlyMode] = useState(false);
   const [selectedPrescription, setSelectedPrescription] = useState(SAMPLE_PRESCRIPTIONS[0]);
 
-  // Sync elderlyMode class on body for high-contrast accessibility
   useEffect(() => {
     if (elderlyMode) {
       document.body.classList.add('elderly-mode');
@@ -43,34 +40,26 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Navigation Header */}
+      {/* Navigation Bar */}
       <Navbar
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
-        lang={lang}
-        setLang={setLang}
         elderlyMode={elderlyMode}
         setElderlyMode={setElderlyMode}
       />
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <main style={{ flex: 1 }}>
-        {/* Show Hero on top when on scanner tab */}
         {currentTab === 'scanner' && (
           <HeroBanner
-            lang={lang}
             onStartScan={() => {
               const scannerElem = document.getElementById('ocr-scanner-section');
-              if (scannerElem) {
-                scannerElem.scrollIntoView({ behavior: 'smooth' });
-              }
+              if (scannerElem) scannerElem.scrollIntoView({ behavior: 'smooth' });
             }}
             onOpenDemo={() => {
               setSelectedPrescription(SAMPLE_PRESCRIPTIONS[1]);
               const scannerElem = document.getElementById('ocr-scanner-section');
-              if (scannerElem) {
-                scannerElem.scrollIntoView({ behavior: 'smooth' });
-              }
+              if (scannerElem) scannerElem.scrollIntoView({ behavior: 'smooth' });
             }}
           />
         )}
@@ -79,13 +68,11 @@ export default function App() {
           {currentTab === 'scanner' && (
             <>
               <PrescriptionScanner
-                lang={lang}
                 onScanComplete={handleScanComplete}
                 selectedPrescription={selectedPrescription}
                 setSelectedPrescription={setSelectedPrescription}
               />
               <BanglaExplainer
-                lang={lang}
                 prescription={selectedPrescription}
                 elderlyMode={elderlyMode}
               />
@@ -94,90 +81,79 @@ export default function App() {
 
           {currentTab === 'history' && (
             <PatientHistory
-              lang={lang}
               onSelectPrescription={handleSelectFromHistory}
             />
           )}
 
           {currentTab === 'doctor' && (
             <DoctorDashboard
-              lang={lang}
               onNewPrescriptionCreated={handleNewPrescriptionCreated}
             />
           )}
 
           {currentTab === 'pharmacy' && (
-            <PharmacyFinder
-              lang={lang}
-            />
+            <PharmacyFinder />
           )}
 
           {currentTab === 'verify' && (
-            <FakeMedicineVerifier
-              lang={lang}
-            />
+            <FakeMedicineVerifier />
           )}
 
           {currentTab === 'assistant' && (
-            <HealthChatbot
-              lang={lang}
-            />
+            <HealthChatbot />
           )}
 
           {currentTab === 'team' && (
-            <TeamShowcase
-              lang={lang}
-            />
+            <TeamShowcase />
           )}
         </div>
       </main>
 
-      {/* Playful Footer */}
+      {/* Clean Footer */}
       <footer style={{
-        background: 'rgba(255, 255, 255, 0.9)',
-        backdropFilter: 'blur(12px)',
-        borderTop: '1px solid rgba(226, 232, 240, 0.8)',
-        padding: '32px 20px',
-        marginTop: '40px'
+        background: '#ffffff',
+        borderTop: '1px solid #e2e8f0',
+        padding: '24px 0',
+        marginTop: '36px'
       }}>
-        <div className="container-custom" style={{
+        <div className="container-max" style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '20px'
+          gap: '14px'
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '1.4rem' }}>💊</span>
-              <strong style={{ fontSize: '1.1rem', color: '#0284c7' }}>NIRVOY (নির্ভয়)</strong>
-              <span style={{ background: '#dcfce7', color: '#15803d', fontSize: '0.75rem', fontWeight: 800, padding: '2px 8px', borderRadius: '999px' }}>
+              <span style={{ fontSize: '1.2rem' }}>💊</span>
+              <strong style={{ fontSize: '1.05rem', color: '#0f172a' }}>NIRVOY (নির্ভয়)</strong>
+              <span style={{ background: '#dcfce7', color: '#15803d', fontSize: '0.7rem', fontWeight: 700, padding: '2px 7px', borderRadius: '999px' }}>
                 AI Prescription Intelligence
               </span>
             </div>
-            <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '4px 0 0' }}>
-              {lang === 'bn' ? 'বাংলা প্রেসক্রিপশন সহজীকরণ ও স্বাস্থ্য সুরক্ষা প্ল্যাটফর্ম' : 'AI-Powered Bangla Prescription Intelligence & Counterfeit Drug Protection.'}
+            <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '2px 0 0' }}>
+              AI-Powered Bangla Prescription Intelligence & Counterfeit Drug Protection.
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.85rem', color: '#475569' }}>
-            <span style={{ fontWeight: 700 }}>
-              Crafted with ❤️ by <span style={{ color: '#0ea5e9', fontWeight: 800 }}>Team_Goku</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.82rem', color: '#475569' }}>
+            <span>
+              Built with precision by <strong style={{ color: '#0284c7' }}>Team_Goku</strong>
             </span>
             <button
               onClick={() => setCurrentTab('team')}
               style={{
-                background: '#e0f2fe',
+                background: '#f1f5f9',
                 border: 'none',
-                color: '#0369a1',
-                padding: '6px 12px',
+                color: '#0284c7',
+                padding: '5px 12px',
                 borderRadius: '999px',
-                fontSize: '0.78rem',
+                fontSize: '0.75rem',
                 fontWeight: 700,
                 cursor: 'pointer'
               }}
             >
-              টিম পরিচিতি দেখুন →
+              Team Profile →
             </button>
           </div>
         </div>

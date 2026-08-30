@@ -1,110 +1,102 @@
 import React from 'react';
-import { Award, Code2, Heart, Sparkles, Users, Cpu, Shield, Database, Stethoscope } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function TeamShowcase({ lang }) {
+export default function TeamShowcase() {
   const teamMembers = [
     {
       name: "Mahin Hasan Upol",
       id: "0112230520",
-      roleBn: "AI & ফুল-স্ট্যাক লিড ডেভেলপার",
-      roleEn: "AI & Full-Stack Lead Developer",
+      role: "AI & Full-Stack Lead Developer",
       tag: "TrOCR & Bangla NLP Architect",
       icon: "⚡",
-      color: "#0ea5e9"
+      color: "#0284c7"
     },
     {
       name: "Bijoy Sen",
       id: "0112230404",
-      roleBn: "সফটওয়্যার ইঞ্জিনিয়ার ও সিস্টেম আর্কিটেক্ট",
-      roleEn: "Software Engineer & System Architect",
+      role: "Software Engineer & System Architect",
       tag: "Backend & Database Lead",
       icon: "🚀",
-      color: "#10b981"
+      color: "#059669"
     },
     {
       name: "Mst. Walina Tanjim",
       id: "0112230422",
-      roleBn: "UI/UX ও স্পিচ সিন্থেসিস গবেষক",
-      roleEn: "UI/UX & Speech Synthesis Researcher",
+      role: "UI/UX & Speech Synthesis Researcher",
       tag: "Accessibility & Bangla TTS",
       icon: "🎨",
-      color: "#ec4899"
+      color: "#e11d48"
     },
     {
       name: "MD. Mostafijur Rahman Joy",
       id: "0112231004",
-      roleBn: "মেডিকেল ডাটাবেস ও সিকিউরিটি অ্যানালিস্ট",
-      roleEn: "Medical Database & Security Analyst",
+      role: "Medical Database & Security Analyst",
       tag: "DGDA Registry & Fake Drug AI",
       icon: "🛡️",
-      color: "#f59e0b"
+      color: "#d97706"
     },
     {
       name: "Shukla Ghosh",
       id: "0112230029",
-      roleBn: "কোয়ালিটি অ্যাসুরেন্স ও হেলথকেয়ার কনসালট্যান্ট",
-      roleEn: "QA & Healthcare Systems Consultant",
+      role: "QA & Healthcare Systems Consultant",
       tag: "OCR Evaluation & Field Testing",
       icon: "✨",
-      color: "#8b5cf6"
+      color: "#7c3aed"
     }
   ];
 
   const triggerTeamCheer = () => {
     confetti({
-      particleCount: 100,
-      spread: 90,
+      particleCount: 80,
+      spread: 80,
       origin: { y: 0.6 }
     });
   };
 
   return (
-    <div style={{ padding: '10px 0 40px' }}>
-      <div className="container-custom">
+    <div style={{ padding: '8px 0 36px' }}>
+      <div className="container-max">
         {/* Module Header */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
             background: '#ffedd5',
             color: '#c2410c',
-            padding: '4px 16px',
+            padding: '3px 12px',
             borderRadius: '999px',
-            fontSize: '0.82rem',
-            fontWeight: 800,
-            marginBottom: '8px'
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            marginBottom: '6px'
           }}>
             PROJECT ARCHITECTS • TEAM GOKU
           </div>
-          <h2 style={{ fontSize: '2.2rem', color: '#0f172a', marginBottom: '8px' }}>
-            {lang === 'bn' ? 'টিম পরিচিতি • টিম গোকু (Team_Goku)' : 'Meet The Creators • Team Goku'}
+          <h2 style={{ fontSize: '1.85rem', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.02em' }}>
+            Meet The Creators (টিম গোকু)
           </h2>
-          <p style={{ color: '#64748b', fontSize: '1rem', maxWidth: '680px', margin: '0 auto' }}>
-            {lang === 'bn' 
-              ? 'বাংলাদেশের স্বাস্থ্যসেবাকে প্রযুক্তির মাধ্যমে সহজ ও নির্ভরযোগ্য করতে নিবেদিত টিম গোকু।'
-              : 'Passionate innovators building NIRVOY to bridge healthcare barriers across Bangladesh.'}
+          <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '600px', margin: '0 auto' }}>
+            বাংলাদেশের স্বাস্থ্যসেবায় প্রেসক্রিপশন বোঝার জটিলতা নিরসনে নিবেদিত টিম গোকুর সদস্যবৃন্দ।
           </p>
         </div>
 
         {/* Team Cards Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: '24px',
-          marginBottom: '36px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: '16px',
+          marginBottom: '28px'
         }}>
-          {teamMembers.map((member, index) => (
+          {teamMembers.map((member) => (
             <div
               key={member.id}
-              className="playful-card"
+              className="clean-card"
               onClick={triggerTeamCheer}
               style={{
-                padding: '28px 20px',
-                background: 'white',
-                borderRadius: '24px',
-                border: '2px solid #f1f5f9',
+                padding: '22px 16px',
+                background: '#ffffff',
+                borderRadius: '16px',
                 textAlign: 'center',
                 cursor: 'pointer',
                 position: 'relative',
@@ -116,29 +108,28 @@ export default function TeamShowcase({ lang }) {
                 top: 0,
                 left: 0,
                 right: 0,
-                height: '6px',
+                height: '4px',
                 background: member.color
               }} />
 
               {/* Avatar Icon */}
               <div style={{
-                width: '72px',
-                height: '72px',
-                borderRadius: '22px',
-                background: `${member.color}15`,
+                width: '56px',
+                height: '56px',
+                borderRadius: '16px',
+                background: `${member.color}12`,
                 color: member.color,
-                fontSize: '2rem',
+                fontSize: '1.6rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 16px',
-                border: `2px solid ${member.color}40`,
-                boxShadow: `0 8px 20px ${member.color}25`
+                margin: '0 auto 12px',
+                border: `1px solid ${member.color}30`
               }}>
                 {member.icon}
               </div>
 
-              <h3 style={{ fontSize: '1.2rem', color: '#0f172a', margin: '0 0 4px' }}>
+              <h3 style={{ fontSize: '1.05rem', color: '#0f172a', margin: '0 0 2px', fontWeight: 700 }}>
                 {member.name}
               </h3>
 
@@ -146,76 +137,76 @@ export default function TeamShowcase({ lang }) {
                 display: 'inline-block',
                 background: '#f1f5f9',
                 color: '#475569',
-                padding: '2px 10px',
+                padding: '1px 8px',
                 borderRadius: '999px',
-                fontSize: '0.75rem',
-                fontWeight: 800,
-                marginBottom: '10px'
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                marginBottom: '8px'
               }}>
                 ID: {member.id}
               </div>
 
-              <p style={{ fontSize: '0.85rem', fontWeight: 700, color: member.color, margin: '0 0 6px' }}>
-                {lang === 'bn' ? member.roleBn : member.roleEn}
+              <p style={{ fontSize: '0.78rem', fontWeight: 600, color: member.color, margin: '0 0 4px' }}>
+                {member.role}
               </p>
 
-              <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0, fontWeight: 600 }}>
+              <p style={{ fontSize: '0.72rem', color: '#94a3b8', margin: 0 }}>
                 {member.tag}
               </p>
             </div>
           ))}
         </div>
 
-        {/* Project Roadmap Banner (Week 1 to Week 6 Launch) from Slide 13 */}
-        <div className="playful-card" style={{
-          padding: '32px',
-          background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
-          borderRadius: '28px',
-          border: '2px solid #bae6fd'
+        {/* Project Roadmap Banner */}
+        <div className="clean-card" style={{
+          padding: '24px',
+          background: '#f8fafc',
+          borderRadius: '16px',
+          border: '1px solid #e2e8f0'
         }}>
-          <h3 style={{ fontSize: '1.25rem', color: '#0f172a', marginBottom: '20px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-            <Sparkles size={20} color="#0ea5e9" />
-            <span>{lang === 'bn' ? 'নির্ভয় প্রজেক্ট রোডম্যাপ ও অগ্রগতি' : 'Nirvoy 6-Week Launch Roadmap'}</span>
+          <h3 style={{ fontSize: '1.05rem', color: '#0f172a', marginBottom: '16px', textAlign: 'center', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+            <Sparkles size={16} color="#0284c7" />
+            <span>Nirvoy 6-Week Launch Roadmap (রোডম্যাপ)</span>
           </h3>
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-            gap: '12px'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+            gap: '10px'
           }}>
             {[
-              { week: 'Week 1', title: 'Research & Datasets', status: 'Completed', color: '#0ea5e9' },
-              { week: 'Week 2', title: 'OCR & TrOCR Engine', status: 'Completed', color: '#10b981' },
-              { week: 'Week 3', title: 'Bangla NLP & TTS', status: 'Completed', color: '#0ea5e9' },
-              { week: 'Week 4', title: 'Patient History Hub', status: 'Completed', color: '#10b981' },
-              { week: 'Week 5', title: 'Doctor & Pharmacy', status: 'Completed', color: '#0ea5e9' },
-              { week: 'Week 6', title: 'DGDA & Deployment', status: 'Completed', color: '#10b981' }
+              { week: 'Week 1', title: 'Research & Datasets', status: 'Completed', color: '#0284c7' },
+              { week: 'Week 2', title: 'OCR & TrOCR Engine', status: 'Completed', color: '#059669' },
+              { week: 'Week 3', title: 'Bangla NLP & TTS', status: 'Completed', color: '#0284c7' },
+              { week: 'Week 4', title: 'Patient History Hub', status: 'Completed', color: '#059669' },
+              { week: 'Week 5', title: 'Doctor & Pharmacy', status: 'Completed', color: '#0284c7' },
+              { week: 'Week 6', title: 'DGDA & Deployment', status: 'Completed', color: '#059669' }
             ].map(step => (
               <div key={step.week} style={{
-                background: 'white',
-                padding: '16px',
-                borderRadius: '16px',
-                border: '1.5px solid #cbd5e1',
+                background: '#ffffff',
+                padding: '12px 10px',
+                borderRadius: '10px',
+                border: '1px solid #e2e8f0',
                 textAlign: 'center'
               }}>
                 <div style={{
-                  width: '36px',
-                  height: '36px',
+                  width: '28px',
+                  height: '28px',
                   borderRadius: '50%',
                   background: step.color,
-                  color: 'white',
+                  color: '#ffffff',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontWeight: 800,
-                  fontSize: '0.8rem',
-                  margin: '0 auto 8px'
+                  fontWeight: 700,
+                  fontSize: '0.72rem',
+                  margin: '0 auto 6px'
                 }}>
                   ✓
                 </div>
-                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: step.color }}>{step.week}</div>
-                <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1e293b', marginTop: '2px' }}>{step.title}</div>
-                <span style={{ fontSize: '0.68rem', background: '#dcfce7', color: '#15803d', padding: '1px 6px', borderRadius: '4px', fontWeight: 700, marginTop: '4px', display: 'inline-block' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: step.color }}>{step.week}</div>
+                <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#1e293b', marginTop: '1px' }}>{step.title}</div>
+                <span style={{ fontSize: '0.65rem', background: '#dcfce7', color: '#15803d', padding: '1px 5px', borderRadius: '4px', fontWeight: 700, marginTop: '3px', display: 'inline-block' }}>
                   {step.status}
                 </span>
               </div>

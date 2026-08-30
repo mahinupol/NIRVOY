@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Play, Pause, RotateCcw, Clock, AlertCircle, Sparkles, CheckCircle, Coffee, Moon, Sun, Utensils } from 'lucide-react';
+import { Volume2, VolumeX, Play, Pause, Clock, AlertCircle, Sparkles, Coffee, Moon, Sun, Utensils } from 'lucide-react';
 import { ttsEngine } from '../utils/ttsHelper';
 import { parseDosageInstruction, generateBanglaVoiceScript } from '../utils/prescriptionParser';
 import { BANGLADESHI_MEDICINES } from '../data/medicinesData';
 
-export default function BanglaExplainer({ lang, prescription, elderlyMode }) {
+export default function BanglaExplainer({ prescription, elderlyMode }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [activeSpeechSpeed, setActiveSpeechSpeed] = useState(0.9);
+  const [activeSpeechSpeed, setActiveSpeechSpeed] = useState(0.95);
   const [highlightedIndex, setHighlightedIndex] = useState(null);
 
   const items = prescription?.boundingBoxes || [];
@@ -59,114 +59,109 @@ export default function BanglaExplainer({ lang, prescription, elderlyMode }) {
   }, []);
 
   return (
-    <div style={{ padding: '10px 0 40px' }}>
-      <div className="container-custom">
+    <div style={{ padding: '8px 0 36px' }}>
+      <div className="container-max">
         {/* Module Header */}
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
-            background: '#ecfdf5',
-            color: '#059669',
-            padding: '4px 14px',
+            gap: '6px',
+            background: '#dcfce7',
+            color: '#15803d',
+            padding: '3px 10px',
             borderRadius: '999px',
-            fontSize: '0.8rem',
-            fontWeight: 800,
-            marginBottom: '8px'
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            marginBottom: '6px'
           }}>
-            MODULE 2 • BANGLA EXPLANATION & VOICE
+            MODULE 2 • BANGLA EXPLANATION & TTS
           </div>
-          <h2 style={{ fontSize: '2rem', color: '#0f172a', marginBottom: '8px' }}>
-            {lang === 'bn' ? 'সহজ বাংলা বিবরণ ও স্পিচ প্লেয়ার' : 'Simple Bangla Explanation & Voice Player'}
+          <h2 style={{ fontSize: '1.75rem', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.02em' }}>
+            Bangla Voice & Dosage Instructions (বাংলা অডিও ও সেবন নিয়ম)
           </h2>
-          <p style={{ color: '#64748b', fontSize: '0.95rem', maxWidth: '680px', margin: '0 auto' }}>
-            {lang === 'bn' 
-              ? 'ডাক্তারের জটিল সাংকেতিক ভাষা (1+0+1, AC, PC) এখন সম্পূর্ণ সহজ বাংলায় বুঝুন এবং অডিওতে শুনুন।'
-              : 'Decodes complex medical abbreviations into native conversational Bangla with real-time Text-to-Speech.'}
+          <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '600px', margin: '0 auto' }}>
+            চিকিৎসকের সাংকেতিক ভাষা (1+0+1, AC, PC) এখন পরিষ্কার বাংলা ব্যাখ্যা এবং স্পিচ প্লেয়ারে শুনুন।
           </p>
         </div>
 
-        {/* Master Voice Audio Control Center */}
-        <div className="playful-card" style={{
-          padding: '24px 32px',
-          background: 'linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%)',
-          color: 'white',
-          borderRadius: '24px',
-          marginBottom: '32px',
-          boxShadow: '0 16px 36px rgba(14, 165, 233, 0.35)',
+        {/* Clean Audio Player Bar */}
+        <div className="clean-card" style={{
+          padding: '20px 24px',
+          background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+          color: '#ffffff',
+          borderRadius: '16px',
+          marginBottom: '24px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '20px'
+          gap: '16px',
+          boxShadow: '0 4px 16px rgba(2, 132, 199, 0.25)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <button
               onClick={handlePlayVoice}
               style={{
-                width: '64px',
-                height: '64px',
+                width: '52px',
+                height: '52px',
                 borderRadius: '50%',
-                background: 'white',
+                background: '#ffffff',
                 color: '#0284c7',
                 border: 'none',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-                transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                transition: 'all 0.15s ease'
               }}
-              className="animate-pulse-glow"
             >
-              {isPlaying ? <Pause size={28} /> : <Play size={28} style={{ marginLeft: '4px' }} />}
+              {isPlaying ? <Pause size={24} /> : <Play size={24} style={{ marginLeft: '3px' }} />}
             </button>
 
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'white' }}>
-                  {isPlaying ? (lang === 'bn' ? 'ভয়েস চলছে...' : 'Playing Bangla Audio...') : (lang === 'bn' ? 'সম্পূর্ণ প্রেসক্রিপশন বাংলায় শুনুন' : 'Listen to Full Prescription in Bangla')}
+                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#ffffff' }}>
+                  {isPlaying ? 'Playing Audio (ভয়েস চলছে...)' : 'Listen to Full Prescription (বাংলা অডিও শুনুন)'}
                 </h3>
                 {isPlaying && (
-                  <div style={{ display: 'flex', gap: '3px', alignItems: 'center', height: '20px' }}>
-                    <span className="audio-bar audio-bar-1" style={{ background: '#34d399' }} />
-                    <span className="audio-bar audio-bar-2" style={{ background: '#38bdf8' }} />
-                    <span className="audio-bar audio-bar-3" style={{ background: '#fef08a' }} />
-                    <span className="audio-bar audio-bar-4" style={{ background: '#f472b6' }} />
+                  <div style={{ display: 'flex', gap: '2px', alignItems: 'center', height: '16px' }}>
+                    <span className="wave-bar wave-1" />
+                    <span className="wave-bar wave-2" />
+                    <span className="wave-bar wave-3" />
+                    <span className="wave-bar wave-4" />
                   </div>
                 )}
               </div>
-              <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#e0f2fe' }}>
-                {lang === 'bn' ? 'বয়োজ্যেষ্ঠ ও সাধারণ রোগীদের জন্য স্পষ্ট বাংলা উচ্চারণ' : 'Crystal-clear native Bangla pronunciation for elderly & rural patients.'}
+              <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: '#e0f2fe' }}>
+                Clear Bengali speech narration optimized for elderly patients & rural users.
               </p>
             </div>
           </div>
 
           {/* Speed & Control adjustments */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#e0f2fe' }}>ভয়েস গতি (Speed):</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#e0f2fe' }}>Speed (গতি):</span>
             {[
-              { rate: 0.8, label: '0.8x (ধীর/সহজ)' },
-              { rate: 0.95, label: '1.0x (স্বাভাবিক)' },
-              { rate: 1.2, label: '1.2x (দ্রুত)' }
+              { rate: 0.8, label: '0.8x (Slow)' },
+              { rate: 0.95, label: '1.0x (Normal)' },
+              { rate: 1.2, label: '1.2x (Fast)' }
             ].map(spd => (
               <button
                 key={spd.rate}
                 onClick={() => {
                   setActiveSpeechSpeed(spd.rate);
-                  if (isPlaying) {
-                    handlePlayVoice();
-                  }
+                  if (isPlaying) handlePlayVoice();
                 }}
                 style={{
-                  background: activeSpeechSpeed === spd.rate ? 'white' : 'rgba(255,255,255,0.2)',
-                  color: activeSpeechSpeed === spd.rate ? '#0284c7' : 'white',
+                  background: activeSpeechSpeed === spd.rate ? '#ffffff' : 'rgba(255,255,255,0.2)',
+                  color: activeSpeechSpeed === spd.rate ? '#0284c7' : '#ffffff',
                   border: 'none',
-                  padding: '6px 12px',
+                  padding: '5px 10px',
                   borderRadius: '999px',
-                  fontSize: '0.75rem',
-                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
                   cursor: 'pointer'
                 }}
               >
@@ -178,21 +173,21 @@ export default function BanglaExplainer({ lang, prescription, elderlyMode }) {
               <button
                 onClick={handleStopVoice}
                 style={{
-                  background: '#ef4444',
-                  color: 'white',
+                  background: '#e11d48',
+                  color: '#ffffff',
                   border: 'none',
-                  padding: '6px 12px',
+                  padding: '5px 10px',
                   borderRadius: '999px',
-                  fontSize: '0.75rem',
-                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '4px'
+                  gap: '3px'
                 }}
               >
-                <VolumeX size={14} />
-                <span>থামুন (Stop)</span>
+                <VolumeX size={12} />
+                <span>Stop</span>
               </button>
             )}
           </div>
@@ -201,8 +196,8 @@ export default function BanglaExplainer({ lang, prescription, elderlyMode }) {
         {/* Medicine Bangla Breakdown Cards Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: '24px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '16px'
         }}>
           {items.map((item, idx) => {
             const medInfo = BANGLADESHI_MEDICINES.find(m => m.brandName.toLowerCase().includes((item.detectedMedicine || '').toLowerCase())) || BANGLADESHI_MEDICINES[0];
@@ -212,55 +207,55 @@ export default function BanglaExplainer({ lang, prescription, elderlyMode }) {
             return (
               <div
                 key={item.id || idx}
-                className="playful-card"
+                className="clean-card"
                 style={{
-                  padding: '24px',
-                  background: isCardActive ? '#f0fdf4' : 'white',
-                  border: isCardActive ? '2px solid #10b981' : '1.5px solid #e2e8f0',
-                  borderRadius: '20px',
+                  padding: '18px',
+                  background: isCardActive ? '#f0fdf4' : '#ffffff',
+                  border: isCardActive ? '1px solid #059669' : '1px solid #e2e8f0',
+                  borderRadius: '14px',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  gap: '16px'
+                  gap: '12px'
                 }}
               >
                 <div>
-                  {/* Top Bar: Med Name & Single Audio Speaker */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                  {/* Top Bar: Med Name & Audio Speaker */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <span style={{
-                          background: '#0ea5e9',
-                          color: 'white',
-                          width: '28px',
-                          height: '28px',
+                          background: '#0284c7',
+                          color: '#ffffff',
+                          width: '22px',
+                          height: '22px',
                           borderRadius: '50%',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontWeight: 800,
-                          fontSize: '0.85rem'
+                          fontWeight: 700,
+                          fontSize: '0.75rem'
                         }}>
                           {idx + 1}
                         </span>
-                        <h3 style={{ fontSize: '1.2rem', color: '#0f172a', margin: 0 }}>
+                        <h3 style={{ fontSize: '1.05rem', color: '#0f172a', margin: 0, fontWeight: 700 }}>
                           {item.detectedMedicine}
                         </h3>
                       </div>
-                      <p style={{ margin: '2px 0 0 36px', fontSize: '0.8rem', color: '#64748b' }}>
+                      <p style={{ margin: '2px 0 0 28px', fontSize: '0.75rem', color: '#64748b' }}>
                         {medInfo.generic}
                       </p>
                     </div>
 
                     <button
                       onClick={() => handlePlaySingleMedicine(item, idx)}
-                      title="Listen to this medicine instruction"
+                      title="Listen in Bangla"
                       style={{
-                        background: '#ecfdf5',
-                        border: '1px solid #a7f3d0',
+                        background: '#f0fdf4',
+                        border: '1px solid #bbf7d0',
                         color: '#059669',
-                        width: '36px',
-                        height: '36px',
+                        width: '32px',
+                        height: '32px',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
@@ -268,23 +263,23 @@ export default function BanglaExplainer({ lang, prescription, elderlyMode }) {
                         cursor: 'pointer'
                       }}
                     >
-                      <Volume2 size={18} />
+                      <Volume2 size={16} />
                     </button>
                   </div>
 
-                  {/* Purpose Box in Bangla */}
+                  {/* Purpose Box */}
                   <div style={{
                     background: '#f8fafc',
-                    padding: '12px 14px',
-                    borderRadius: '12px',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
                     border: '1px solid #e2e8f0',
-                    marginBottom: '14px'
+                    marginBottom: '10px'
                   }}>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0369a1', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Sparkles size={14} />
-                      <span>ঔষধের কাজ (Purpose):</span>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#0369a1', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Sparkles size={12} />
+                      <span>Purpose / ঔষধের কাজ:</span>
                     </div>
-                    <div style={{ fontSize: '0.9rem', color: '#1e293b', fontWeight: 600 }}>
+                    <div style={{ fontSize: '0.85rem', color: '#1e293b', fontWeight: 600 }}>
                       {medInfo.purposeBn}
                     </div>
                   </div>
@@ -292,89 +287,89 @@ export default function BanglaExplainer({ lang, prescription, elderlyMode }) {
                   {/* Meal Timing & Dosage Badges */}
                   <div style={{
                     background: '#fef3c7',
-                    border: '1.5px solid #fde68a',
-                    padding: '12px 14px',
-                    borderRadius: '14px',
-                    marginBottom: '14px'
+                    border: '1px solid #fde68a',
+                    padding: '10px 12px',
+                    borderRadius: '10px',
+                    marginBottom: '10px'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', fontWeight: 800, color: '#b45309', marginBottom: '4px' }}>
-                      <Utensils size={15} />
-                      <span>খাওয়ার নিয়মাবলী ও সময়:</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.7rem', fontWeight: 700, color: '#b45309', marginBottom: '2px' }}>
+                      <Utensils size={13} />
+                      <span>সেবন বিধি ও সময় (Instructions):</span>
                     </div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#92400e', lineHeight: 1.4 }}>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#92400e' }}>
                       {parsedDosage.bn}
                     </div>
                     {item.duration && (
-                      <div style={{ fontSize: '0.8rem', color: '#b45309', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Clock size={13} />
-                        <span>সময়কাল: <strong>{item.duration}</strong></span>
+                      <div style={{ fontSize: '0.75rem', color: '#b45309', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <Clock size={12} />
+                        <span>Duration: <strong>{item.duration}</strong></span>
                       </div>
                     )}
                   </div>
 
-                  {/* Time of day breakdown icons */}
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                  {/* Time of day cards */}
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                     <div style={{
                       flex: 1,
-                      minWidth: '90px',
-                      background: item.dosage.startsWith('1') ? '#dbeafe' : '#f1f5f9',
-                      color: item.dosage.startsWith('1') ? '#1d4ed8' : '#94a3b8',
-                      padding: '8px 10px',
-                      borderRadius: '10px',
+                      minWidth: '80px',
+                      background: item.dosage.startsWith('1') ? '#e0f2fe' : '#f1f5f9',
+                      color: item.dosage.startsWith('1') ? '#0369a1' : '#94a3b8',
+                      padding: '6px 8px',
+                      borderRadius: '8px',
                       textAlign: 'center',
-                      fontSize: '0.78rem',
+                      fontSize: '0.72rem',
                       fontWeight: 700
                     }}>
-                      <Sun size={16} style={{ margin: '0 auto 2px', display: 'block' }} />
-                      <span>সকালে: {item.dosage.split('+')[0] || '1'} টি</span>
+                      <Sun size={14} style={{ margin: '0 auto 2px', display: 'block' }} />
+                      <span>সকাল: {item.dosage.split('+')[0] || '1'} টি</span>
                     </div>
 
                     <div style={{
                       flex: 1,
-                      minWidth: '90px',
-                      background: (item.dosage.split('+')[1] || '0') !== '0' ? '#fef08a' : '#f1f5f9',
-                      color: (item.dosage.split('+')[1] || '0') !== '0' ? '#854d0e' : '#94a3b8',
-                      padding: '8px 10px',
-                      borderRadius: '10px',
+                      minWidth: '80px',
+                      background: (item.dosage.split('+')[1] || '0') !== '0' ? '#fef3c7' : '#f1f5f9',
+                      color: (item.dosage.split('+')[1] || '0') !== '0' ? '#b45309' : '#94a3b8',
+                      padding: '6px 8px',
+                      borderRadius: '8px',
                       textAlign: 'center',
-                      fontSize: '0.78rem',
+                      fontSize: '0.72rem',
                       fontWeight: 700
                     }}>
-                      <Coffee size={16} style={{ margin: '0 auto 2px', display: 'block' }} />
-                      <span>দুপুরে: {item.dosage.split('+')[1] || '0'} টি</span>
+                      <Coffee size={14} style={{ margin: '0 auto 2px', display: 'block' }} />
+                      <span>দুপুর: {item.dosage.split('+')[1] || '0'} টি</span>
                     </div>
 
                     <div style={{
                       flex: 1,
-                      minWidth: '90px',
+                      minWidth: '80px',
                       background: (item.dosage.split('+')[2] || '0') !== '0' ? '#ede9fe' : '#f1f5f9',
                       color: (item.dosage.split('+')[2] || '0') !== '0' ? '#6d28d9' : '#94a3b8',
-                      padding: '8px 10px',
-                      borderRadius: '10px',
+                      padding: '6px 8px',
+                      borderRadius: '8px',
                       textAlign: 'center',
-                      fontSize: '0.78rem',
+                      fontSize: '0.72rem',
                       fontWeight: 700
                     }}>
-                      <Moon size={16} style={{ margin: '0 auto 2px', display: 'block' }} />
-                      <span>রাতে: {item.dosage.split('+')[2] || '0'} টি</span>
+                      <Moon size={14} style={{ margin: '0 auto 2px', display: 'block' }} />
+                      <span>রাত: {item.dosage.split('+')[2] || '0'} টি</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Precaution warning banner */}
                 <div style={{
-                  fontSize: '0.78rem',
+                  fontSize: '0.73rem',
                   color: '#991b1b',
                   background: '#fef2f2',
-                  padding: '8px 12px',
-                  borderRadius: '10px',
+                  padding: '6px 10px',
+                  borderRadius: '8px',
                   border: '1px solid #fecaca',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  gap: '5px'
                 }}>
-                  <AlertCircle size={14} color="#dc2626" />
-                  <span><strong>সতর্কতা:</strong> {medInfo.precautionsBn}</span>
+                  <AlertCircle size={13} color="#dc2626" />
+                  <span><strong>Warning:</strong> {medInfo.precautionsBn}</span>
                 </div>
               </div>
             );

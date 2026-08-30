@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../Desktop/New folder"
+		},
+		{
+			"name": "DIY_ventilator",
+			"path": ".."
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "DIY_ventilator"
+	}
+}

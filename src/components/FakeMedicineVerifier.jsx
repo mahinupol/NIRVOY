@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { ShieldCheck, ShieldAlert, QrCode, Search, CheckCircle2, AlertTriangle, Building2, Calendar, FileCheck, Sparkles, RefreshCw } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, QrCode, Search, RefreshCw } from 'lucide-react';
 import { DGDA_REGISTRY, DGDA_VERIFY_SAMPLE_PRESETS } from '../data/dgdaRegistry';
 import confetti from 'canvas-confetti';
 
-export default function FakeMedicineVerifier({ lang }) {
+export default function FakeMedicineVerifier() {
   const [inputCode, setInputCode] = useState('8941100230182');
   const [verificationResult, setVerificationResult] = useState(DGDA_REGISTRY[0]);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -26,7 +26,6 @@ export default function FakeMedicineVerifier({ lang }) {
           });
         }
       } else {
-        // Unknown unverified drug
         setVerificationResult({
           status: 'UNVERIFIED',
           brandName: 'Unknown Product',
@@ -39,7 +38,7 @@ export default function FakeMedicineVerifier({ lang }) {
           riskScore: 75
         });
       }
-    }, 450);
+    }, 350);
   };
 
   const handlePresetSelect = (code) => {
@@ -51,58 +50,56 @@ export default function FakeMedicineVerifier({ lang }) {
   const isCounterfeit = verificationResult?.status === 'COUNTERFEIT_ALERT';
 
   return (
-    <div style={{ padding: '10px 0 40px' }}>
-      <div className="container-custom">
+    <div style={{ padding: '8px 0 36px' }}>
+      <div className="container-max">
         {/* Module Header */}
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
-            background: '#fef2f2',
-            color: '#dc2626',
-            padding: '4px 14px',
+            gap: '6px',
+            background: '#ffe4e6',
+            color: '#be123c',
+            padding: '3px 10px',
             borderRadius: '999px',
-            fontSize: '0.8rem',
-            fontWeight: 800,
-            marginBottom: '8px'
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            marginBottom: '6px'
           }}>
-            MODULE 6 • FAKE MEDICINE VERIFICATION
+            MODULE 6 • DGDA FAKE MEDICINE VERIFICATION
           </div>
-          <h2 style={{ fontSize: '2rem', color: '#0f172a', marginBottom: '8px' }}>
-            {lang === 'bn' ? 'ডিজিডিএ নকল ঔষধ ও বারকোড যাচাই' : 'DGDA Counterfeit Drug & Barcode Verifier'}
+          <h2 style={{ fontSize: '1.75rem', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.02em' }}>
+            DGDA Counterfeit Drug Verifier (নকল ঔষধ যাচাই)
           </h2>
-          <p style={{ color: '#64748b', fontSize: '0.95rem', maxWidth: '680px', margin: '0 auto' }}>
-            {lang === 'bn' 
-              ? 'গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের ঔষধ প্রশাসন অধিদপ্তর (DGDA) রেজিস্ট্রেশন ও হলোগ্রাম স্ক্যান করে আসল ঔষধ নিশ্চিত করুন।'
-              : 'Verify drug authenticity, expiration, and manufacturer registration directly against DGDA records.'}
+          <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '600px', margin: '0 auto' }}>
+            ঔষধ প্রশাসন অধিদপ্তর (DGDA) রেজিস্ট্রেশন ও হলোগ্রাম ডাটাবেস যাচাই করে আসল ওষুধ নিশ্চিত করুন।
           </p>
         </div>
 
         {/* Preset Quick Test Bar */}
         <div style={{
           display: 'flex',
-          gap: '10px',
+          gap: '8px',
           justifyContent: 'center',
           flexWrap: 'wrap',
-          marginBottom: '24px'
+          marginBottom: '20px'
         }}>
-          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569', alignSelf: 'center' }}>
-            {lang === 'bn' ? 'নমুনা যাচাই করুন:' : 'Test Scenarios:'}
+          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569', alignSelf: 'center' }}>
+            Test Cases:
           </span>
           {DGDA_VERIFY_SAMPLE_PRESETS.map((preset, idx) => (
             <button
               key={idx}
               onClick={() => handlePresetSelect(preset.code)}
               style={{
-                background: preset.code.includes('9999') ? '#fee2e2' : '#f0fdf4',
-                border: '1.5px solid',
-                borderColor: preset.code.includes('9999') ? '#fca5a5' : '#86efac',
-                color: preset.code.includes('9999') ? '#991b1b' : '#166534',
-                padding: '6px 14px',
+                background: preset.code.includes('9999') ? '#ffe4e6' : '#f0fdf4',
+                border: '1px solid',
+                borderColor: preset.code.includes('9999') ? '#fecaca' : '#bbf7d0',
+                color: preset.code.includes('9999') ? '#be123c' : '#166534',
+                padding: '5px 12px',
                 borderRadius: '999px',
-                fontSize: '0.8rem',
-                fontWeight: 700,
+                fontSize: '0.75rem',
+                fontWeight: 600,
                 cursor: 'pointer'
               }}
             >
@@ -111,29 +108,28 @@ export default function FakeMedicineVerifier({ lang }) {
           ))}
         </div>
 
-        {/* Search / Scan Bar */}
-        <div className="playful-card" style={{
-          padding: '24px',
-          background: 'white',
-          borderRadius: '24px',
-          maxWidth: '720px',
-          margin: '0 auto 32px',
-          border: '1.5px solid #e2e8f0'
+        {/* Search Bar */}
+        <div className="clean-card" style={{
+          padding: '18px 20px',
+          background: '#ffffff',
+          borderRadius: '16px',
+          maxWidth: '680px',
+          margin: '0 auto 24px'
         }}>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', flex: 1, minWidth: '260px' }}>
-              <QrCode size={20} color="#64748b" style={{ position: 'absolute', left: '14px', top: '14px' }} />
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <div style={{ position: 'relative', flex: 1, minWidth: '240px' }}>
+              <QrCode size={18} color="#64748b" style={{ position: 'absolute', left: '12px', top: '12px' }} />
               <input
                 type="text"
                 value={inputCode}
                 onChange={(e) => setInputCode(e.target.value)}
-                placeholder="বারকোড বা DGDA DAR নম্বর লিখুন (যেমন: 8941100230182)"
+                placeholder="Enter Barcode or DGDA DAR No. (e.g. 8941100230182)"
                 style={{
                   width: '100%',
-                  padding: '12px 14px 12px 44px',
-                  borderRadius: '12px',
-                  border: '1.5px solid #cbd5e1',
-                  fontSize: '0.9rem',
+                  padding: '9px 12px 9px 38px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '0.85rem',
                   outline: 'none'
                 }}
               />
@@ -141,123 +137,121 @@ export default function FakeMedicineVerifier({ lang }) {
 
             <button
               onClick={() => handleVerify()}
-              className="playful-btn playful-btn-primary"
-              style={{ padding: '12px 24px' }}
+              className="btn-primary"
+              style={{ padding: '9px 20px' }}
             >
-              {isVerifying ? <RefreshCw size={16} className="animate-spin" /> : <Search size={16} />}
-              <span>{lang === 'bn' ? 'যাচাই করুন (Verify)' : 'Verify Now'}</span>
+              {isVerifying ? <RefreshCw size={14} className="animate-spin" /> : <Search size={14} />}
+              <span>Verify Drug</span>
             </button>
           </div>
         </div>
 
         {/* Verification Result Card */}
         {verificationResult && (
-          <div className="playful-card" style={{
-            maxWidth: '780px',
+          <div className="clean-card" style={{
+            maxWidth: '720px',
             margin: '0 auto',
-            background: 'white',
-            borderRadius: '24px',
+            background: '#ffffff',
+            borderRadius: '16px',
             overflow: 'hidden',
-            border: '2px solid',
-            borderColor: isAuthentic ? '#86efac' : isCounterfeit ? '#f87171' : '#fde047',
-            boxShadow: isAuthentic ? '0 12px 36px rgba(16, 185, 129, 0.15)' : '0 12px 36px rgba(239, 68, 68, 0.15)'
+            border: '1.5px solid',
+            borderColor: isAuthentic ? '#86efac' : isCounterfeit ? '#fca5a5' : '#fde047'
           }}>
-            {/* Top Status Header */}
+            {/* Header */}
             <div style={{
-              background: isAuthentic ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' : isCounterfeit ? 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)' : '#ca8a04',
-              color: 'white',
-              padding: '20px 28px',
+              background: isAuthentic ? '#059669' : isCounterfeit ? '#e11d48' : '#d97706',
+              color: '#ffffff',
+              padding: '16px 20px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               flexWrap: 'wrap',
-              gap: '12px'
+              gap: '10px'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{
-                  background: 'white',
-                  color: isAuthentic ? '#059669' : '#dc2626',
-                  width: '44px',
-                  height: '44px',
+                  background: '#ffffff',
+                  color: isAuthentic ? '#059669' : '#e11d48',
+                  width: '36px',
+                  height: '36px',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  {isAuthentic ? <ShieldCheck size={26} /> : <ShieldAlert size={26} />}
+                  {isAuthentic ? <ShieldCheck size={22} /> : <ShieldAlert size={22} />}
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'white' }}>
-                    {isAuthentic ? '১০০% আসল ও অনুমোদিত ঔষধ (AUTHENTIC)' : isCounterfeit ? '⚠️ নকল বা অবৈধ ঔষধের সতর্কতা (COUNTERFEIT)' : 'যাচাই করা সম্ভব হয়নি (UNVERIFIED)'}
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#ffffff' }}>
+                    {isAuthentic ? 'Verified Authentic (১০০% আসল ও অনুমোদিত ঔষধ)' : isCounterfeit ? '⚠️ Counterfeit Alert (নকল বা অবৈধ ব্যাচ)' : 'Unverified Record'}
                   </h3>
-                  <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)' }}>
-                    DGDA Verification Registry No: {verificationResult.dgdaRegNo || 'N/A'}
+                  <p style={{ margin: '1px 0 0', fontSize: '0.72rem', color: 'rgba(255,255,255,0.9)' }}>
+                    DGDA Registry DAR No: {verificationResult.dgdaRegNo || 'N/A'}
                   </p>
                 </div>
               </div>
 
               <span style={{
                 background: 'rgba(255, 255, 255, 0.25)',
-                padding: '6px 14px',
+                padding: '4px 10px',
                 borderRadius: '999px',
-                fontSize: '0.8rem',
-                fontWeight: 800,
-                letterSpacing: '0.05em'
+                fontSize: '0.72rem',
+                fontWeight: 700
               }}>
-                RISK: {verificationResult.riskScore}%
+                Risk Score: {verificationResult.riskScore}%
               </span>
             </div>
 
             {/* Content Details */}
-            <div style={{ padding: '28px' }}>
+            <div style={{ padding: '20px' }}>
               <div style={{
                 background: isAuthentic ? '#f0fdf4' : '#fef2f2',
                 border: '1px solid',
                 borderColor: isAuthentic ? '#bbf7d0' : '#fecaca',
-                padding: '14px 18px',
-                borderRadius: '16px',
-                marginBottom: '20px',
-                fontSize: '0.9rem',
+                padding: '12px 14px',
+                borderRadius: '10px',
+                marginBottom: '16px',
+                fontSize: '0.85rem',
                 color: isAuthentic ? '#166534' : '#991b1b',
                 fontWeight: 600,
                 lineHeight: 1.5
               }}>
-                {lang === 'bn' ? verificationResult.verificationMessageBn : verificationResult.verificationMessageEn}
+                {verificationResult.verificationMessageBn}
               </div>
 
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: '16px'
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '12px'
               }}>
-                <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginBottom: '2px' }}>ঔষধের নাম (Brand Name)</span>
-                  <strong style={{ fontSize: '0.95rem', color: '#0f172a' }}>{verificationResult.brandName}</strong>
-                  <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{verificationResult.generic}</div>
+                <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#64748b', display: 'block' }}>Brand & Generic</span>
+                  <strong style={{ fontSize: '0.88rem', color: '#0f172a' }}>{verificationResult.brandName}</strong>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{verificationResult.generic}</div>
                 </div>
 
-                <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginBottom: '2px' }}>উৎপাদনকারী প্রতিষ্ঠান (Manufacturer)</span>
-                  <strong style={{ fontSize: '0.95rem', color: '#0f172a' }}>{verificationResult.manufacturer}</strong>
-                  <div style={{ fontSize: '0.78rem', color: '#64748b' }}>লাইসেন্স: {verificationResult.licenseNo || 'N/A'}</div>
+                <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#64748b', display: 'block' }}>Manufacturer</span>
+                  <strong style={{ fontSize: '0.88rem', color: '#0f172a' }}>{verificationResult.manufacturer}</strong>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>License: {verificationResult.licenseNo || 'N/A'}</div>
                 </div>
 
-                <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginBottom: '2px' }}>ব্যাচ ও মেয়াদ (Batch & Expiry)</span>
-                  <strong style={{ fontSize: '0.95rem', color: '#0f172a' }}>Batch: {verificationResult.batchNumber || 'N/A'}</strong>
-                  <div style={{ fontSize: '0.78rem', color: '#64748b' }}>মেয়াদোত্তীর্ণ: {verificationResult.expDate || 'N/A'}</div>
+                <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#64748b', display: 'block' }}>Batch & Expiry</span>
+                  <strong style={{ fontSize: '0.88rem', color: '#0f172a' }}>Batch: {verificationResult.batchNumber || 'N/A'}</strong>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Expiry: {verificationResult.expDate || 'N/A'}</div>
                 </div>
 
-                <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block', marginBottom: '2px' }}>সিকিউরিটি হলোগ্রাম সিল</span>
+                <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#64748b', display: 'block' }}>DGDA Security Seal</span>
                   <strong style={{
-                    fontSize: '0.95rem',
-                    color: verificationResult.hologramMatched ? '#15803d' : '#b91c1c',
+                    fontSize: '0.88rem',
+                    color: verificationResult.hologramMatched ? '#15803d' : '#be123c',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px'
                   }}>
-                    {verificationResult.hologramMatched ? '✓ ডিজিডিএ হলোগ্রাম ভেরিফায়েড' : '✕ কোনো বৈধ সিল মেলেনি'}
+                    {verificationResult.hologramMatched ? '✓ Hologram Matched' : '✕ No Valid Seal Found'}
                   </strong>
                 </div>
               </div>

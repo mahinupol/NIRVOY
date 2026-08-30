@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Smart Ventilator (Demo)</title>
+    <style>
+        :root {
+            /* Neobrutalism Palette */
+            --bg: #E0E7F1;
+            --card: #ffffff;
+            --border: #000000;
+            --text-main: #000000;
+            --text-sub: #111111;
+            
+            /* Vibrant Accents */
+            --primary: #8C52FF;
+            --red: #FF3B30; 
+            --blue: #007AFF; 
+            --green: #34C759;
+            --yellow: #FFCC00;
+        }
+        body { 
+            font-family: 'Courier New', Courier, monospace; 
+            font-weight: bold;
+            background: var(--bg); 
+            color: var(--text-main); 
+            margin: 0; padding: 0; 
+            min-height: 100vh; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+
+        /* Navbar */
+        .navbar {
+            width: 100%;
+            background: var(--yellow);
+            border-bottom: 3px solid black;
+            padding: 16px 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav-brand { font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: -1px; }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-link { 
+            text-decoration: none; color: black; font-weight: 900; 
+            text-transform: uppercase; font-size: 0.9rem;
+            padding: 4px 8px;
+            border: 2px solid transparent;
+        }
+        .nav-link:hover { border: 2px solid black; background: white; }
+        .status-badge { 
+             padding: 4px 10px; border: 2px solid black; font-size: 0.75rem; 
+             font-weight: 900; text-transform: uppercase; background: var(--green);
+        }
+
+        .container { 
+            width: 100%; 
+            max-width: 1000px; 
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        /* Desktop Grid for Vitals & Controls */
+        /* We want: ECG (Full) -> Vitals (Row) -> Resp (Full) -> Controls (Halves) */
+        
+        .card { 
+            background: var(--card); padding: 16px; 
+            border: 3px solid var(--border);
+            box-shadow: 6px 6px 0px var(--border);
+            text-align: center; position: relative; overflow: hidden;
+            transition: all 0.1s;
+            cursor: default;
+        }
+        .card:hover { 
+            transform: translate(-2px, -2px); 
+            box-shadow: 8px 8px 0px var(--border);
+        }
+
+        .label { font-size: 0.8rem; color: black; font-weight: 900; text-transform: uppercase; margin-bottom: 8px; border-bottom: 2px solid black; display: inline-block; padding-bottom: 2px; }
+        .value { font-size: 2.5rem; font-weight: 900; line-height: 1; margin: 8px 0; font-family: sans-serif; }
+        .unit { font-size: 0.9rem; font-weight: 700; color: black; }
+        
+        /* Vitals Row */
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        @media (min-width: 768px) {
+            .vitals-grid { grid-template-columns: 1fr 1fr 1fr; }
+            .controls-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* Controls Row */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        /* Colors & Anims */
+        .c-spo2 { color: var(--blue); text-shadow: 2px 2px 0px #eee; }
+        .c-hr { color: var(--red); text-shadow: 2px 2px 0px #eee; }
+        .c-vent { color: var(--green); text-shadow: 2px 2px 0px #eee;}
+        .c-temp { color: var(--yellow); text-shadow: 2px 2px 0px black; -webkit-text-stroke: 1px black; }
+        
+        @keyframes pulse { 0% { transform: scale(1);} 50% { transform: scale(1.3);} 100% { transform: scale(1);} }
+        .icon-heart { display: inline-block; animation: pulse 0.8s infinite steps(2); } 
+        
+        /* Ventilation Visualizer */
+        .lung-container { width: 50px; height: 50px; position: relative; display: flex; align-items: center; justify-content: center; border: 2px solid black; border-radius: 50%; background: white; margin: 0 auto; }
+        .lung-circle { width: 100%; height: 100%; border-radius: 50%; background: var(--green); width:80%; height:80%; border: 2px solid black; animation: breath 4s ease-in-out infinite; }
+        @keyframes breath { 0% { transform: scale(0.6); } 50% { transform: scale(1); } 100% { transform: scale(0.6); } }
+
+        /* ECG */
+        .ecg-canvas { width: 100%; height: 150px; pointer-events: none; border: 2px solid black; background: #fff; display: block; }
+        .ecg-card { padding: 0 !important; text-align: left !important; }
+        .ecg-header { padding: 8px 16px; background: #eee; border-bottom: 3px solid black; display: flex; justify-content: space-between; align-items: center; }
+
+        /* Controls Styles */
+        .section-head { font-size: 1rem; font-weight: 900; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: black; text-transform: uppercase; }
+        
+        .btn-group { display: flex; gap: 12px; flex-wrap: wrap; }
+        button { 
+            flex: 1; padding: 14px; 
+            border: 3px solid black; 
+            font-weight: 900; cursor: pointer; font-size: 0.9rem; 
+            transition: all 0.1s; 
+            position: relative; overflow: hidden;
+            box-shadow: 4px 4px 0px black;
+            text-transform: uppercase;
+            font-family: inherit;
+            min-width: 100px;
+        }
+        button:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0px black; }
+        button:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px black; }
+        
+        .btn-pri { background: var(--primary); color: white; }
+        .btn-pri:hover { background: #7b45e6; }
+        .btn-sec { background: white; color: black; }
+        .btn-sec:hover { background: #eee; }
+        .btn-hot { background: #E0E7F1; color: black; }
+        .btn-hot:hover { background: #d1d9e6; }
+
+    </style>
+</head>
+<body>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-brand">❤️ AutoVent AI</div>
+        <!-- Simple Desktop Links (hidden on small mobile purely for simlicity in this demo) -->
+        <div class="nav-links" style="display:none;"> 
+            <a href="#" class="nav-link">Dashboard</a>
+            <a href="#" class="nav-link">Settings</a>
+        </div>
+        <div id="status" class="status-badge">Connecting...</div>
+    </nav>
+    
+    <!-- Mobile Menu Toggle Simulation (Visible on Desktop via Media Query logic in real app, here inline style) -->
+    <script>
+        if(window.innerWidth > 600) document.querySelector('.nav-links').style.display = 'flex';
+    </script>
+
+    <div class="container">
+        
+        <!-- 1. ECG (Top) -->
+        <div class="card ecg-card">
+            <div class="ecg-header">
+                <div class="label" style="border:none; margin:0;">Live ECG</div>
+                <div class="status-badge" style="font-size:0.6rem">Normal Sinus</div>
+            </div>
+            <canvas id="ecg" class="ecg-canvas"></canvas>
+        </div>
+
+        <!-- 2. Vitals (Row of 3) -->
+        <div class="vitals-grid">
+            <!-- SpO2 -->
+            <div class="card">
+                <div class="label">Oxygen (SpO2)</div>
+                <div class="value c-spo2"><span id="spo2">--</span><span style="font-size:1rem">%</span></div>
+            </div>
+
+            <!-- HR -->
+            <div class="card">
+                <div class="label">Heart Rate</div>
+                <div class="value c-hr"><span class="icon-heart">♥</span> <span id="hr">--</span></div>
+            </div>
+
+            <!-- Temp -->
+            <div class="card">
+                <div class="label">Body Temp</div>
+                <div class="value c-temp"><span id="temp">--</span><span style="font-size:1.5rem">°F</span></div>
+            </div>
+        </div>
+
+        <!-- 3. Respiration Rate (Full Row) -->
+        <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 40px;">
+            <div style="text-align: left;">
+                <div class="label">Respiration Rate</div>
+                <div class="value c-vent" id="bpm">--</div>
+                <div class="unit">Breaths / Minute</div>
+            </div>
+            <div class="lung-container" style="margin: 0;">
+                <div class="lung-circle" id="breath-anim"></div>
+            </div>
+        </div>
+
+        <!-- 4. Controls (Split Grid) -->
+        <div class="controls-grid">
+            <!-- System Control -->
+            <div class="card" style="text-align: left;">
+                <div class="section-head">⚙️ System Control</div>
+                <div class="btn-group">
+                    <button class="btn-sec" onclick="alert('Demo: Stop Clicked')">Stop / Reset</button>
+                    <button class="btn-pri" onclick="alert('Demo: Start Clicked')">Start Ventilation</button>
+                </div>
+            </div>
+
+            <!-- Simulation -->
+            <div class="card" style="text-align: left;">
+                <div class="section-head">
+                    🧪 Simulation / Override 
+                    <span id="mode-badge" class="status-badge" style="margin-left:auto; font-size:0.6rem; background:var(--yellow); color:black;">Auto</span>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-hot" onclick="setSim(85)">85%</button>
+                    <button class="btn-hot" onclick="setSim(92)">92%</button>
+                    <button class="btn-hot" onclick="setSim(98)">98%</button>
+                    <button class="btn-hot" onclick="alert('Demo: Auto Clicked')">Auto</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // DEMO SCRIPT - SIMULATES ESP32 DATA
+        
+        let mockSpo2 = 97.5;
+        let mockHr = 72;
+        let mockTemp = 98.6;
+        let mockBpm = 15;
+        let lastAlarmState = false;
+        
+        // === ALARM SOUND SYSTEM ===
+        let audioContext = null;
+        let alarmOscillator = null;
+        let alarmGain = null;
+        let beepInterval = null;
+        let audioInitialized = false;
+        
+        // Initialize audio context
+        function initAudioContext() {
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log('✓ Audio context created');
+                }
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume().then(() => {
+                        console.log('✓ Audio context resumed');
+                        audioInitialized = true;
+                    });
+                } else {
+                    audioInitialized = true;
+                }
+            } catch (e) {
+                console.error('Audio initialization failed:', e);
+            }
+        }
+        
+        // Auto-enable audio on user interaction
+        document.addEventListener('click', initAudioContext);
+        document.addEventListener('touchstart', initAudioContext);
+        
+        function playAlarmSound() {
+            console.log('playAlarmSound called');
+            
+            // Initialize if needed
+            initAudioContext();
+            
+            // Stop existing alarm first
+            if (alarmOscillator) {
+                console.log('Alarm already playing');
+                return;
+            }
+            
+            if (!audioContext) {
+                console.error('No audio context available');
+                return;
+            }
+            
+            try {
+                console.log('Starting alarm sound...');
+                
+                // Create oscillator and gain
+                alarmOscillator = audioContext.createOscillator();
+                alarmGain = audioContext.createGain();
+                
+                alarmOscillator.connect(alarmGain);
+                alarmGain.connect(audioContext.destination);
+                
+                alarmOscillator.type = 'square';
+                alarmOscillator.frequency.value = 880; // 880 Hz
+                alarmGain.gain.value = 0;
+                
+                alarmOscillator.start();
+                
+                // Beeping pattern
+                let isBeeping = false;
+                beepInterval = setInterval(() => {
+                    if (alarmGain) {
+                        isBeeping = !isBeeping;
+                        alarmGain.gain.value = isBeeping ? 0.5 : 0;
+                    }
+                }, 300);
+                
+                console.log('✓ Alarm sound started');
+            } catch (e) {
+                console.error('Failed to play alarm:', e);
+                alarmOscillator = null;
+                alarmGain = null;
+            }
+        }
+        
+        function stopAlarmSound() {
+            console.log('stopAlarmSound called');
+            
+            try {
+                if (beepInterval) {
+                    clearInterval(beepInterval);
+                    beepInterval = null;
+                }
+                
+                if (alarmGain) {
+                    alarmGain.gain.value = 0;
+                }
+                
+                if (alarmOscillator) {
+                    alarmOscillator.stop();
+                    alarmOscillator.disconnect();
+                    alarmOscillator = null;
+                }
+                
+                if (alarmGain) {
+                    alarmGain.disconnect();
+                    alarmGain = null;
+                }
+                
+                console.log('✓ Alarm sound stopped');
+            } catch (e) {
+                console.error('Error stopping alarm:', e);
+                alarmOscillator = null;
+                alarmGain = null;
+                beepInterval = null;
+            }
+        }
+        
+        function setSim(v) { 
+            mockSpo2 = v;
+            alert('Demo: Simulating Sensor SpO2 = ' + v);
+            if (v < 90) mockBpm = 20;
+            else if (v < 95) mockBpm = 17;
+            else mockBpm = 15;
+        }
+        
+        // ECG Animation
+        const canvas = document.getElementById('ecg');
+        const ctx = canvas.getContext('2d');
+        let x = 0;
+        
+        // Resize canvas
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 150; // Fixed height match CSS
+        }
+        window.addEventListener('resize', resizeCanvas);
+        setTimeout(resizeCanvas, 100); // Initial delay to ensure render
+
+        function drawECG() {
+            if(x >= canvas.width) {
+                 x = 0;
+                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+            const h = canvas.height;
+            const cy = h / 2;
+            
+            ctx.beginPath();
+            ctx.strokeStyle = '#ef4444'; 
+            ctx.lineWidth = 3;
+            ctx.lineJoin = 'round';
+            
+            let y = cy;
+            const speed = 3;
+            const beatPos = x % 100; 
+            
+            if (beatPos > 10 && beatPos < 15) y -= 10; // P wave
+            else if (beatPos > 20 && beatPos < 30) y += 5; // Q
+            else if (beatPos > 30 && beatPos < 35) y -= 40; // R (Taller spike)
+            else if (beatPos > 35 && beatPos < 40) y += 15; // S
+            else if (beatPos > 50 && beatPos < 60) y -= 12; // T
+            else y += (Math.random() - 0.5) * 4; // noise
+            
+            ctx.moveTo(x, y); // Small gap fix
+            x += speed;
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            
+            requestAnimationFrame(drawECG);
+        }
+        drawECG();
+        
+        function loop() {
+            const displaySpo2 = mockSpo2 + (Math.random() * 0.4 - 0.2);
+            const displayHr = mockHr + (Math.random() * 2 - 1);
+            const displayTemp = mockTemp + (Math.random() * 0.2 - 0.1);
+            
+            document.getElementById('spo2').textContent = displaySpo2.toFixed(1);
+            document.getElementById('hr').textContent = displayHr.toFixed(0);
+            document.getElementById('temp').textContent = displayTemp.toFixed(1);
+            
+            document.getElementById('bpm').textContent = mockBpm;
+            
+            if(mockBpm > 0) {
+                const sec = 60 / mockBpm;
+                document.getElementById('breath-anim').style.animationDuration = sec + 's';
+            }
+
+            const s = document.getElementById('status');
+            s.textContent = "System Online"; 
+            s.style.background = "var(--green)";
+            
+            // Check for alarm conditions (SpO2 < 80% or Temp < 80°F)
+            const isAlarmActive = displaySpo2 < 80 || displayTemp < 80;
+            
+            // Play/stop sound based on alarm state change
+            if (isAlarmActive && !lastAlarmState) {
+                playAlarmSound();
+                alert('⚠️ CRITICAL ALERT: ' + (displaySpo2 < 80 ? 'Low SpO2!' : 'Low Temperature!'));
+            } else if (!isAlarmActive && lastAlarmState) {
+                stopAlarmSound();
+            }
+            
+            lastAlarmState = isAlarmActive;
+        }
+        setInterval(loop, 1000);
+        loop();
+    </script>
+</body>
+</html>
