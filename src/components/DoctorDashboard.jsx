@@ -131,7 +131,7 @@ export default function DoctorDashboard({ onNewPrescriptionCreated }) {
         {/* Doctor & Patient Information Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
           gap: '16px',
           marginBottom: '16px'
         }}>
@@ -198,7 +198,7 @@ export default function DoctorDashboard({ onNewPrescriptionCreated }) {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '6px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))', gap: '6px' }}>
                 <div>
                   <label style={{ fontSize: '0.72rem', fontWeight: 600, color: '#64748b' }}>Name:</label>
                   <input
