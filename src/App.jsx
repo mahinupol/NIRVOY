@@ -9,6 +9,8 @@ import PharmacyFinder from './components/PharmacyFinder';
 import FakeMedicineVerifier from './components/FakeMedicineVerifier';
 import HealthChatbot from './components/HealthChatbot';
 import TeamShowcase from './components/TeamShowcase';
+import AuthModal from './components/AuthModal';
+import PatientProfileModal from './components/PatientProfileModal';
 import { SAMPLE_PRESCRIPTIONS } from './data/samplePrescriptions';
 
 export default function App() {
@@ -158,6 +160,10 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Auth & Patient Profile Modals */}
+      <AuthModal />
+      <PatientProfileModal />
     </div>
   );
 }

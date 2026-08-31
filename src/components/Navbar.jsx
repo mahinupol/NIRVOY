@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { 
   HeartPulse, 
   Eye, 
@@ -10,14 +9,18 @@ import {
   Bot, 
   Users, 
   Menu, 
-  X,
-  Languages
+  X, 
+  Languages,
+  User,
+  LogIn
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElderlyMode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { language, toggleLanguage, t } = useLanguage();
+  const { user, patientProfile, isAuthenticated, openAuthModal, openProfileModal } = useAuth();
 
   const tabs = [
     { id: 'scanner', label: t('tabScanner'), shortLabel: language === 'bn' ? 'স্ক্যানার' : 'Scanner', icon: Scan },
@@ -137,8 +140,83 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
             })}
           </nav>
 
-          {/* Controls: Language Switcher, Senior Mode & Hamburger */}
+          {/* Controls: Language Switcher, Senior Mode, Auth/Profile & Hamburger */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* Auth / Patient Profile Button */}
+            {isAuthenticated && user ? (
+              <button
+                onClick={openProfileModal}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '5px 12px 5px 6px',
+                  borderRadius: '999px',
+                  border: '1px solid #10b981',
+                  background: '#f0fdf4',
+                  color: '#065f46',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 6px rgba(16, 185, 129, 0.15)',
+                  transition: 'all 0.15s ease'
+                }}
+                title={language === 'bn' ? 'রোগী প্রোফাইল ও মেডিকেল হিস্ট্রি' : 'Patient Health Profile'}
+              >
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #059669 0%, #0284c7 100%)',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.72rem',
+                  fontWeight: 800
+                }}>
+                  {user.name ? user.name.charAt(0).toUpperCase() : 'P'}
+                </div>
+                <span style={{ maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {user.name.split(' ')[0]}
+                </span>
+                {patientProfile?.age && (
+                  <span style={{
+                    background: '#dcfce7',
+                    color: '#166534',
+                    padding: '1px 5px',
+                    borderRadius: '6px',
+                    fontSize: '0.68rem',
+                    fontWeight: 700
+                  }}>
+                    {patientProfile.age}y
+                  </span>
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={openAuthModal}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  padding: '6px 13px',
+                  borderRadius: '999px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #0284c7 0%, #059669 100%)',
+                  color: '#ffffff',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <LogIn size={14} />
+                <span>{language === 'bn' ? 'লগইন / সাইন আপ' : 'Login / Register'}</span>
+              </button>
+            )}
+
             {/* Language Switcher Button */}
             <button
               onClick={toggleLanguage}
@@ -221,6 +299,74 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
             padding: '12px',
             zIndex: 99
           }}>
+            {/* Mobile Auth Button in Drawer */}
+            <div style={{ marginBottom: '10px' }}>
+              {isAuthenticated && user ? (
+                <button
+                  onClick={() => { openProfileModal(); setMobileMenuOpen(false); }}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    border: '1px solid #10b981',
+                    background: '#f0fdf4',
+                    color: '#065f46',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: '50%',
+                      background: '#059669',
+                      color: 'white',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '0.8rem',
+                      fontWeight: 800
+                    }}>
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{user.name}</div>
+                      <div style={{ fontSize: '0.7rem', color: '#047857' }}>
+                        {patientProfile?.age ? `${patientProfile.age} yrs` : ''} • {patientProfile?.height || ''}
+                      </div>
+                    </div>
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#0284c7' }}>
+                    {language === 'bn' ? 'প্রোফাইল দেখুন →' : 'View Profile →'}
+                  </span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => { openAuthModal(); setMobileMenuOpen(false); }}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '10px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #0284c7 0%, #059669 100%)',
+                    color: '#ffffff',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  <LogIn size={16} />
+                  <span>{language === 'bn' ? 'লগইন / সাইন আপ (Patient Sign In)' : 'Patient Login / Register'}</span>
+                </button>
+              )}
+            </div>
             {/* Quick Language Toggle in Drawer */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', padding: '6px 8px', background: '#f8fafc', borderRadius: '8px' }}>
               <span style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 600 }}>ভাষা / Language:</span>

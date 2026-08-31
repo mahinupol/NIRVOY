@@ -8,9 +8,11 @@ import {
 } from '../utils/prescriptionParser';
 import { BANGLADESHI_MEDICINES } from '../data/medicinesData';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function BanglaExplainer({ prescription, elderlyMode }) {
   const { language, t } = useLanguage();
+  const { user, patientProfile, isAuthenticated, openProfileModal, openAuthModal } = useAuth();
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeSpeechSpeed, setActiveSpeechSpeed] = useState(0.95);
   const [highlightedIndex, setHighlightedIndex] = useState(null);
@@ -97,6 +99,124 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
             {t('explainerDesc')}
           </p>
         </div>
+
+        {/* Patient Profile Card (Synced with Neon PostgreSQL) */}
+        {isAuthenticated && user ? (
+          <div style={{
+            background: '#ffffff',
+            border: '1px solid #bbf7d0',
+            borderRadius: '16px',
+            padding: '14px 20px',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px',
+            boxShadow: '0 2px 8px rgba(34, 197, 94, 0.08)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, #059669 0%, #0284c7 100%)',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 800,
+                fontSize: '1rem'
+              }}>
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a', fontWeight: 700 }}>
+                    {user.name} ({language === 'bn' ? 'রোগী প্রোফাইল' : 'Patient Record'})
+                  </h4>
+                  <span style={{ background: '#dcfce7', color: '#15803d', fontSize: '0.68rem', fontWeight: 700, padding: '1px 6px', borderRadius: '6px' }}>
+                    PostgreSQL Synced
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', color: '#475569', marginTop: '2px', flexWrap: 'wrap' }}>
+                  {patientProfile?.age && <span><strong>{language === 'bn' ? 'বয়স:' : 'Age:'}</strong> {patientProfile.age} {language === 'bn' ? 'বছর' : 'yrs'}</span>}
+                  {patientProfile?.height && <span>• <strong>{language === 'bn' ? 'উচ্চতা:' : 'Height:'}</strong> {patientProfile.height}</span>}
+                  {patientProfile?.weight_kg && <span>• <strong>{language === 'bn' ? 'ওজন:' : 'Weight:'}</strong> {patientProfile.weight_kg} kg</span>}
+                  {patientProfile?.blood_group && <span>• <strong>{language === 'bn' ? 'রক্ত:' : 'Blood:'}</strong> {patientProfile.blood_group}</span>}
+                </div>
+                {patientProfile?.chronic_diseases && patientProfile.chronic_diseases.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>
+                      {language === 'bn' ? 'পূর্বের রোগসমূহ:' : 'Conditions:'}
+                    </span>
+                    {patientProfile.chronic_diseases.map((d, i) => (
+                      <span key={i} style={{ background: '#fef3c7', color: '#92400e', fontSize: '0.68rem', fontWeight: 700, padding: '1px 6px', borderRadius: '999px', border: '1px solid #fde68a' }}>
+                        {d}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button
+              onClick={openProfileModal}
+              style={{
+                background: '#f8fafc',
+                border: '1px solid #cbd5e1',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                color: '#0284c7',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              {language === 'bn' ? 'স্বাস্থ্য তথ্য পরিবর্তন' : 'Edit Health Vitals'} →
+            </button>
+          </div>
+        ) : (
+          <div style={{
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f0fdf4 100%)',
+            border: '1px solid #cbd5e1',
+            borderRadius: '16px',
+            padding: '12px 20px',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '10px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '1.2rem' }}>📋</span>
+              <div>
+                <strong style={{ fontSize: '0.86rem', color: '#0f172a' }}>
+                  {language === 'bn' ? 'রোগী হিসেবে লগইন করুন ও বয়স-উচ্চতা-রোগ ডাটাবেজে সংরক্ষণ করুন' : 'Sign in to save your age, height & medical profile to database'}
+                </strong>
+                <p style={{ margin: 0, fontSize: '0.74rem', color: '#64748b' }}>
+                  {language === 'bn' ? 'পোস্টগ্রেসকিউএল ডাটাবেজে আপনার তথ্য নিরাপদ থাকবে।' : 'Your health questionnaire is securely stored in Neon PostgreSQL.'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={openAuthModal}
+              style={{
+                background: '#0284c7',
+                color: 'white',
+                border: 'none',
+                padding: '6px 14px',
+                borderRadius: '8px',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              {language === 'bn' ? 'লগইন / নিবন্ধন' : 'Login / Register'}
+            </button>
+          </div>
+        )}
 
         {/* Clean Audio Player Bar */}
         <div className="clean-card" style={{
