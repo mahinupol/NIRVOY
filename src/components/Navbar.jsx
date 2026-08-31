@@ -175,10 +175,10 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
                   fontSize: '0.72rem',
                   fontWeight: 800
                 }}>
-                  {user.name ? user.name.charAt(0).toUpperCase() : 'P'}
+                  {user?.name ? user.name.charAt(0).toUpperCase() : 'P'}
                 </div>
                 <span style={{ maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {user.name.split(' ')[0]}
+                  {(user?.name || 'Patient').split(' ')[0]}
                 </span>
                 {patientProfile?.age && (
                   <span style={{
@@ -330,10 +330,10 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
                       fontSize: '0.8rem',
                       fontWeight: 800
                     }}>
-                      {user.name.charAt(0).toUpperCase()}
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'P'}
                     </div>
                     <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{user.name}</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{user?.name || 'Patient'}</div>
                       <div style={{ fontSize: '0.7rem', color: '#047857' }}>
                         {patientProfile?.age ? `${patientProfile.age} yrs` : ''} • {patientProfile?.height || ''}
                       </div>

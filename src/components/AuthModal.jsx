@@ -71,11 +71,12 @@ export default function AuthModal() {
 
   const handleDiseaseToggle = (diseaseName) => {
     setRegData(prev => {
-      const exists = prev.chronic_diseases.includes(diseaseName);
+      const currentList = Array.isArray(prev.chronic_diseases) ? prev.chronic_diseases : [];
+      const exists = currentList.includes(diseaseName);
       if (exists) {
-        return { ...prev, chronic_diseases: prev.chronic_diseases.filter(d => d !== diseaseName) };
+        return { ...prev, chronic_diseases: currentList.filter(d => d !== diseaseName) };
       } else {
-        return { ...prev, chronic_diseases: [...prev.chronic_diseases, diseaseName] };
+        return { ...prev, chronic_diseases: [...currentList, diseaseName] };
       }
     });
   };
@@ -83,10 +84,11 @@ export default function AuthModal() {
   const handleAddCustomDisease = (e) => {
     e.preventDefault();
     if (regData.customDisease.trim()) {
-      if (!regData.chronic_diseases.includes(regData.customDisease.trim())) {
+      const currentList = Array.isArray(regData.chronic_diseases) ? regData.chronic_diseases : [];
+      if (!currentList.includes(regData.customDisease.trim())) {
         setRegData(prev => ({
           ...prev,
-          chronic_diseases: [...prev.chronic_diseases, prev.customDisease.trim()],
+          chronic_diseases: [...currentList, prev.customDisease.trim()],
           customDisease: ''
         }));
       }

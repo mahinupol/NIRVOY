@@ -6,15 +6,40 @@ const AUTH_TOKEN_KEY = 'NIRVOY_AUTH_TOKEN';
 const AUTH_USER_KEY = 'NIRVOY_AUTH_USER';
 const AUTH_PROFILE_KEY = 'NIRVOY_AUTH_PROFILE';
 
+function safeParseJSON(val) {
+  if (!val || val === 'undefined' || val === 'null') return null;
+  try {
+    return JSON.parse(val);
+  } catch (e) {
+    console.warn('Failed to parse localStorage JSON:', e);
+    return null;
+  }
+}
+
+function normalizeProfile(profile) {
+  if (!profile) return null;
+  let diseases = profile.chronic_diseases;
+  if (typeof diseases === 'string') {
+    diseases = diseases.replace(/^{|}$/g, '').split(',').map(s => s.trim().replace(/^"|"$/g, '')).filter(Boolean);
+  }
+  let allergies = profile.allergies;
+  if (typeof allergies === 'string') {
+    allergies = allergies.replace(/^{|}$/g, '').split(',').map(s => s.trim().replace(/^"|"$/g, '')).filter(Boolean);
+  }
+  return {
+    ...profile,
+    chronic_diseases: Array.isArray(diseases) ? diseases : [],
+    allergies: Array.isArray(allergies) ? allergies : []
+  };
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem(AUTH_USER_KEY);
-    return saved ? JSON.parse(saved) : null;
+    return safeParseJSON(localStorage.getItem(AUTH_USER_KEY));
   });
 
   const [patientProfile, setPatientProfile] = useState(() => {
-    const saved = localStorage.getItem(AUTH_PROFILE_KEY);
-    return saved ? JSON.parse(saved) : null;
+    return normalizeProfile(safeParseJSON(localStorage.getItem(AUTH_PROFILE_KEY)));
   });
 
   const [token, setToken] = useState(() => localStorage.getItem(AUTH_TOKEN_KEY) || null);
@@ -37,10 +62,15 @@ export function AuthProvider({ children }) {
         });
         if (res.ok) {
           const data = await res.json();
-          setUser(data.user);
-          setPatientProfile(data.profile);
-          localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
-          localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(data.profile));
+          const normProfile = normalizeProfile(data.profile);
+          setUser(data.user || null);
+          setPatientProfile(normProfile);
+          if (data.user) {
+            localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
+          }
+          if (normProfile) {
+            localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(normProfile));
+          }
         } else {
           // Token expired or invalid
           logout();
@@ -67,13 +97,16 @@ export function AuthProvider({ children }) {
       throw new Error(data.error || 'Login failed');
     }
 
+    const normProfile = normalizeProfile(data.profile);
     setToken(data.token);
-    setUser(data.user);
-    setPatientProfile(data.profile);
+    setUser(data.user || null);
+    setPatientProfile(normProfile);
 
     localStorage.setItem(AUTH_TOKEN_KEY, data.token);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
-    localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(data.profile));
+    if (normProfile) {
+      localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(normProfile));
+    }
 
     return data;
   };
@@ -90,13 +123,16 @@ export function AuthProvider({ children }) {
       throw new Error(data.error || 'Registration failed');
     }
 
+    const normProfile = normalizeProfile(data.profile);
     setToken(data.token);
-    setUser(data.user);
-    setPatientProfile(data.profile);
+    setUser(data.user || null);
+    setPatientProfile(normProfile);
 
     localStorage.setItem(AUTH_TOKEN_KEY, data.token);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
-    localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(data.profile));
+    if (normProfile) {
+      localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(normProfile));
+    }
 
     return data;
   };
@@ -118,13 +154,14 @@ export function AuthProvider({ children }) {
       throw new Error(data.error || 'Update failed');
     }
 
+    const normProfile = normalizeProfile(data.profile);
     if (data.user) {
       setUser(data.user);
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
     }
-    if (data.profile) {
-      setPatientProfile(data.profile);
-      localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(data.profile));
+    if (normProfile) {
+      setPatientProfile(normProfile);
+      localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(normProfile));
     }
 
     return data;

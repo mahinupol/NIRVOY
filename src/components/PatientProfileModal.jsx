@@ -56,6 +56,13 @@ export default function PatientProfileModal() {
 
   useEffect(() => {
     if (user || patientProfile) {
+      const diseases = Array.isArray(patientProfile?.chronic_diseases) 
+        ? patientProfile.chronic_diseases 
+        : [];
+      const allergiesStr = Array.isArray(patientProfile?.allergies)
+        ? patientProfile.allergies.join(', ')
+        : (typeof patientProfile?.allergies === 'string' ? patientProfile.allergies : '');
+
       setFormData({
         name: user?.name || '',
         age: patientProfile?.age || '',
@@ -63,9 +70,9 @@ export default function PatientProfileModal() {
         weight_kg: patientProfile?.weight_kg || '',
         gender: patientProfile?.gender || 'Male',
         blood_group: patientProfile?.blood_group || 'B+',
-        chronic_diseases: patientProfile?.chronic_diseases || [],
+        chronic_diseases: diseases,
         customDisease: '',
-        allergies: (patientProfile?.allergies || []).join(', '),
+        allergies: allergiesStr,
         emergency_contact: patientProfile?.emergency_contact || ''
       });
     }
@@ -75,21 +82,23 @@ export default function PatientProfileModal() {
 
   const handleDiseaseToggle = (diseaseName) => {
     setFormData(prev => {
-      const exists = prev.chronic_diseases.includes(diseaseName);
+      const currentList = Array.isArray(prev.chronic_diseases) ? prev.chronic_diseases : [];
+      const exists = currentList.includes(diseaseName);
       if (exists) {
-        return { ...prev, chronic_diseases: prev.chronic_diseases.filter(d => d !== diseaseName) };
+        return { ...prev, chronic_diseases: currentList.filter(d => d !== diseaseName) };
       } else {
-        return { ...prev, chronic_diseases: [...prev.chronic_diseases, diseaseName] };
+        return { ...prev, chronic_diseases: [...currentList, diseaseName] };
       }
     });
   };
 
   const handleAddCustom = (e) => {
     e.preventDefault();
-    if (formData.customDisease.trim() && !formData.chronic_diseases.includes(formData.customDisease.trim())) {
+    const currentList = Array.isArray(formData.chronic_diseases) ? formData.chronic_diseases : [];
+    if (formData.customDisease.trim() && !currentList.includes(formData.customDisease.trim())) {
       setFormData(prev => ({
         ...prev,
-        chronic_diseases: [...prev.chronic_diseases, prev.customDisease.trim()],
+        chronic_diseases: [...currentList, prev.customDisease.trim()],
         customDisease: ''
       }));
     }
@@ -109,7 +118,7 @@ export default function PatientProfileModal() {
         weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,
         gender: formData.gender,
         blood_group: formData.blood_group,
-        chronic_diseases: formData.chronic_diseases,
+        chronic_diseases: Array.isArray(formData.chronic_diseases) ? formData.chronic_diseases : [],
         allergies: allergiesList,
         emergency_contact: formData.emergency_contact
       });
@@ -170,12 +179,12 @@ export default function PatientProfileModal() {
               fontSize: '1.1rem',
               fontWeight: 800
             }}>
-              {user.name ? user.name.charAt(0).toUpperCase() : 'P'}
+              {user?.name ? user.name.charAt(0).toUpperCase() : 'P'}
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
-                  {user.name}
+                  {user?.name || 'Patient'}
                 </h3>
                 <span style={{
                   background: '#dcfce7',
@@ -192,7 +201,7 @@ export default function PatientProfileModal() {
                 </span>
               </div>
               <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>
-                {user.email} • {isBn ? 'রোগী প্রোফাইল ও মেডিকেল হিস্ট্রি' : 'Patient Health Profile'}
+                {user?.email || ''} • {isBn ? 'রোগী প্রোফাইল ও মেডিকেল হিস্ট্রি' : 'Patient Health Profile'}
               </p>
             </div>
           </div>

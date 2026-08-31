@@ -128,12 +128,12 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                 fontWeight: 800,
                 fontSize: '1rem'
               }}>
-                {user.name.charAt(0).toUpperCase()}
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'P'}
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0f172a', fontWeight: 700 }}>
-                    {user.name} ({language === 'bn' ? 'রোগী প্রোফাইল' : 'Patient Record'})
+                    {user?.name || 'Patient'} ({language === 'bn' ? 'রোগী প্রোফাইল' : 'Patient Record'})
                   </h4>
                   <span style={{ background: '#dcfce7', color: '#15803d', fontSize: '0.68rem', fontWeight: 700, padding: '1px 6px', borderRadius: '6px' }}>
                     PostgreSQL Synced
@@ -145,7 +145,7 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                   {patientProfile?.weight_kg && <span>• <strong>{language === 'bn' ? 'ওজন:' : 'Weight:'}</strong> {patientProfile.weight_kg} kg</span>}
                   {patientProfile?.blood_group && <span>• <strong>{language === 'bn' ? 'রক্ত:' : 'Blood:'}</strong> {patientProfile.blood_group}</span>}
                 </div>
-                {patientProfile?.chronic_diseases && patientProfile.chronic_diseases.length > 0 && (
+                {Array.isArray(patientProfile?.chronic_diseases) && patientProfile.chronic_diseases.length > 0 && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>
                       {language === 'bn' ? 'পূর্বের রোগসমূহ:' : 'Conditions:'}
