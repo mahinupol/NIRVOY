@@ -110,6 +110,36 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
     }
   };
 
+  // Delete / Reset Prescription Image
+  const handleDeleteImage = () => {
+    if (!window.confirm(language === 'bn' ? 'আপনি কি প্রেসক্রিপশনের ছবিটি মুছে ফেলতে চান?' : 'Do you want to delete this prescription image?')) {
+      return;
+    }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+
+    const resetRx = {
+      id: `RX-CLEAR-${Date.now()}`,
+      title: language === 'bn' ? 'নতুন প্রেসক্রিপশন' : 'New Prescription',
+      doctorName: '',
+      hospital: '',
+      date: new Date().toISOString().split('T')[0],
+      patientName: '',
+      patientAge: '',
+      patientGender: '',
+      diagnosis: '',
+      ocrConfidence: 0,
+      customImageUrl: null,
+      imageFileName: null,
+      boundingBoxes: [],
+      medicines: []
+    };
+
+    setSelectedPrescription(resetRx);
+  };
+
   // Medicine Field Updates with Preloaded Dataset Auto-Sync
   const handleUpdateMedicine = (index, field, value) => {
     if (!selectedPrescription) return;
@@ -554,32 +584,58 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                 )}
               </div>
 
-              {/* Zoom Controls */}
+              {/* Zoom Controls & Delete Button */}
               {viewMode === 'image' && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#f8fafc', padding: '2px 6px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <button
-                    onClick={() => setZoomLevel(prev => Math.max(0.7, prev - 0.15))}
-                    style={{ background: 'none', border: 'none', padding: '3px', cursor: 'pointer', color: '#64748b' }}
-                    title={t('zoomOut')}
-                  >
-                    <ZoomOut size={14} />
-                  </button>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', minWidth: '34px', textAlign: 'center' }}>
-                    {Math.round(zoomLevel * 100)}%
-                  </span>
-                  <button
-                    onClick={() => setZoomLevel(prev => Math.min(2.5, prev + 0.15))}
-                    style={{ background: 'none', border: 'none', padding: '3px', cursor: 'pointer', color: '#64748b' }}
-                    title={t('zoomIn')}
-                  >
-                    <ZoomIn size={14} />
-                  </button>
-                  <button
-                    onClick={() => setZoomLevel(1)}
-                    style={{ background: 'none', border: 'none', padding: '2px 4px', fontSize: '0.68rem', cursor: 'pointer', color: '#0284c7', fontWeight: 600 }}
-                  >
-                    {t('resetZoom')}
-                  </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#f8fafc', padding: '2px 6px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    <button
+                      onClick={() => setZoomLevel(prev => Math.max(0.7, prev - 0.15))}
+                      style={{ background: 'none', border: 'none', padding: '3px', cursor: 'pointer', color: '#64748b' }}
+                      title={t('zoomOut')}
+                    >
+                      <ZoomOut size={14} />
+                    </button>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', minWidth: '34px', textAlign: 'center' }}>
+                      {Math.round(zoomLevel * 100)}%
+                    </span>
+                    <button
+                      onClick={() => setZoomLevel(prev => Math.min(2.5, prev + 0.15))}
+                      style={{ background: 'none', border: 'none', padding: '3px', cursor: 'pointer', color: '#64748b' }}
+                      title={t('zoomIn')}
+                    >
+                      <ZoomIn size={14} />
+                    </button>
+                    <button
+                      onClick={() => setZoomLevel(1)}
+                      style={{ background: 'none', border: 'none', padding: '2px 4px', fontSize: '0.68rem', cursor: 'pointer', color: '#0284c7', fontWeight: 600 }}
+                    >
+                      {t('resetZoom')}
+                    </button>
+                  </div>
+
+                  {/* Delete / Clear Prescription Image Button */}
+                  {(currentRx.customImageUrl || currentRx.imageFileName || (currentRx.boundingBoxes && currentRx.boundingBoxes.length > 0)) && (
+                    <button
+                      onClick={handleDeleteImage}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        border: '1px solid #fecaca',
+                        background: '#fef2f2',
+                        color: '#dc2626',
+                        fontSize: '0.74rem',
+                        fontWeight: 700,
+                        cursor: 'pointer'
+                      }}
+                      title={language === 'bn' ? 'প্রেসক্রিপশন ছবি মুছুন' : 'Delete Prescription Image'}
+                    >
+                      <Trash2 size={13} />
+                      <span>{language === 'bn' ? 'ছবি মুছুন' : 'Delete Image'}</span>
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -605,27 +661,28 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                 {isScanning && <div className="laser-line" />}
 
                 {/* Prescription Image & Percentage Bounding Box Overlay */}
-                <div style={{
-                  position: 'relative',
-                  transform: `scale(${zoomLevel})`,
-                  transformOrigin: 'top center',
-                  transition: 'transform 0.15s ease',
-                  maxWidth: '100%',
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'center'
-                }}>
-                  <img
-                    src={currentRx.customImageUrl || `/prescription/${currentRx.imageFileName || 'IMG_8391.jpg'}`}
-                    alt="Prescription Scan"
-                    style={{
-                      maxWidth: '100%',
-                      maxHeight: '600px',
-                      display: 'block',
-                      objectFit: 'contain',
-                      borderRadius: '8px'
-                    }}
-                  />
+                {(currentRx.customImageUrl || currentRx.imageFileName) ? (
+                  <div style={{
+                    position: 'relative',
+                    transform: `scale(${zoomLevel})`,
+                    transformOrigin: 'top center',
+                    transition: 'transform 0.15s ease',
+                    maxWidth: '100%',
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center'
+                  }}>
+                    <img
+                      src={currentRx.customImageUrl || `/prescription/${currentRx.imageFileName || 'IMG_8391.jpg'}`}
+                      alt="Prescription Scan"
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '600px',
+                        display: 'block',
+                        objectFit: 'contain',
+                        borderRadius: '8px'
+                      }}
+                    />
 
                   {/* Overlaid Interactive Bounding Boxes */}
                   {currentRx.boundingBoxes?.map((box, index) => {
@@ -686,6 +743,42 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                     );
                   })}
                 </div>
+                ) : (
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '40px 20px',
+                    color: '#94a3b8',
+                    textAlign: 'center',
+                    gap: '14px'
+                  }}>
+                    <div style={{
+                      width: '60px',
+                      height: '60px',
+                      borderRadius: '50%',
+                      background: '#1e293b',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#38bdf8'
+                    }}>
+                      <ImageIcon size={28} />
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.92rem', color: '#cbd5e1', fontWeight: 600 }}>
+                      {language === 'bn' ? 'কোনো প্রেসক্রিপশন ছবি নেই' : 'No prescription image loaded'}
+                    </p>
+                    <button
+                      onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                      className="btn-primary"
+                      style={{ padding: '8px 20px', fontSize: '0.84rem' }}
+                    >
+                      <Upload size={15} />
+                      <span>{language === 'bn' ? 'নতুন ছবি আপলোড করুন' : 'Upload New Image'}</span>
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <div style={{
