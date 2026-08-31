@@ -13,10 +13,13 @@ import AuthModal from './components/AuthModal';
 import PatientProfileModal from './components/PatientProfileModal';
 import { SAMPLE_PRESCRIPTIONS } from './data/samplePrescriptions';
 
+import { useAuth } from './context/AuthContext';
+
 export default function App() {
   const [currentTab, setCurrentTab] = useState('scanner');
   const [elderlyMode, setElderlyMode] = useState(false);
   const [selectedPrescription, setSelectedPrescription] = useState(SAMPLE_PRESCRIPTIONS[0]);
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (elderlyMode) {
@@ -28,6 +31,18 @@ export default function App() {
 
   const handleScanComplete = (prescription) => {
     setSelectedPrescription(prescription);
+
+    // ONLY save if user is logged in
+    if (isAuthenticated && user?.id && prescription) {
+      try {
+        const userStorageKey = `NIRVOY_USER_PRESCRIPTIONS_${user.id}`;
+        const existing = JSON.parse(localStorage.getItem(userStorageKey) || '[]');
+        const updated = [prescription, ...existing.filter(p => p.id !== prescription.id)];
+        localStorage.setItem(userStorageKey, JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Could not save user prescription:', e);
+      }
+    }
   };
 
   const handleSelectFromHistory = (prescription) => {
@@ -38,6 +53,18 @@ export default function App() {
   const handleNewPrescriptionCreated = (newRx) => {
     setSelectedPrescription(newRx);
     setCurrentTab('scanner');
+
+    // ONLY save if user is logged in
+    if (isAuthenticated && user?.id && newRx) {
+      try {
+        const userStorageKey = `NIRVOY_USER_PRESCRIPTIONS_${user.id}`;
+        const existing = JSON.parse(localStorage.getItem(userStorageKey) || '[]');
+        const updated = [newRx, ...existing.filter(p => p.id !== newRx.id)];
+        localStorage.setItem(userStorageKey, JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Could not save user prescription:', e);
+      }
+    }
   };
 
   return (
