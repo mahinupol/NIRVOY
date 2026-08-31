@@ -99,7 +99,7 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
 
           {/* Desktop Navigation Tabs */}
           <nav 
-            className="hide-on-mobile-xs"
+            className="hide-on-tablet-mobile"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -428,6 +428,7 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
 
       {/* Sticky Mobile Bottom Navigation Bar */}
       <div 
+        className="hide-on-desktop"
         style={{
           position: 'fixed',
           bottom: 0,
@@ -436,7 +437,6 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
           background: 'rgba(255, 255, 255, 0.98)',
           backdropFilter: 'blur(16px)',
           borderTop: '1px solid #e2e8f0',
-          display: 'flex',
           justifyContent: 'space-around',
           alignItems: 'center',
           padding: '6px 4px',
