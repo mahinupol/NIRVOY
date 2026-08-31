@@ -60,7 +60,8 @@ export function AuthProvider({ children }) {
             'Authorization': `Bearer ${token}`
           }
         });
-        if (res.ok) {
+        const contentType = res.headers.get('content-type');
+        if (res.ok && contentType && contentType.includes('application/json')) {
           const data = await res.json();
           const normProfile = normalizeProfile(data.profile);
           setUser(data.user || null);
@@ -71,7 +72,7 @@ export function AuthProvider({ children }) {
           if (normProfile) {
             localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(normProfile));
           }
-        } else {
+        } else if (res.status === 401 || res.status === 403) {
           // Token expired or invalid
           logout();
         }
@@ -92,7 +93,13 @@ export function AuthProvider({ children }) {
       body: JSON.stringify({ email, password })
     });
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      data = { error: 'Server response error' };
+    }
+
     if (!res.ok) {
       throw new Error(data.error || 'Login failed');
     }
@@ -118,7 +125,13 @@ export function AuthProvider({ children }) {
       body: JSON.stringify(patientData)
     });
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      data = { error: 'Server response error' };
+    }
+
     if (!res.ok) {
       throw new Error(data.error || 'Registration failed');
     }
@@ -149,7 +162,13 @@ export function AuthProvider({ children }) {
       body: JSON.stringify(updatedData)
     });
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      data = { error: 'Server response error' };
+    }
+
     if (!res.ok) {
       throw new Error(data.error || 'Update failed');
     }

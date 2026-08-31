@@ -286,7 +286,11 @@ app.put('/api/patient/profile', authenticateToken, async (req, res) => {
   }
 });
 
-// Start listening
-app.listen(PORT, () => {
-  console.log(`🚀 NIRVOY Backend running on http://localhost:${PORT}`);
-});
+// Start listening if run directly
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 NIRVOY Backend running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;
