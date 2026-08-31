@@ -152,14 +152,14 @@ export default function HeroBanner({ onStartScan, onOpenDemo }) {
                     alignItems: 'center',
                     gap: '10px'
                   }}>
-                    <span style={{ background: '#e0f2fe', color: '#0369a1', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
+                    <span style={{ background: '#e0f2fe', color: '#0369a1', width: '24px', height: '24px', borderRadius: '50%', aspectRatio: '1/1', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
                       1
                     </span>
-                    <div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
                       <strong style={{ fontSize: '0.82rem', color: '#0f172a', display: 'block' }}>
                         {language === 'bn' ? 'হ্যান্ডরাইটিং ভিশন ডিটেকশন' : 'Handwriting Vision OCR'}
                       </strong>
-                      <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                      <span style={{ fontSize: '0.72rem', color: '#64748b', wordBreak: 'break-word' }}>
                         {language === 'bn' ? 'হাতের লেখার প্রতিটি বর্ণ ও বাউন্ডিং বক্স বিশ্লেষণ' : 'Sub-character frequency & LCS sequence matching'}
                       </span>
                     </div>
@@ -175,14 +175,14 @@ export default function HeroBanner({ onStartScan, onOpenDemo }) {
                     alignItems: 'center',
                     gap: '10px'
                   }}>
-                    <span style={{ background: '#dcfce7', color: '#15803d', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
+                    <span style={{ background: '#dcfce7', color: '#15803d', width: '24px', height: '24px', borderRadius: '50%', aspectRatio: '1/1', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
                       2
                     </span>
-                    <div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
                       <strong style={{ fontSize: '0.82rem', color: '#0f172a', display: 'block' }}>
                         {language === 'bn' ? 'বাংলাদেশী ড্রাগ ডিকশনারি ম্যাচিং' : 'Bangladeshi Drug Formulary Matching'}
                       </strong>
-                      <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                      <span style={{ fontSize: '0.72rem', color: '#64748b', wordBreak: 'break-word' }}>
                         {language === 'bn' ? 'Square, Beximco, Incepta এর ৫০০+ ওষুধের সাথে মিলিয়ে নিশ্চিতকরণ' : 'Auto-snapped against 500+ Square, Beximco, Incepta brands'}
                       </span>
                     </div>
@@ -198,14 +198,14 @@ export default function HeroBanner({ onStartScan, onOpenDemo }) {
                     alignItems: 'center',
                     gap: '10px'
                   }}>
-                    <span style={{ background: '#fef3c7', color: '#b45309', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
+                    <span style={{ background: '#fef3c7', color: '#b45309', width: '24px', height: '24px', borderRadius: '50%', aspectRatio: '1/1', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
                       3
                     </span>
-                    <div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
                       <strong style={{ fontSize: '0.82rem', color: '#0f172a', display: 'block' }}>
                         {language === 'bn' ? 'ভয়েস অডিও ও DGDA যাচাই' : 'Audio Speech & DGDA Authenticity'}
                       </strong>
-                      <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                      <span style={{ fontSize: '0.72rem', color: '#64748b', wordBreak: 'break-word' }}>
                         {language === 'bn' ? 'বাংলা ভয়েস স্পিচ ও DAR রেজিস্ট্রেশন চেক' : 'Clear voice playback & counterfeit drug protection'}
                       </span>
                     </div>

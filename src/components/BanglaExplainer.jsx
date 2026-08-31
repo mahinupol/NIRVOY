@@ -446,8 +446,8 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                     )}
                   </div>
 
-                  {/* Time of day cards with Spacious Visuals */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                  {/* Time of day cards with Non-Distorting Responsive Visuals */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: '8px' }}>
                     {(() => {
                       const dParts = (item.dosage || '1+0+1').split('+');
                       const morning = (dParts[0] || '0').trim();
@@ -459,43 +459,70 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                           <div style={{
                             background: morning !== '0' ? '#e0f2fe' : '#f1f5f9',
                             color: morning !== '0' ? '#0369a1' : '#94a3b8',
-                            padding: '10px 8px',
+                            padding: '8px 6px',
                             borderRadius: '10px',
                             textAlign: 'center',
-                            fontSize: '0.78rem',
+                            fontSize: '0.76rem',
                             fontWeight: 800,
-                            border: morning !== '0' ? '1px solid #bae6fd' : '1px solid transparent'
+                            border: morning !== '0' ? '1px solid #bae6fd' : '1px solid transparent',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '3px',
+                            minWidth: 0,
+                            overflow: 'hidden'
                           }}>
-                            <Sun size={16} style={{ margin: '0 auto 4px', display: 'block' }} />
-                            <span>{t('morningLabel')}: {morning} {t('tabletsUnit')}</span>
+                            <Sun size={15} style={{ flexShrink: 0 }} />
+                            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+                              {t('morningLabel')}: {morning}
+                            </span>
                           </div>
 
                           <div style={{
                             background: noon !== '0' ? '#fef3c7' : '#f1f5f9',
                             color: noon !== '0' ? '#b45309' : '#94a3b8',
-                            padding: '10px 8px',
+                            padding: '8px 6px',
                             borderRadius: '10px',
                             textAlign: 'center',
-                            fontSize: '0.78rem',
+                            fontSize: '0.76rem',
                             fontWeight: 800,
-                            border: noon !== '0' ? '1px solid #fde68a' : '1px solid transparent'
+                            border: noon !== '0' ? '1px solid #fde68a' : '1px solid transparent',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '3px',
+                            minWidth: 0,
+                            overflow: 'hidden'
                           }}>
-                            <Coffee size={16} style={{ margin: '0 auto 4px', display: 'block' }} />
-                            <span>{t('noonLabel')}: {noon} {t('tabletsUnit')}</span>
+                            <Coffee size={15} style={{ flexShrink: 0 }} />
+                            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+                              {t('noonLabel')}: {noon}
+                            </span>
                           </div>
 
                           <div style={{
                             background: night !== '0' ? '#ede9fe' : '#f1f5f9',
                             color: night !== '0' ? '#6d28d9' : '#94a3b8',
-                            padding: '10px 8px',
+                            padding: '8px 6px',
                             borderRadius: '10px',
                             textAlign: 'center',
-                            fontSize: '0.78rem',
+                            fontSize: '0.76rem',
                             fontWeight: 800,
-                            border: night !== '0' ? '1px solid #ddd6fe' : '1px solid transparent'
+                            border: night !== '0' ? '1px solid #ddd6fe' : '1px solid transparent',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '3px',
+                            minWidth: 0,
+                            overflow: 'hidden'
                           }}>
-                            <Moon size={16} style={{ margin: '0 auto 4px', display: 'block' }} />
-                            <span>{t('nightLabel')}: {night} {t('tabletsUnit')}</span>
+                            <Moon size={15} style={{ flexShrink: 0 }} />
+                            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+                              {t('nightLabel')}: {night}
+                            </span>
                           </div>
                         </>
                       );
