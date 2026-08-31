@@ -62,26 +62,12 @@ export default function HealthChatbot() {
     <div style={{ padding: '8px 0 36px' }}>
       <div className="container-max" style={{ maxWidth: '800px' }}>
         {/* Module Header */}
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            background: '#f3e8ff',
-            color: '#7e22ce',
-            padding: '3px 10px',
-            borderRadius: '999px',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            marginBottom: '6px'
-          }}>
-            AI HEALTHCARE CHATBOT • NIRVOY ASSISTANT
-          </div>
-          <h2 style={{ fontSize: '1.75rem', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.02em' }}>
-            AI Medication & Health Assistant (স্বাস্থ্য সহকারী)
+        <div style={{ textAlign: 'center', marginBottom: '18px' }}>
+          <h2 style={{ fontSize: '1.6rem', color: '#0f172a', marginBottom: '4px', letterSpacing: '-0.02em' }}>
+            AI স্বাস্থ্য সহকারী (Health Chatbot)
           </h2>
-          <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
-            ওষুধের পার্শ্বপ্রতিক্রিয়া, খাওয়ার সঠিক নিয়ম ও স্বাস্থ্য বিষয়ক সাধারণ তথ্যের জন্য প্রশ্ন করুন।
+          <p style={{ color: '#64748b', fontSize: '0.88rem' }}>
+            ওষুধের খাওয়ার নিয়ম, পার্শ্বপ্রতিক্রিয়া বা সাধারণ স্বাস্থ্য বিষয়ক যেকোনো প্রশ্ন করুন।
           </p>
         </div>
 

@@ -39,26 +39,12 @@ export default function PharmacyFinder() {
     <div style={{ padding: '8px 0 36px' }}>
       <div className="container-max">
         {/* Module Header */}
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            background: '#e0f2fe',
-            color: '#0369a1',
-            padding: '3px 10px',
-            borderRadius: '999px',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            marginBottom: '6px'
-          }}>
-            MODULE 5 • PHARMACY AVAILABILITY & RADAR
-          </div>
-          <h2 style={{ fontSize: '1.75rem', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.02em' }}>
-            Pharmacy Stock Radar & Generic Substitutes (ফার্মেসি স্টক)
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '1.6rem', color: '#0f172a', marginBottom: '4px', letterSpacing: '-0.02em' }}>
+            নিকটস্থ ফার্মেসি ও ঔষধ স্টক (Pharmacy Finder)
           </h2>
-          <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '600px', margin: '0 auto' }}>
-            নিকটস্থ ফার্মেসিতে প্রেসক্রিপশনের ওষুধের স্টক যাচাই করুন এবং স্টক না থাকলে সঠিক বিকল্প জেনেরিক ওষুধ খুঁজে নিন।
+          <p style={{ color: '#64748b', fontSize: '0.88rem', maxWidth: '540px', margin: '0 auto' }}>
+            নিকটস্থ ফার্মেসিতে প্রেসক্রিপশনের ঔষধের প্রাপ্যতা ও বিকল্প জেনেরিক ঔষধের তথ্য।
           </p>
         </div>
 

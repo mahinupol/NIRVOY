@@ -105,26 +105,12 @@ export default function DoctorDashboard({ onNewPrescriptionCreated }) {
     <div style={{ padding: '8px 0 36px' }}>
       <div className="container-max">
         {/* Module Header */}
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            background: '#dcfce7',
-            color: '#15803d',
-            padding: '3px 10px',
-            borderRadius: '999px',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            marginBottom: '6px'
-          }}>
-            MODULE 4 • DOCTOR DASHBOARD & DIGITAL RX
-          </div>
-          <h2 style={{ fontSize: '1.75rem', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.02em' }}>
-            Doctor Digital Prescription Builder (চিকিৎসক পোর্টাল)
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '1.6rem', color: '#0f172a', marginBottom: '4px', letterSpacing: '-0.02em' }}>
+            ডিজিটাল প্রেসক্রিপশন তৈরি (Doctor Portal)
           </h2>
-          <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '600px', margin: '0 auto' }}>
-            ডিজিটাল প্রেসক্রিপশন তৈরি করুন যাতে রোগীরা সহজেই ১০০% স্পষ্ট ও ত্রুটিমুক্ত প্রেসক্রিপশন পেতে পারেন।
+          <p style={{ color: '#64748b', fontSize: '0.88rem', maxWidth: '540px', margin: '0 auto' }}>
+            চিকিৎসকদের জন্য স্পষ্ট ও নির্ভুল ডিজিটাল প্রেসক্রিপশন জেনারেটর।
           </p>
         </div>
 

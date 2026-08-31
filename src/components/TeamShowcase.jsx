@@ -58,26 +58,12 @@ export default function TeamShowcase() {
     <div style={{ padding: '8px 0 36px' }}>
       <div className="container-max">
         {/* Module Header */}
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            background: '#ffedd5',
-            color: '#c2410c',
-            padding: '3px 12px',
-            borderRadius: '999px',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            marginBottom: '6px'
-          }}>
-            PROJECT ARCHITECTS • TEAM GOKU
-          </div>
-          <h2 style={{ fontSize: '1.85rem', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.02em' }}>
-            Meet The Creators (টিম গোকু)
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '1.6rem', color: '#0f172a', marginBottom: '4px', letterSpacing: '-0.02em' }}>
+            টিম পরিচিতি (Team Goku)
           </h2>
-          <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '600px', margin: '0 auto' }}>
-            বাংলাদেশের স্বাস্থ্যসেবায় প্রেসক্রিপশন বোঝার জটিলতা নিরসনে নিবেদিত টিম গোকুর সদস্যবৃন্দ।
+          <p style={{ color: '#64748b', fontSize: '0.88rem', maxWidth: '540px', margin: '0 auto' }}>
+            নির্ভয় (NIRVOY) প্রজেক্টের নির্মাতাবৃন্দ।
           </p>
         </div>
 

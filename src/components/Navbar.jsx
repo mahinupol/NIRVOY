@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
   HeartPulse, 
-  Eye, 
   Scan, 
   History, 
   Stethoscope, 
@@ -12,25 +11,26 @@ import {
   Menu, 
   X, 
   Languages,
-  User,
   LogIn
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
-export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElderlyMode }) {
+export default function Navbar({ currentTab, setCurrentTab }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { language, toggleLanguage, t } = useLanguage();
-  const { user, patientProfile, isAuthenticated, openAuthModal, openProfileModal } = useAuth();
+  const { language, toggleLanguage } = useLanguage();
+  const { user, isAuthenticated, openAuthModal, openProfileModal } = useAuth();
+
+  const isBn = language === 'bn';
 
   const tabs = [
-    { id: 'scanner', label: t('tabScanner'), shortLabel: language === 'bn' ? 'স্ক্যানার' : 'Scanner', icon: Scan },
-    { id: 'history', label: t('tabHistory'), shortLabel: language === 'bn' ? 'আর্কাইভ' : 'Archive', icon: History },
-    { id: 'doctor', label: t('tabDoctor'), shortLabel: language === 'bn' ? 'ডাক্তার' : 'Doctor', icon: Stethoscope },
-    { id: 'pharmacy', label: t('tabPharmacy'), shortLabel: language === 'bn' ? 'ফার্মেসি' : 'Pharmacy', icon: Building2 },
-    { id: 'verify', label: t('tabVerify'), shortLabel: language === 'bn' ? 'যাচাই' : 'DGDA', icon: ShieldCheck },
-    { id: 'assistant', label: t('tabAssistant'), shortLabel: language === 'bn' ? 'AI বট' : 'AI Bot', icon: Bot },
-    { id: 'team', label: t('tabTeam'), shortLabel: language === 'bn' ? 'টিম' : 'Team', icon: Users }
+    { id: 'scanner', label: isBn ? 'স্ক্যানার' : 'Scanner', icon: Scan },
+    { id: 'history', label: isBn ? 'আর্কাইভ' : 'History', icon: History },
+    { id: 'doctor', label: isBn ? 'ডাক্তার' : 'Doctor', icon: Stethoscope },
+    { id: 'pharmacy', label: isBn ? 'ফার্মেসি' : 'Pharmacy', icon: Building2 },
+    { id: 'verify', label: isBn ? 'যাচাই' : 'Verify', icon: ShieldCheck },
+    { id: 'assistant', label: isBn ? 'AI সহকারী' : 'AI Assistant', icon: Bot },
+    { id: 'team', label: isBn ? 'টিম' : 'Team', icon: Users }
   ];
 
   const handleTabClick = (tabId) => {
@@ -40,109 +40,91 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
 
   return (
     <>
-      {/* Top Main Header */}
       <header style={{
         position: 'sticky',
         top: 0,
         zIndex: 100,
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(12px)',
+        background: '#ffffff',
         borderBottom: '1px solid #e2e8f0',
-        padding: '10px 0'
+        padding: '12px 0'
       }}>
         <div className="container-max" style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '10px'
+          gap: '16px'
         }}>
           {/* Brand Logo */}
           <div 
             onClick={() => handleTabClick('scanner')} 
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', flexShrink: 0 }}
           >
             <div style={{
-              width: '38px',
-              height: '38px',
+              width: '36px',
+              height: '36px',
               borderRadius: '10px',
-              background: 'linear-gradient(135deg, #0284c7 0%, #059669 100%)',
+              background: '#0284c7',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'white',
-              boxShadow: '0 2px 8px rgba(2, 132, 199, 0.25)',
+              color: '#ffffff',
               flexShrink: 0
             }}>
-              <HeartPulse size={22} />
+              <HeartPulse size={20} />
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.03em' }}>
-                  NIRVOY <span style={{ color: '#059669', fontSize: '1rem', fontWeight: 700 }}>({language === 'bn' ? 'নির্ভয়' : 'Prescription AI'})</span>
-                </span>
-                <span style={{
-                  background: '#e0f2fe',
-                  color: '#0369a1',
-                  padding: '2px 6px',
-                  borderRadius: '6px',
-                  fontSize: '0.65rem',
-                  fontWeight: 700
-                }}>
-                  Team_Goku
-                </span>
-              </div>
-              <p style={{ fontSize: '0.7rem', color: '#64748b', margin: 0, fontWeight: 500 }}>
-                {t('brandSubtitle')}
-              </p>
+              <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
+                NIRVOY <span style={{ color: '#0284c7', fontSize: '1rem', fontWeight: 700 }}>({isBn ? 'নির্ভয়' : 'AI'})</span>
+              </span>
             </div>
           </div>
 
-          {/* Desktop Navigation Tabs */}
+          {/* Clean Desktop Navigation Tabs */}
           <nav 
             className="hide-on-tablet-mobile"
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
-              background: '#f1f5f9',
+              background: '#f8fafc',
               padding: '4px',
               borderRadius: '999px',
-              border: '1px solid #e2e8f0',
-              overflowX: 'auto',
-              maxWidth: '60%'
+              border: '1px solid #e2e8f0'
             }}
           >
             {tabs.map(tab => {
               const Icon = tab.icon;
+              const isActive = currentTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => handleTabClick(tab.id)}
                   style={{
                     border: 'none',
-                    background: currentTab === tab.id ? '#0284c7' : 'transparent',
-                    color: currentTab === tab.id ? '#ffffff' : '#475569',
-                    padding: '6px 12px',
+                    background: isActive ? '#0284c7' : 'transparent',
+                    color: isActive ? '#ffffff' : '#475569',
+                    padding: '7px 14px',
                     borderRadius: '999px',
-                    fontSize: '0.78rem',
-                    fontWeight: currentTab === tab.id ? 700 : 600,
+                    fontSize: '0.84rem',
+                    fontWeight: isActive ? 700 : 600,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
                     whiteSpace: 'nowrap',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '4px'
+                    gap: '6px',
+                    flexShrink: 0
                   }}
                 >
-                  <Icon size={13} />
+                  <Icon size={15} />
                   <span>{tab.label}</span>
                 </button>
               );
             })}
           </nav>
 
-          {/* Controls: Language Switcher, Senior Mode, Auth/Profile & Hamburger */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Right Action Controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
             {/* Auth / Patient Profile Button */}
             {isAuthenticated && user ? (
               <button
@@ -150,49 +132,36 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
+                  gap: '7px',
                   padding: '5px 12px 5px 6px',
                   borderRadius: '999px',
-                  border: '1px solid #10b981',
+                  border: '1px solid #bbf7d0',
                   background: '#f0fdf4',
-                  color: '#065f46',
-                  fontSize: '0.78rem',
+                  color: '#166534',
+                  fontSize: '0.82rem',
                   fontWeight: 700,
                   cursor: 'pointer',
-                  boxShadow: '0 2px 6px rgba(16, 185, 129, 0.15)',
-                  transition: 'all 0.15s ease'
+                  flexShrink: 0
                 }}
-                title={language === 'bn' ? 'রোগী প্রোফাইল ও মেডিকেল হিস্ট্রি' : 'Patient Health Profile'}
               >
                 <div style={{
                   width: '24px',
                   height: '24px',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #059669 0%, #0284c7 100%)',
+                  background: '#059669',
                   color: 'white',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '0.72rem',
-                  fontWeight: 800
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  flexShrink: 0
                 }}>
                   {user?.name ? user.name.charAt(0).toUpperCase() : 'P'}
                 </div>
                 <span style={{ maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {(user?.name || 'Patient').split(' ')[0]}
                 </span>
-                {patientProfile?.age && (
-                  <span style={{
-                    background: '#dcfce7',
-                    color: '#166534',
-                    padding: '1px 5px',
-                    borderRadius: '6px',
-                    fontSize: '0.68rem',
-                    fontWeight: 700
-                  }}>
-                    {patientProfile.age}y
-                  </span>
-                )}
               </button>
             ) : (
               <button
@@ -200,25 +169,25 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '5px',
-                  padding: '6px 13px',
+                  gap: '6px',
+                  padding: '7px 14px',
                   borderRadius: '999px',
                   border: 'none',
-                  background: 'linear-gradient(135deg, #0284c7 0%, #059669 100%)',
+                  background: '#0284c7',
                   color: '#ffffff',
-                  fontSize: '0.78rem',
+                  fontSize: '0.82rem',
                   fontWeight: 700,
                   cursor: 'pointer',
-                  boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)',
-                  transition: 'all 0.15s ease'
+                  flexShrink: 0,
+                  whiteSpace: 'nowrap'
                 }}
               >
                 <LogIn size={14} />
-                <span>{language === 'bn' ? 'লগইন / সাইন আপ' : 'Login / Register'}</span>
+                <span>{isBn ? 'লগইন' : 'Login'}</span>
               </button>
             )}
 
-            {/* Language Switcher Button */}
+            {/* Clean Language Switcher */}
             <button
               onClick={toggleLanguage}
               style={{
@@ -227,172 +196,53 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
                 gap: '5px',
                 padding: '6px 12px',
                 borderRadius: '999px',
-                border: '1px solid #0284c7',
-                background: '#eff6ff',
-                color: '#0284c7',
-                fontSize: '0.78rem',
+                border: '1px solid #cbd5e1',
+                background: '#ffffff',
+                color: '#334155',
+                fontSize: '0.8rem',
                 fontWeight: 700,
                 cursor: 'pointer',
-                boxShadow: '0 1px 3px rgba(2, 132, 199, 0.15)',
-                transition: 'all 0.15s ease'
+                flexShrink: 0,
+                whiteSpace: 'nowrap'
               }}
-              title="Switch Language (বাংলা / English)"
+              title="Change Language"
             >
               <Languages size={14} />
-              <span>{language === 'bn' ? 'English' : 'বাংলা'}</span>
+              <span>{isBn ? 'EN' : 'বাং'}</span>
             </button>
 
-            {/* Senior Mode Toggle */}
-            <button
-              onClick={() => setElderlyMode(!elderlyMode)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '6px 10px',
-                borderRadius: '999px',
-                border: '1px solid',
-                borderColor: elderlyMode ? '#0284c7' : '#cbd5e1',
-                background: elderlyMode ? '#e0f2fe' : '#ffffff',
-                color: elderlyMode ? '#0369a1' : '#475569',
-                fontSize: '0.74rem',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-              title="Toggle Large Text Mode"
-            >
-              <Eye size={13} />
-              <span className="hide-on-mobile-xs">{elderlyMode ? t('seniorModeOn') : t('seniorModeOff')}</span>
-            </button>
-
-            {/* Mobile Hamburger Toggle Button */}
+            {/* Mobile Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="show-on-tablet-mobile hide-on-desktop-nav"
               style={{
-                display: 'flex',
+                display: 'none',
                 alignItems: 'center',
                 justifyContent: 'center',
                 width: '36px',
                 height: '36px',
                 borderRadius: '8px',
                 border: '1px solid #e2e8f0',
-                background: mobileMenuOpen ? '#e0f2fe' : '#f8fafc',
+                background: mobileMenuOpen ? '#e0f2fe' : '#ffffff',
                 color: '#0f172a',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                flexShrink: 0
               }}
-              aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Dropdown Drawer Menu */}
+        {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen && (
           <div style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            right: 0,
             background: '#ffffff',
-            borderBottom: '1px solid #e2e8f0',
-            boxShadow: '0 12px 24px rgba(0,0,0,0.08)',
-            padding: '12px',
-            zIndex: 99
+            borderTop: '1px solid #e2e8f0',
+            padding: '14px 20px',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.08)'
           }}>
-            {/* Mobile Auth Button in Drawer */}
-            <div style={{ marginBottom: '10px' }}>
-              {isAuthenticated && user ? (
-                <button
-                  onClick={() => { openProfileModal(); setMobileMenuOpen(false); }}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '10px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #10b981',
-                    background: '#f0fdf4',
-                    color: '#065f46',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{
-                      width: '28px',
-                      height: '28px',
-                      borderRadius: '50%',
-                      background: '#059669',
-                      color: 'white',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.8rem',
-                      fontWeight: 800
-                    }}>
-                      {user?.name ? user.name.charAt(0).toUpperCase() : 'P'}
-                    </div>
-                    <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{user?.name || 'Patient'}</div>
-                      <div style={{ fontSize: '0.7rem', color: '#047857' }}>
-                        {patientProfile?.age ? `${patientProfile.age} yrs` : ''} • {patientProfile?.height || ''}
-                      </div>
-                    </div>
-                  </div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#0284c7' }}>
-                    {language === 'bn' ? 'প্রোফাইল দেখুন →' : 'View Profile →'}
-                  </span>
-                </button>
-              ) : (
-                <button
-                  onClick={() => { openAuthModal(); setMobileMenuOpen(false); }}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                    padding: '10px',
-                    borderRadius: '10px',
-                    border: 'none',
-                    background: 'linear-gradient(135deg, #0284c7 0%, #059669 100%)',
-                    color: '#ffffff',
-                    fontSize: '0.85rem',
-                    fontWeight: 700,
-                    cursor: 'pointer'
-                  }}
-                >
-                  <LogIn size={16} />
-                  <span>{language === 'bn' ? 'লগইন / সাইন আপ (Patient Sign In)' : 'Patient Login / Register'}</span>
-                </button>
-              )}
-            </div>
-            {/* Quick Language Toggle in Drawer */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', padding: '6px 8px', background: '#f8fafc', borderRadius: '8px' }}>
-              <span style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 600 }}>ভাষা / Language:</span>
-              <button
-                onClick={toggleLanguage}
-                style={{
-                  background: '#0284c7',
-                  color: '#ffffff',
-                  border: 'none',
-                  padding: '4px 10px',
-                  borderRadius: '999px',
-                  fontSize: '0.74rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-              >
-                <Languages size={12} />
-                <span>Switch to {language === 'bn' ? 'English' : 'বাংলা'}</span>
-              </button>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
               {tabs.map(tab => {
                 const Icon = tab.icon;
                 const isActive = currentTab === tab.id;
@@ -405,19 +255,19 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
                       alignItems: 'center',
                       gap: '8px',
                       padding: '10px 12px',
-                      borderRadius: '10px',
+                      borderRadius: '8px',
                       border: '1px solid',
                       borderColor: isActive ? '#0284c7' : '#e2e8f0',
-                      background: isActive ? '#e0f2fe' : '#f8fafc',
+                      background: isActive ? '#e0f2fe' : '#ffffff',
                       color: isActive ? '#0369a1' : '#334155',
-                      fontSize: '0.82rem',
-                      fontWeight: isActive ? 700 : 500,
+                      fontSize: '0.84rem',
+                      fontWeight: isActive ? 700 : 600,
                       cursor: 'pointer',
                       textAlign: 'left'
                     }}
                   >
                     <Icon size={16} color={isActive ? '#0284c7' : '#64748b'} />
-                    <span>{tab.shortLabel}</span>
+                    <span>{tab.label}</span>
                   </button>
                 );
               })}
@@ -434,8 +284,7 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
           bottom: 0,
           left: 0,
           right: 0,
-          background: 'rgba(255, 255, 255, 0.98)',
-          backdropFilter: 'blur(16px)',
+          background: '#ffffff',
           borderTop: '1px solid #e2e8f0',
           justifyContent: 'space-around',
           alignItems: 'center',
@@ -445,11 +294,11 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
         }}
       >
         {[
-          { id: 'scanner', label: language === 'bn' ? 'স্ক্যানার' : 'Scanner', icon: Scan },
-          { id: 'history', label: language === 'bn' ? 'আর্কাইভ' : 'Archive', icon: History },
-          { id: 'doctor', label: language === 'bn' ? 'ডাক্তার' : 'Doctor', icon: Stethoscope },
-          { id: 'verify', label: language === 'bn' ? 'যাচাই' : 'DGDA', icon: ShieldCheck },
-          { id: 'assistant', label: language === 'bn' ? 'AI বট' : 'AI Bot', icon: Bot }
+          { id: 'scanner', label: isBn ? 'স্ক্যানার' : 'Scanner', icon: Scan },
+          { id: 'history', label: isBn ? 'আর্কাইভ' : 'History', icon: History },
+          { id: 'doctor', label: isBn ? 'ডাক্তার' : 'Doctor', icon: Stethoscope },
+          { id: 'verify', label: isBn ? 'যাচাই' : 'Verify', icon: ShieldCheck },
+          { id: 'assistant', label: isBn ? 'AI বট' : 'AI Bot', icon: Bot }
         ].map(item => {
           const Icon = item.icon;
           const isActive = currentTab === item.id;
@@ -472,8 +321,8 @@ export default function Navbar({ currentTab, setCurrentTab, elderlyMode, setElde
                 flex: 1
               }}
             >
-              <Icon size={18} strokeWidth={isActive ? 2.4 : 1.8} />
-              <span style={{ fontSize: '0.65rem', fontWeight: isActive ? 700 : 500 }}>
+              <Icon size={18} strokeWidth={isActive ? 2.5 : 1.8} />
+              <span style={{ fontSize: '0.68rem', fontWeight: isActive ? 700 : 500 }}>
                 {item.label}
               </span>
             </button>

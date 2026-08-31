@@ -1,33 +1,33 @@
 import React from 'react';
-import { Sparkles, Scan, ArrowRight, CheckCircle2, ShieldCheck, HeartPulse, Activity } from 'lucide-react';
+import { Sparkles, Scan, ArrowRight, CheckCircle2, Volume2, ShieldCheck, MapPin } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function HeroBanner({ onStartScan, onOpenDemo }) {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
+  const isBn = language === 'bn';
 
   const triggerCelebration = () => {
     confetti({
-      particleCount: 50,
+      particleCount: 40,
       spread: 60,
       origin: { y: 0.6 }
     });
   };
 
   return (
-    <section style={{ padding: '32px 0 16px' }}>
+    <section style={{ padding: '24px 0 16px' }}>
       <div className="container-max">
         <div className="clean-card" style={{
-          padding: '38px 34px',
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(240, 249, 255, 0.92) 50%, rgba(240, 253, 244, 0.92) 100%)',
-          borderRadius: '24px',
-          border: '1px solid rgba(226, 232, 240, 0.9)',
-          boxShadow: '0 20px 45px -12px rgba(2, 132, 199, 0.12), 0 0 1px rgba(2, 132, 199, 0.2)'
+          padding: '36px 30px',
+          background: '#ffffff',
+          borderRadius: '20px',
+          border: '1px solid #e2e8f0'
         }}>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '36px',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '32px',
             alignItems: 'center'
           }}>
             {/* Left Column */}
@@ -35,197 +35,170 @@ export default function HeroBanner({ onStartScan, onOpenDemo }) {
               <div style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '7px',
-                background: 'linear-gradient(135deg, #e0f2fe 0%, #dcfce7 100%)',
+                gap: '6px',
+                background: '#e0f2fe',
                 color: '#0369a1',
-                padding: '5px 14px',
+                padding: '4px 12px',
                 borderRadius: '999px',
                 fontSize: '0.78rem',
-                fontWeight: 800,
-                marginBottom: '16px',
-                border: '1px solid #bae6fd',
-                boxShadow: '0 2px 8px rgba(2, 132, 199, 0.15)'
+                fontWeight: 700,
+                marginBottom: '14px'
               }}>
-                <Activity size={14} style={{ color: '#0284c7' }} />
-                <span>{t('heroBadge')}</span>
+                <Sparkles size={14} color="#0284c7" />
+                <span>{isBn ? 'AI প্রেসক্রিপশন সহকারী' : 'AI Prescription Assistant'}</span>
               </div>
 
               <h1 style={{
-                fontSize: 'clamp(1.9rem, 3.4vw, 2.7rem)',
-                lineHeight: 1.18,
+                fontSize: 'clamp(1.7rem, 3.2vw, 2.4rem)',
+                lineHeight: 1.25,
                 color: '#0f172a',
-                marginBottom: '16px',
-                letterSpacing: '-0.035em'
+                marginBottom: '14px',
+                letterSpacing: '-0.025em'
               }}>
-                {language === 'bn' ? (
+                {isBn ? (
                   <>
-                    সহজ বাংলায় প্রেসক্রিপশন বুঝুন <span className="gradient-text-glow">ভয়েস অডিও</span> ও <span style={{ color: '#059669' }}>AI সহযোগে</span>
+                    সহজ বাংলায় প্রেসক্রিপশন বুঝুন <span style={{ color: '#0284c7' }}>ভয়েস অডিও</span> ও <span style={{ color: '#059669' }}>AI সহযোগে</span>
                   </>
                 ) : (
                   <>
-                    Understand Doctor Prescriptions <span className="gradient-text-glow">Clearly in Seconds</span> with <span style={{ color: '#059669' }}>Audio Voice</span>
+                    Understand Prescriptions <span style={{ color: '#0284c7' }}>Clearly in Seconds</span> with <span style={{ color: '#059669' }}>Audio Voice</span>
                   </>
                 )}
               </h1>
 
               <p style={{
-                fontSize: '0.98rem',
+                fontSize: '0.96rem',
                 color: '#475569',
-                marginBottom: '26px',
-                lineHeight: 1.65
+                marginBottom: '24px',
+                lineHeight: 1.6
               }}>
-                {t('heroDesc')}
+                {isBn 
+                  ? 'ডাক্তারের হাতের লেখা প্রেসক্রিপশন স্ক্যান করুন এবং সঠিক ঔষধের নাম, খাওয়ার নিয়ম ও ডোজ বাংলায় পরিষ্কারভাবে শুনুন।'
+                  : 'Scan doctor prescriptions instantly to decode medicines, timing, dosage, and listen to voice explanations.'}
               </p>
 
-              <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                 <button
                   onClick={() => {
                     triggerCelebration();
                     onStartScan();
                   }}
                   className="btn-primary"
-                  style={{ padding: '12px 26px', fontSize: '0.92rem' }}
                 >
                   <Scan size={18} />
-                  <span>{t('heroScanBtn')}</span>
+                  <span>{isBn ? 'প্রেসক্রিপশন স্ক্যান করুন' : 'Scan Prescription'}</span>
                   <ArrowRight size={16} />
                 </button>
 
                 <button
                   onClick={onOpenDemo}
                   className="btn-outline"
-                  style={{ padding: '12px 22px', fontSize: '0.92rem' }}
                 >
-                  <Sparkles size={17} color="#d97706" />
-                  <span>{t('heroDemoBtn')}</span>
+                  <Sparkles size={16} color="#d97706" />
+                  <span>{isBn ? 'ডেমো দেখুন' : 'View Demo'}</span>
                 </button>
               </div>
 
-              {/* Feature Tags */}
+              {/* Clean Feature Highlights */}
               <div style={{
                 display: 'flex',
-                gap: '18px',
-                marginTop: '26px',
+                gap: '16px',
+                marginTop: '24px',
                 flexWrap: 'wrap',
-                fontSize: '0.82rem',
+                fontSize: '0.84rem',
                 color: '#334155',
-                fontWeight: 700
+                fontWeight: 600
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <CheckCircle2 size={13} color="#059669" />
-                  </div>
-                  <span>{t('featAudio')}</span>
+                  <Volume2 size={16} color="#0284c7" />
+                  <span>{isBn ? 'বাংলা ভয়েস অডিও' : 'Audio Speech'}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <CheckCircle2 size={13} color="#059669" />
-                  </div>
-                  <span>{t('featDgda')}</span>
+                  <ShieldCheck size={16} color="#059669" />
+                  <span>{isBn ? 'DGDA ঔষধ যাচাই' : 'DGDA Verified'}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <CheckCircle2 size={13} color="#059669" />
-                  </div>
-                  <span>{t('featPharmacy')}</span>
+                  <MapPin size={16} color="#d97706" />
+                  <span>{isBn ? 'ফার্মেসি স্টক' : 'Pharmacy Finder'}</span>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Clean Visual Pipeline */}
+            {/* Right Column: Clean Visual Step Guide */}
             <div>
               <div style={{
-                background: 'rgba(255, 255, 255, 0.8)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(186, 230, 253, 0.8)',
-                borderRadius: '18px',
-                padding: '22px',
-                boxShadow: '0 10px 30px -5px rgba(2, 132, 199, 0.1)'
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '16px',
+                padding: '20px'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    {language === 'bn' ? 'AI পাইপলাইন কার্যপদ্ধতি' : 'AI Pipeline Architecture'}
-                  </span>
-                  <span style={{
-                    background: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)',
-                    color: '#15803d',
-                    padding: '3px 10px',
-                    borderRadius: '999px',
-                    fontSize: '0.74rem',
-                    fontWeight: 800,
-                    border: '1px solid #86efac',
-                    boxShadow: '0 2px 6px rgba(34, 197, 94, 0.15)'
-                  }}>
-                    96.8% Accuracy
-                  </span>
-                </div>
+                <h3 style={{ fontSize: '0.95rem', color: '#0f172a', marginBottom: '14px', fontWeight: 700 }}>
+                  {isBn ? 'কিভাবে কাজ করে?' : 'How It Works'}
+                </h3>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {/* Step 1 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{
                     background: '#ffffff',
                     border: '1px solid #e2e8f0',
                     borderRadius: '10px',
-                    padding: '10px 14px',
+                    padding: '12px 14px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px'
+                    gap: '12px'
                   }}>
-                    <span style={{ background: '#e0f2fe', color: '#0369a1', width: '24px', height: '24px', borderRadius: '50%', aspectRatio: '1/1', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
-                      1
+                    <span style={{ background: '#e0f2fe', color: '#0369a1', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.82rem', fontWeight: 800, flexShrink: 0 }}>
+                      ১
                     </span>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <strong style={{ fontSize: '0.82rem', color: '#0f172a', display: 'block' }}>
-                        {language === 'bn' ? 'হ্যান্ডরাইটিং ভিশন ডিটেকশন' : 'Handwriting Vision OCR'}
+                    <div>
+                      <strong style={{ fontSize: '0.88rem', color: '#0f172a', display: 'block' }}>
+                        {isBn ? 'ছবি আপলোড করুন' : 'Upload Prescription'}
                       </strong>
-                      <span style={{ fontSize: '0.72rem', color: '#64748b', wordBreak: 'break-word' }}>
-                        {language === 'bn' ? 'হাতের লেখার প্রতিটি বর্ণ ও বাউন্ডিং বক্স বিশ্লেষণ' : 'Sub-character frequency & LCS sequence matching'}
+                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                        {isBn ? 'প্রেসক্রিপশনের স্পষ্ট ছবি নির্বাচন বা ক্যামেরা দিয়ে তুলুন' : 'Select a clear photo of your prescription'}
                       </span>
                     </div>
                   </div>
 
-                  {/* Step 2 */}
                   <div style={{
                     background: '#ffffff',
                     border: '1px solid #e2e8f0',
                     borderRadius: '10px',
-                    padding: '10px 14px',
+                    padding: '12px 14px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px'
+                    gap: '12px'
                   }}>
-                    <span style={{ background: '#dcfce7', color: '#15803d', width: '24px', height: '24px', borderRadius: '50%', aspectRatio: '1/1', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
-                      2
+                    <span style={{ background: '#dcfce7', color: '#15803d', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.82rem', fontWeight: 800, flexShrink: 0 }}>
+                      ২
                     </span>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <strong style={{ fontSize: '0.82rem', color: '#0f172a', display: 'block' }}>
-                        {language === 'bn' ? 'বাংলাদেশী ড্রাগ ডিকশনারি ম্যাচিং' : 'Bangladeshi Drug Formulary Matching'}
+                    <div>
+                      <strong style={{ fontSize: '0.88rem', color: '#0f172a', display: 'block' }}>
+                        {isBn ? 'AI স্বয়ংক্রিয়ভাবে সনাক্ত করবে' : 'AI Medicine Recognition'}
                       </strong>
-                      <span style={{ fontSize: '0.72rem', color: '#64748b', wordBreak: 'break-word' }}>
-                        {language === 'bn' ? 'Square, Beximco, Incepta এর ৫০০+ ওষুধের সাথে মিলিয়ে নিশ্চিতকরণ' : 'Auto-snapped against 500+ Square, Beximco, Incepta brands'}
+                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                        {isBn ? 'হাতের লেখা বিশ্লেষণ করে সঠিক ওষুধের নাম বের করবে' : 'Decodes handwritten medicine names accurately'}
                       </span>
                     </div>
                   </div>
 
-                  {/* Step 3 */}
                   <div style={{
                     background: '#ffffff',
                     border: '1px solid #e2e8f0',
                     borderRadius: '10px',
-                    padding: '10px 14px',
+                    padding: '12px 14px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px'
+                    gap: '12px'
                   }}>
-                    <span style={{ background: '#fef3c7', color: '#b45309', width: '24px', height: '24px', borderRadius: '50%', aspectRatio: '1/1', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 800 }}>
-                      3
+                    <span style={{ background: '#fef3c7', color: '#b45309', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.82rem', fontWeight: 800, flexShrink: 0 }}>
+                      ৩
                     </span>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <strong style={{ fontSize: '0.82rem', color: '#0f172a', display: 'block' }}>
-                        {language === 'bn' ? 'ভয়েস অডিও ও DGDA যাচাই' : 'Audio Speech & DGDA Authenticity'}
+                    <div>
+                      <strong style={{ fontSize: '0.88rem', color: '#0f172a', display: 'block' }}>
+                        {isBn ? 'ভয়েস অডিওতে শুনুন' : 'Listen with Audio'}
                       </strong>
-                      <span style={{ fontSize: '0.72rem', color: '#64748b', wordBreak: 'break-word' }}>
-                        {language === 'bn' ? 'বাংলা ভয়েস স্পিচ ও DAR রেজিস্ট্রেশন চেক' : 'Clear voice playback & counterfeit drug protection'}
+                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                        {isBn ? 'ঔষধ খাওয়ার সঠিক নিয়ম ও সময় বাংলায় শুনুন' : 'Listen to dosage instructions in clear Bangla voice'}
                       </span>
                     </div>
                   </div>

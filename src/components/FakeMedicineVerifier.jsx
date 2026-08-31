@@ -53,26 +53,12 @@ export default function FakeMedicineVerifier() {
     <div style={{ padding: '8px 0 36px' }}>
       <div className="container-max">
         {/* Module Header */}
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            background: '#ffe4e6',
-            color: '#be123c',
-            padding: '3px 10px',
-            borderRadius: '999px',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            marginBottom: '6px'
-          }}>
-            MODULE 6 • DGDA FAKE MEDICINE VERIFICATION
-          </div>
-          <h2 style={{ fontSize: '1.75rem', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.02em' }}>
-            DGDA Counterfeit Drug Verifier (নকল ঔষধ যাচাই)
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '1.6rem', color: '#0f172a', marginBottom: '4px', letterSpacing: '-0.02em' }}>
+            DGDA নকল ঔষধ যাচাইকরণ (Counterfeit Verifier)
           </h2>
-          <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '600px', margin: '0 auto' }}>
-            ঔষধ প্রশাসন অধিদপ্তর (DGDA) রেজিস্ট্রেশন ও হলোগ্রাম ডাটাবেস যাচাই করে আসল ওষুধ নিশ্চিত করুন।
+          <p style={{ color: '#64748b', fontSize: '0.88rem', maxWidth: '540px', margin: '0 auto' }}>
+            ঔষধ প্রশাসন অধিদপ্তর (DGDA) রেজিস্ট্রেশন ও বারকোড দিয়ে আসল ঔষধ যাচাই করুন।
           </p>
         </div>
 

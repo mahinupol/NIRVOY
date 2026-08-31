@@ -316,35 +316,15 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
   return (
     <div style={{ padding: '8px 0 32px' }}>
       <div className="container-max">
-        {/* Section Header with Preloaded Dataset Badge */}
-        <div style={{ textAlign: 'center', marginBottom: '20px', position: 'relative' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: '#f0fdf4',
-            color: '#15803d',
-            border: '1px solid #bbf7d0',
-            padding: '4px 12px',
-            borderRadius: '999px',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            marginBottom: '6px'
-          }}>
-            <Database size={13} color="#16a34a" />
-            <span>PRELOADED BANGLADESHI DRUG DATASET (27+ ESSENTIAL BRANDS)</span>
-            <span style={{ opacity: 0.5 }}>|</span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-              <Sparkles size={12} />
-              {hasApiKey ? 'Gemini 2.0 Vision Active' : 'Offline Fuzzy Predictor Active'}
-            </span>
-          </div>
-
-          <h2 style={{ fontSize: '1.75rem', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.02em' }}>
-            Prescription Recognition & AI Drug Prediction (প্রেসক্রিপশন সনাক্তকরণ)
+        {/* Section Header */}
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '1.6rem', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.02em' }}>
+            {language === 'bn' ? 'প্রেসক্রিপশন স্ক্যান ও ঔষধ সনাক্তকরণ' : 'Prescription Scanner & Medicine AI'}
           </h2>
-          <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '640px', margin: '0 auto' }}>
-            হাতে লেখা অস্পষ্ট প্রেসক্রিপশন আপলোড করুন। AI স্বয়ংক্রিয়ভাবে প্রি-লোডেড ডেটাসেট থেকে ঔষধের নাম প্রেডিক্ট এবং নির্ভুলভাবে সনাক্ত করবে।
+          <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '580px', margin: '0 auto' }}>
+            {language === 'bn' 
+              ? 'প্রেসক্রিপশনের ছবি আপলোড করুন অথবা নিচের ডেমো স্যাম্পল থেকে বেছে নিন।'
+              : 'Upload prescription photo or select from demo samples below.'}
           </p>
         </div>
 
