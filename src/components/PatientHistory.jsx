@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Search, Calendar, CheckCircle2, Bell, Lock, LogIn, FileText, UserCheck } from 'lucide-react';
+import { Download, Search, Calendar, CheckCircle2, Bell, Lock, LogIn, FileText, Trash2, AlertCircle } from 'lucide-react';
 import { SAMPLE_PRESCRIPTIONS } from '../data/samplePrescriptions';
 import { exportPrescriptionPDF } from '../utils/pdfGenerator';
 import { useAuth } from '../context/AuthContext';
@@ -13,13 +13,14 @@ export default function PatientHistory({ onSelectPrescription }) {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [prescriptions, setPrescriptions] = useState([]);
+  const [deleteNotice, setDeleteNotice] = useState('');
   const [dailyChecklist, setDailyChecklist] = useState({
     morning: false,
     afternoon: false,
     night: false
   });
 
-  // Only load prescriptions if user is logged in
+  // Load user prescriptions on mount / auth change
   useEffect(() => {
     if (isAuthenticated && user) {
       const userStorageKey = `NIRVOY_USER_PRESCRIPTIONS_${user.id}`;
@@ -27,7 +28,7 @@ export default function PatientHistory({ onSelectPrescription }) {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed)) {
             setPrescriptions(parsed);
             return;
           }
@@ -35,13 +36,45 @@ export default function PatientHistory({ onSelectPrescription }) {
           console.warn('Failed to parse user prescriptions:', e);
         }
       }
-      // If no custom user prescriptions yet, initialize with clean sample for this logged in user
       setPrescriptions(SAMPLE_PRESCRIPTIONS);
     } else {
-      // Not logged in: NO data saved or shown!
       setPrescriptions([]);
     }
   }, [isAuthenticated, user]);
+
+  // Delete single prescription
+  const handleDeletePrescription = (rxId) => {
+    if (!window.confirm(isBn ? 'আপনি কি নিশ্চিত যে এই প্রেসক্রিপশনটি মুছে ফেলতে চান?' : 'Are you sure you want to delete this prescription?')) {
+      return;
+    }
+
+    const updated = prescriptions.filter(rx => rx.id !== rxId);
+    setPrescriptions(updated);
+
+    if (user?.id) {
+      const userStorageKey = `NIRVOY_USER_PRESCRIPTIONS_${user.id}`;
+      localStorage.setItem(userStorageKey, JSON.stringify(updated));
+    }
+
+    setDeleteNotice(isBn ? 'প্রেসক্রিপশনটি সফলভাবে মুছে ফেলা হয়েছে।' : 'Prescription deleted successfully.');
+    setTimeout(() => setDeleteNotice(''), 3000);
+  };
+
+  // Clear all prescriptions
+  const handleClearAllPrescriptions = () => {
+    if (!window.confirm(isBn ? 'আপনি কি নিশ্চিত যে সমস্ত সংরক্ষিত প্রেসক্রিপশন মুছে ফেলতে চান?' : 'Are you sure you want to clear all saved prescriptions?')) {
+      return;
+    }
+
+    setPrescriptions([]);
+    if (user?.id) {
+      const userStorageKey = `NIRVOY_USER_PRESCRIPTIONS_${user.id}`;
+      localStorage.setItem(userStorageKey, JSON.stringify([]));
+    }
+
+    setDeleteNotice(isBn ? 'সকল প্রেসক্রিপশন মুছে ফেলা হয়েছে।' : 'All prescriptions cleared.');
+    setTimeout(() => setDeleteNotice(''), 3000);
+  };
 
   const handleToggleDose = (slot) => {
     if (!isAuthenticated) {
@@ -71,7 +104,7 @@ export default function PatientHistory({ onSelectPrescription }) {
     );
   });
 
-  // IF NOT LOGGED IN: Do not show or save any data
+  // IF NOT LOGGED IN
   if (!isAuthenticated) {
     return (
       <div style={{ padding: '30px 0 50px' }}>
@@ -122,7 +155,7 @@ export default function PatientHistory({ onSelectPrescription }) {
     );
   }
 
-  // IF LOGGED IN: Show clean prescription archive & dose tracker
+  // IF LOGGED IN
   return (
     <div style={{ padding: '12px 0 36px' }}>
       <div className="container-max">
@@ -137,6 +170,26 @@ export default function PatientHistory({ onSelectPrescription }) {
               : `Saved prescriptions for ${user?.name || 'Patient'}.`}
           </p>
         </div>
+
+        {/* Delete Feedback Alert */}
+        {deleteNotice && (
+          <div style={{
+            background: '#f0fdf4',
+            border: '1px solid #bbf7d0',
+            color: '#166534',
+            padding: '10px 16px',
+            borderRadius: '10px',
+            marginBottom: '16px',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <CheckCircle2 size={16} color="#16a34a" />
+            <span>{deleteNotice}</span>
+          </div>
+        )}
 
         {/* Daily Medication Reminder Checklist */}
         <div className="clean-card" style={{
@@ -207,11 +260,12 @@ export default function PatientHistory({ onSelectPrescription }) {
           </div>
         </div>
 
-        {/* Search Bar */}
+        {/* Search & Actions Bar */}
         <div style={{
           display: 'flex',
           gap: '12px',
           alignItems: 'center',
+          justifyContent: 'space-between',
           marginBottom: '18px',
           flexWrap: 'wrap'
         }}>
@@ -233,7 +287,39 @@ export default function PatientHistory({ onSelectPrescription }) {
               }}
             />
           </div>
+
+          {prescriptions.length > 0 && (
+            <button
+              onClick={handleClearAllPrescriptions}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                borderRadius: '8px',
+                border: '1px solid #fecaca',
+                background: '#fef2f2',
+                color: '#dc2626',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+              title={isBn ? 'সব প্রেসক্রিপশন মুছুন' : 'Clear All'}
+            >
+              <Trash2 size={14} />
+              <span>{isBn ? 'সব মুছুন' : 'Clear All'}</span>
+            </button>
+          )}
         </div>
+
+        {/* Empty State */}
+        {filteredPrescriptions.length === 0 && (
+          <div className="clean-card" style={{ padding: '36px 20px', textAlign: 'center', background: '#ffffff' }}>
+            <p style={{ color: '#64748b', fontSize: '0.92rem', margin: 0 }}>
+              {isBn ? 'কোনো প্রেসক্রিপশন পাওয়া যায়নি।' : 'No prescriptions found in your archive.'}
+            </p>
+          </div>
+        )}
 
         {/* Prescriptions List */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
@@ -247,7 +333,8 @@ export default function PatientHistory({ onSelectPrescription }) {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                gap: '14px'
+                gap: '14px',
+                position: 'relative'
               }}
             >
               <div>
@@ -289,23 +376,44 @@ export default function PatientHistory({ onSelectPrescription }) {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '8px', paddingTop: '10px', borderTop: '1px solid #f1f5f9' }}>
+              {/* Action Buttons: View Details, Download PDF & Delete */}
+              <div style={{ display: 'flex', gap: '8px', paddingTop: '10px', borderTop: '1px solid #f1f5f9', alignItems: 'center' }}>
                 <button
                   onClick={() => onSelectPrescription && onSelectPrescription(rx)}
                   className="btn-primary"
                   style={{ flex: 1, padding: '7px 12px', fontSize: '0.8rem' }}
                 >
                   <FileText size={14} />
-                  <span>{isBn ? 'বিশ্লেষণ দেখুন' : 'View Details'}</span>
+                  <span>{isBn ? 'বিশ্লেষণ' : 'View'}</span>
                 </button>
 
                 <button
                   onClick={() => exportPrescriptionPDF(rx)}
                   className="btn-outline"
                   style={{ padding: '7px 10px' }}
-                  title="Download PDF"
+                  title={isBn ? 'পিডিএফ ডাউনলোড' : 'Download PDF'}
                 >
                   <Download size={14} />
+                </button>
+
+                {/* Delete Button */}
+                <button
+                  onClick={() => handleDeletePrescription(rx.id)}
+                  style={{
+                    background: '#fef2f2',
+                    border: '1px solid #fecaca',
+                    color: '#dc2626',
+                    padding: '7px 10px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.15s ease'
+                  }}
+                  title={isBn ? 'প্রেসক্রিপশনটি মুছুন' : 'Delete Prescription'}
+                >
+                  <Trash2 size={14} />
                 </button>
               </div>
             </div>
