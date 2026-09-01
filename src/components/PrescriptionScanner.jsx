@@ -357,24 +357,33 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
       return;
     }
     setApiKeyStatus({ saved: false, testing: true, msg: 'Testing connection to Google Gemini API...' });
-    try {
-      const resp = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKeyInput.trim()}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: 'Respond with OK if connected.' }] }]
-          })
+    const modelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    let success = false;
+
+    for (const m of modelsToTry) {
+      try {
+        const resp = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKeyInput.trim()}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: 'Respond with OK if connected.' }] }]
+            })
+          }
+        );
+        if (resp.ok) {
+          success = true;
+          setApiKeyStatus({ saved: false, testing: false, msg: `✅ Connection Successful! Google Gemini Vision (${m}) is active.` });
+          break;
         }
-      );
-      if (resp.ok) {
-        setApiKeyStatus({ saved: false, testing: false, msg: ' Connection Successful! Gemini Vision 1.5/2.0 is ready.' });
-      } else {
-        setApiKeyStatus({ saved: false, testing: false, msg: `❌ API Error (${resp.status}): Invalid Key or Quota Exceeded.` });
+      } catch (e) {
+        // try next
       }
-    } catch (e) {
-      setApiKeyStatus({ saved: false, testing: false, msg: `❌ Network Error: Could not connect to Gemini API.` });
+    }
+
+    if (!success) {
+      setApiKeyStatus({ saved: false, testing: false, msg: '❌ Connection failed. Please check your API Key and internet connection.' });
     }
   };
 
@@ -533,7 +542,7 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
 
             {/* AI Re-Scan Button */}
             <button
-              onClick={() => runRealOcr(currentRx.customImageUrl, currentRx)}
+              onClick={() => runRealOcr(currentRx.customImageUrl || currentRx, null)}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
