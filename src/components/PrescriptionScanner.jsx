@@ -11,7 +11,9 @@ import {
   analyzePrescriptionWithAI, 
   getStoredApiKey, 
   setStoredApiKey,
-  fuzzyPredictMedicine 
+  fuzzyPredictMedicine,
+  parseRawTextToMedicines,
+  enrichPrescriptionDataWithAlphabetPrediction
 } from '../utils/aiVisionOcr';
 import { parseDosageInstruction } from '../utils/prescriptionParser';
 import { useLanguage } from '../context/LanguageContext';
@@ -40,6 +42,10 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
   const [showDatasetModal, setShowDatasetModal] = useState(false);
   const [datasetSearch, setDatasetSearch] = useState('');
 
+  // Quick Text & Raw Medicine Matcher Modal State
+  const [showTextMatchModal, setShowTextMatchModal] = useState(false);
+  const [rawTextInput, setRawTextInput] = useState('');
+
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -51,29 +57,33 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
   const runRealOcr = async (fileOrUrl, originalSample = null) => {
     setIsScanning(true);
     setScanProgress(15);
-    setScanStepText('Enhancing image contrast & loading preloaded medicine dataset...');
+    setScanStepText(language === 'bn' ? 'ইমেজ বিশ্লেষণ ও ৫০+ বাংলাদেশি ঔষধের ডেটাসেট লোড হচ্ছে...' : 'Enhancing image contrast & loading preloaded medicine dataset...');
     setActiveBoxIndex(null);
 
     const pTimer1 = setTimeout(() => {
       setScanProgress(45);
-      setScanStepText(hasApiKey ? 'Analyzing handwritten notes & matching against 27+ preloaded medicines...' : 'Predicting handwriting using Preloaded BD Drug Vocabulary...');
+      setScanStepText(hasApiKey 
+        ? (language === 'bn' ? 'Gemini AI দিয়ে প্রেসক্রিপশনের হস্তাক্ষর বিশ্লেষণ করা হচ্ছে...' : 'Analyzing handwritten notes with Gemini AI Vision...') 
+        : (language === 'bn' ? 'বাংলাদেশি ড্রাগ ভোকাবুলারি দিয়ে নাম প্রেডিক্ট করা হচ্ছে...' : 'Predicting handwriting using Preloaded BD Drug Vocabulary...'));
     }, 400);
 
     const pTimer2 = setTimeout(() => {
       setScanProgress(75);
-      setScanStepText('Fuzzy matching drug names against DGDA Bangladeshi Medicine Registry...');
-    }, 900);
+      setScanStepText(language === 'bn' ? 'DGDA ও মাস্টার মেডিসিন ডেটাসেটের সাথে মিল যাচাই করা হচ্ছে...' : 'Matching drug names against DGDA Bangladeshi Medicine Registry...');
+    }, 850);
 
     try {
       let parsedRx;
-      if (originalSample && !fileOrUrl) {
-        parsedRx = { ...originalSample };
+      if (originalSample) {
+        // Accurately enrich and standardize the chosen clinical sample with dataset
+        parsedRx = enrichPrescriptionDataWithAlphabetPrediction(originalSample, originalSample.customImageUrl, false);
       } else {
-        parsedRx = await analyzePrescriptionWithAI(fileOrUrl);
+        const fileHint = fileOrUrl?.name || (typeof fileOrUrl === 'string' ? fileOrUrl : '');
+        parsedRx = await analyzePrescriptionWithAI(fileOrUrl, null, fileHint);
       }
 
       setScanProgress(95);
-      setScanStepText('Synthesizing patient instructions and dosage breakdown...');
+      setScanStepText(language === 'bn' ? 'ঔষধের খাওয়ার নিয়ম ও ডোজ তৈরি করা হচ্ছে...' : 'Synthesizing patient instructions and dosage breakdown...');
 
       setTimeout(() => {
         setIsScanning(false);
@@ -83,8 +93,10 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
         if (onScanComplete) onScanComplete(parsedRx);
         if (parsedRx.customImageUrl) {
           setViewMode('image');
+        } else {
+          setViewMode('slip');
         }
-      }, 400);
+      }, 350);
     } catch (err) {
       console.error('OCR analysis failed:', err);
       setIsScanning(false);
@@ -99,6 +111,8 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
     setSelectedPrescription(sample);
     if (sample.customImageUrl) {
       setViewMode('image');
+    } else {
+      setViewMode('slip');
     }
     runRealOcr(sample.customImageUrl, sample);
   };
@@ -106,8 +120,43 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setViewMode('image');
       runRealOcr(file);
     }
+  };
+
+  // Match raw multiline text or pasted doctor notes with dataset
+  const handleMatchRawText = (textOverride = null) => {
+    const textToUse = textOverride || rawTextInput;
+    if (!textToUse || !textToUse.trim()) return;
+
+    const parsedItems = parseRawTextToMedicines(textToUse);
+    if (parsedItems.length === 0) return;
+
+    const medListBn = parsedItems.map(b => `${b.detectedMedicine} (${b.dosage})`).join(', ');
+    const newRx = {
+      id: `RX-CUSTOM-${Date.now().toString().slice(-4)}`,
+      title: language === 'bn' ? 'শনাক্তকৃত প্রেসক্রিপশন' : 'Custom Matched Prescription',
+      doctorName: 'Dr. Specialized Consultant (ডাঃ স্পেশালিস্ট কনসালট্যান্ট)',
+      qualifications: 'MBBS, FCPS, MD (Specialist Physician)',
+      hospital: 'Specialized Medical Center, Dhaka',
+      date: new Date().toISOString().split('T')[0],
+      patientName: language === 'bn' ? 'সাধারণ রোগী' : 'General Patient',
+      patientAge: 35,
+      patientGender: 'Male',
+      diagnosis: 'Clinical Consultation & Prescription Therapy',
+      customImageUrl: null,
+      sampleImageSvg: 'rx_fever',
+      ocrConfidence: 98.4,
+      boundingBoxes: parsedItems,
+      banglaSummary: `প্রেসক্রিপশনে ${parsedItems.length}টি ঔষধ ডেটাসেটের সাথে মিলিয়ে শনাক্ত করা হয়েছে: ${medListBn}। চিকিৎসকের নির্দেশ অনুযায়ী নিয়ম মেনে ঔষধ সেবন করুন।`
+    };
+
+    setSelectedPrescription(newRx);
+    if (onScanComplete) onScanComplete(newRx);
+    setViewMode('slip');
+    setShowTextMatchModal(false);
+    setRawTextInput('');
   };
 
   // Delete / Reset Prescription Image
@@ -397,10 +446,13 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                 }}
               >
                 <span>
-                  {idx === 0 ? '📝 Slip 1 (Mitford)' : 
-                   idx === 1 ? '📝 Slip 2 (BSMMU)' : 
-                   idx === 2 ? '🌡️ Flu & Acidity' : 
-                   idx === 3 ? '🫁 Asthma' : '❤️ Cardio'}
+                  {sample.id === 'rx-real-1' ? '📝 Slip 1 (Mitford)' : 
+                   sample.id === 'rx-real-2' ? '📝 Slip 2 (Mugda)' : 
+                   sample.id === 'rx-demo-1' ? '🌡️ Flu & Acidity' : 
+                   sample.id === 'rx-demo-2' ? '🫁 Asthma' : 
+                   sample.id === 'rx-demo-3' ? '❤️ Cardio' :
+                   sample.id === 'rx-demo-4' ? '🥣 Gastro' :
+                   sample.id === 'rx-demo-5' ? '🦴 Ortho' : sample.title}
                 </span>
               </button>
             ))}
@@ -408,6 +460,28 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
 
           {/* Action Buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            {/* Quick Text / Custom Rx Matcher */}
+            <button
+              onClick={() => setShowTextMatchModal(true)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                border: '1px solid #fde047',
+                background: '#fefce8',
+                color: '#854d0e',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+              title="Match Custom Notes / Typed Drugs against Dataset"
+            >
+              <Zap size={13} color="#ca8a04" />
+              <span>{language === 'bn' ? '⚡ কাস্টম ঔষধ ম্যাচ' : '⚡ Drug Matcher'}</span>
+            </button>
+
             {/* Open Preloaded Dataset Modal */}
             <button
               onClick={() => setShowDatasetModal(true)}
@@ -1599,6 +1673,180 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                 >
                   Save & Connect
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Text & Raw Medicine Matcher Modal */}
+        {showTextMatchModal && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '20px'
+          }}>
+            <div style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              maxWidth: '620px',
+              width: '100%',
+              padding: '24px',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15)',
+              border: '1px solid #e2e8f0',
+              maxHeight: '90vh',
+              overflowY: 'auto'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ background: '#fef08a', color: '#854d0e', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Zap size={18} />
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0f172a', fontWeight: 700 }}>
+                    {language === 'bn' ? 'কাস্টম টেক্সট ও ঔষধ ম্যাচ ইঞ্জিন' : 'AI Medicine & Text Match Engine'}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowTextMatchModal(false)}
+                  style={{ background: 'none', border: 'none', fontSize: '1.2rem', color: '#64748b', cursor: 'pointer' }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <p style={{ fontSize: '0.82rem', color: '#475569', marginBottom: '14px', lineHeight: 1.5 }}>
+                {language === 'bn' 
+                  ? 'ডাক্তারের হাতের লেখা নোট বা ঔষধের নাম পেস্ট করুন অথবা নিচের চিপসে ক্লিক করে স্বয়ংক্রিয়ভাবে ডাটাবেসের সাথে মিলিয়ে প্রেসক্রিপশন তৈরি করুন।'
+                  : 'Type or paste handwritten doctor notes or click quick medicine chips below to instantly match against our Bangladeshi Medicine dataset.'}
+              </p>
+
+              {/* Quick Medicine Chips */}
+              <div style={{ marginBottom: '14px' }}>
+                <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                  {language === 'bn' ? '⚡ দ্রুত যুক্ত করুন (Quick BD Drugs):' : '⚡ Popular BD Medicines:'}
+                </span>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  {[
+                    { name: 'Tab. Napa Extra 1+0+1 5 days', label: 'Napa Extra' },
+                    { name: 'Cap. Seclo 20 1+0+1 14 days', label: 'Seclo 20' },
+                    { name: 'Cap. Sergel 20 1+0+1 14 days', label: 'Sergel 20' },
+                    { name: 'Tab. Monas 10 0+0+1 30 days', label: 'Monas 10' },
+                    { name: 'Tab. Ciprocin 500 1+0+1 7 days', label: 'Ciprocin 500' },
+                    { name: 'Tab. Azithrocin 500 1+0+0 5 days', label: 'Azithrocin 500' },
+                    { name: 'Tab. Thyrox 25 1+0+0 continue', label: 'Thyrox 25' },
+                    { name: 'Tab. Bizoran 5/20 1+0+0 continue', label: 'Bizoran 5/20' },
+                    { name: 'Tab. Calbo-D 0+0+1 30 days', label: 'Calbo-D' },
+                    { name: 'Tab. Beklo 10 1+0+1 10 days', label: 'Beklo 10' },
+                    { name: 'Tab. Fenadin 120 1+0+1 7 days', label: 'Fenadin 120' },
+                    { name: 'Tab. Filmet 400 1+1+1 7 days', label: 'Filmet 400' }
+                  ].map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setRawTextInput(prev => prev ? `${prev}\n${item.name}` : item.name);
+                      }}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '999px',
+                        border: '1px solid #cbd5e1',
+                        background: '#f8fafc',
+                        color: '#1e293b',
+                        fontSize: '0.72rem',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      + {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Text Input Area */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                  {language === 'bn' ? 'প্রেসক্রিপশন টেক্সট / ঔষধের লাইনসমূহ:' : 'Prescription Lines / Notes:'}
+                </label>
+                <textarea
+                  rows={5}
+                  value={rawTextInput}
+                  onChange={(e) => setRawTextInput(e.target.value)}
+                  placeholder={`Tab. Napa Extra 1+0+1 5 days খাবার পর\nCap. Seclo 20 1+0+1 14 days খালি পেটে\nTab. Monas 10 0+0+1 30 days রাতে`}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '0.85rem',
+                    fontFamily: 'monospace',
+                    boxSizing: 'border-box',
+                    lineHeight: 1.5
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <button
+                  onClick={() => setRawTextInput('')}
+                  style={{
+                    padding: '7px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0',
+                    background: '#f8fafc',
+                    color: '#64748b',
+                    fontSize: '0.8rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {language === 'bn' ? 'মুছে ফেলুন' : 'Clear'}
+                </button>
+
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => {
+                      const sampleText = `Tab. Napa Extra (500+65) 1+0+1 5 days খাবার পর\nCap. Sergel 20 1+0+1 14 days খাওয়ার ৩০ মিনিট আগে\nTab. Ciprocin 500 1+0+1 7 days খাবার পর\nTab. Monas 10 0+0+1 30 days রাতে ঘুমানোর আগে`;
+                      setRawTextInput(sampleText);
+                    }}
+                    style={{
+                      padding: '7px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid #cbd5e1',
+                      background: '#ffffff',
+                      color: '#334155',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {language === 'bn' ? 'নমুনা টেক্সট' : 'Sample Note'}
+                  </button>
+
+                  <button
+                    onClick={() => handleMatchRawText()}
+                    disabled={!rawTextInput.trim()}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '8px 18px',
+                      borderRadius: '8px',
+                      background: rawTextInput.trim() ? '#0284c7' : '#94a3b8',
+                      color: '#ffffff',
+                      border: 'none',
+                      fontSize: '0.82rem',
+                      fontWeight: 700,
+                      cursor: rawTextInput.trim() ? 'pointer' : 'not-allowed'
+                    }}
+                  >
+                    <Zap size={14} />
+                    <span>{language === 'bn' ? 'ডেটাসেটের সাথে ম্যাচ করুন' : 'Match with Dataset'}</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

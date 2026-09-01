@@ -108,5 +108,46 @@ export const SAMPLE_PRESCRIPTIONS = [
       { id: "box-33", label: "Cap. Maxpro 20mg", rawText: "Maxpro 20", detectedMedicine: "Maxpro 20", dosage: "1+0+1", duration: "30 days", confidence: 96, timing: "খাওয়ার ৩০ মিনিট আগে", box: { top: 68, left: 10, width: 80, height: 12 } }
     ],
     banglaSummary: "উচ্চ রক্তচাপ ও ডায়াবেটিস নিয়মিত নিয়ন্ত্রণের জন্য: ১) বিজোরান ৫/২০ সকালে ১টি। ২) কম্পাথিক ৫০০ সকাল ও রাতে খাওয়ার সাথে। ৩) ম্যাক্সপ্রো ২০ সকালে ও রাতে খালি পেটে।"
+  },
+  {
+    id: "rx-demo-4",
+    title: "Gastroenterology & Peptic Ulcer Rx",
+    doctorName: "Prof. Dr. Mahmudul Hasan",
+    qualifications: "MBBS, FCPS (Gastroenterology), FACP",
+    hospital: "Bangabandhu Sheikh Mujib Medical University (BSMMU)",
+    date: "2026-08-29",
+    patientName: "Kamal Uddin Ahmed",
+    patientAge: 42,
+    patientGender: "Male",
+    diagnosis: "Severe H. Pylori Peptic Ulcer & Acute Dyspepsia",
+    sampleImageSvg: "rx_gastro",
+    ocrConfidence: 96.5,
+    boundingBoxes: [
+      { id: "box-41", label: "Cap. Sergel 20mg", rawText: "Cap. Sergel (20)", detectedMedicine: "Sergel 20", dosage: "1+0+1", duration: "14 days", confidence: 98, timing: "খাওয়ার ৩০ মিনিট আগে", box: { top: 30, left: 10, width: 80, height: 12 } },
+      { id: "box-42", label: "Tab. Ciprocin 500mg", rawText: "Tab. Ciprocin (500)", detectedMedicine: "Ciprocin 500", dosage: "1+0+1", duration: "7 days", confidence: 97, timing: "খাবার পর", box: { top: 48, left: 10, width: 80, height: 12 } },
+      { id: "box-43", label: "Tab. Filmet 400mg", rawText: "Tab. Filmet (400)", detectedMedicine: "Filmet 400", dosage: "1+1+1", duration: "7 days", confidence: 95, timing: "খাবার পর", box: { top: 66, left: 10, width: 80, height: 12 } }
+    ],
+    banglaSummary: "পেপটিক আলসার ও পেটের ব্যাকটেরিয়াল ইনফেকশনের জন্য ৩টি ওষুধ নির্দেশিত: ১) সার্জেল ২০: সকাল ও রাতে খাবার ৩০ মিনিট আগে খালি পেটে। ২) সিপ্রোসিন ৫০০: সকাল ও রাতে খাবার পর ৭ দিন। ৩) ফিলমেট ৪০০: দিনে ৩ বার খাবার পর ৭ দিন।"
+  },
+  {
+    id: "rx-demo-5",
+    title: "Orthopedic & Joint Pain Management",
+    doctorName: "Dr. Shahinur Rashid",
+    qualifications: "MBBS, MS (Orthopedic Surgery)",
+    hospital: "National Institute of Traumatology and Orthopaedic Rehabilitation (NITOR)",
+    date: "2026-08-30",
+    patientName: "Rashida Khatun",
+    patientAge: 58,
+    patientGender: "Female",
+    diagnosis: "Osteoarthritis & Lumbar Spondylosis with Muscle Spasm",
+    sampleImageSvg: "rx_ortho",
+    ocrConfidence: 95.8,
+    boundingBoxes: [
+      { id: "box-51", label: "Tab. Beklo 10mg", rawText: "Tab Beklo 10", detectedMedicine: "Beklo 10", dosage: "1+0+1", duration: "10 days", confidence: 96, timing: "খাবার পর", box: { top: 28, left: 10, width: 80, height: 12 } },
+      { id: "box-52", label: "Tab. Calbo-D", rawText: "Calbo-D Tab", detectedMedicine: "Calbo-D", dosage: "0+0+1", duration: "30 days", confidence: 98, timing: "রাতে খাবার পর", box: { top: 44, left: 10, width: 80, height: 12 } },
+      { id: "box-53", label: "Cap. D-Rise 20000", rawText: "Cap D-Rise 20K", detectedMedicine: "D-Rise 20000", dosage: "১টি প্রতি সপ্তাহে", duration: "৮ সপ্তাহ (8 weeks)", confidence: 94, timing: "সপ্তাহে ১ দিন ভারী খাবারের পর", box: { top: 60, left: 10, width: 80, height: 12 } },
+      { id: "box-54", label: "Tab. Napa Extra 500+65", rawText: "Napa Extra", detectedMedicine: "Napa Extra", dosage: "1+0+1", duration: "5 days", confidence: 97, timing: "ব্যথা হলে খাবার পর", box: { top: 76, left: 10, width: 80, height: 12 } }
+    ],
+    banglaSummary: "হাড়ের ক্ষয় ও জয়েন্টের ব্যথার জন্য ৪টি ওষুধ: ১) বেক্লো ১০: সকাল ও রাতে পেশীর টান কমাতে। ২) ক্যালবো-ডি: রাতে ১টি ক্যালসিয়াম হিসেবে। ৩) ডি-রাইজ ২০০০০: সপ্তাহে ১টি করে ভিটামিন-ডি। ৪) নাপা এক্সট্রা: তীব্র ব্যথা হলে খাবার পর।"
   }
 ];
