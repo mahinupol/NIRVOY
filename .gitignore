@@ -26,3 +26,5 @@ DIY_ventilator*
 *.njsproj
 *.sln
 *.sw?
+
+.vercel

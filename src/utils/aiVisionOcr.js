@@ -1,7 +1,4 @@
-// AI Vision OCR & Alphabet-Level Character Counting Prediction Engine
-// Uses Character Frequency, Letter N-Gram Overlap, Longest Common Subsequence (LCS) & Generic Mapping
-
-import { BANGLADESHI_MEDICINES } from '../data/medicinesData';
+import { BANGLADESHI_MEDICINES, MEDICINE_BRAND_INDEX, MEDICINE_CLEAN_INDEX } from '../data/medicinesData';
 import { DGDA_REGISTRY } from '../data/dgdaRegistry';
 import { SAMPLE_PRESCRIPTIONS } from '../data/samplePrescriptions';
 
@@ -178,10 +175,32 @@ export function characterLevelPredictMedicine(rawInput) {
   let highestScore = 0;
   let bestDetails = null;
 
+  // 0. Instant O(1) Indexed Lookup
+  const indexedDirect = MEDICINE_CLEAN_INDEX.get(cleanedInput) || MEDICINE_BRAND_INDEX.get(cleanedInput);
+  if (indexedDirect) {
+    return {
+      med: indexedDirect,
+      score: 0.99,
+      matchType: 'exact_indexed',
+      matchedLetters: cleanedInput.split(''),
+      rawLetterString: cleanedInput
+    };
+  }
+
   // 1. Direct Search across BANGLADESHI_MEDICINES
-  for (const med of BANGLADESHI_MEDICINES) {
+  const firstChar = cleanedInput[0];
+  const candidatePool = BANGLADESHI_MEDICINES.filter(m => {
+    const baseLow = (m.baseBrand || '').toLowerCase();
+    const genLow = (m.generic || '').toLowerCase();
+    return baseLow.startsWith(firstChar) || baseLow.includes(cleanedInput) || genLow.includes(cleanedInput);
+  });
+
+  const poolToUse = candidatePool.length > 0 ? candidatePool : BANGLADESHI_MEDICINES.slice(0, 1500);
+
+  for (const med of poolToUse) {
     const candidates = [
       med.brandName,
+      med.baseBrand,
       ...(med.aliases || []),
       med.generic
     ];
@@ -432,7 +451,8 @@ export async function analyzePrescriptionWithAI(imageFileOrUrl, apiKeyInput = nu
     console.warn('Could not convert image to base64, proceeding with dataset fallback:', err);
   }
 
-  const preloadedList = BANGLADESHI_MEDICINES.map(m => `${m.brandName} (${m.generic})`).join(', ');
+  // Sample top representative medicines for prompt vocabulary
+  const preloadedList = BANGLADESHI_MEDICINES.slice(0, 400).map(m => `${m.brandName} (${m.generic})`).join(', ');
 
   // If API Key is available, call Gemini Vision with full dataset matching instructions
   if (apiKey && imgData && imgData.base64) {

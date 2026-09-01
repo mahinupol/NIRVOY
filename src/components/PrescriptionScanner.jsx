@@ -381,16 +381,19 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
   const currentRx = selectedPrescription || SAMPLE_PRESCRIPTIONS[0];
   const hasCustomImage = Boolean(currentRx.customImageUrl);
 
-  // Filter Preloaded Dataset for modal
-  const filteredDataset = BANGLADESHI_MEDICINES.filter(m => {
-    const q = datasetSearch.toLowerCase();
-    return (
-      m.brandName.toLowerCase().includes(q) ||
-      m.generic.toLowerCase().includes(q) ||
-      m.category.toLowerCase().includes(q) ||
-      m.manufacturer.toLowerCase().includes(q)
-    );
-  });
+  // Filter Preloaded Dataset for modal with fast sub-slice
+  const filteredDataset = (datasetSearch.trim()
+    ? BANGLADESHI_MEDICINES.filter(m => {
+        const q = datasetSearch.toLowerCase();
+        return (
+          m.brandName.toLowerCase().includes(q) ||
+          (m.generic && m.generic.toLowerCase().includes(q)) ||
+          (m.category && m.category.toLowerCase().includes(q)) ||
+          (m.manufacturer && m.manufacturer.toLowerCase().includes(q))
+        );
+      })
+    : BANGLADESHI_MEDICINES
+  ).slice(0, 80);
 
   return (
     <div style={{ padding: '8px 0 32px' }}>

@@ -1,0 +1,8 @@
+{
+  "totalRecords": 21714,
+  "uniqueBrands": 13931,
+  "uniqueGenerics": 1661,
+  "totalManufacturers": 232,
+  "lastUpdated": "2026-09-01T06:00:10.605Z",
+  "source": "Dataset/medicine.csv"
+}
