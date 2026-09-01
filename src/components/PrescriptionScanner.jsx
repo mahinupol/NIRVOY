@@ -57,19 +57,19 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
   const runRealOcr = async (fileOrUrl, originalSample = null) => {
     setIsScanning(true);
     setScanProgress(15);
-    setScanStepText(language === 'bn' ? 'ইমেজ বিশ্লেষণ ও ৫০+ বাংলাদেশি ঔষধের ডেটাসেট লোড হচ্ছে...' : 'Enhancing image contrast & loading preloaded medicine dataset...');
+    setScanStepText(language === 'bn' ? 'ইমেজ বিশ্লেষণ ও ২১,৭০০+ বাংলাদেশি ওষুধের ডেটাসেট লোড হচ্ছে...' : 'Running OCR analysis & loading 21,700+ BD medicine dataset...');
     setActiveBoxIndex(null);
 
     const pTimer1 = setTimeout(() => {
       setScanProgress(45);
       setScanStepText(hasApiKey 
-        ? (language === 'bn' ? 'Gemini AI দিয়ে প্রেসক্রিপশনের হস্তাক্ষর বিশ্লেষণ করা হচ্ছে...' : 'Analyzing handwritten notes with Gemini AI Vision...') 
-        : (language === 'bn' ? 'বাংলাদেশি ড্রাগ ভোকাবুলারি দিয়ে নাম প্রেডিক্ট করা হচ্ছে...' : 'Predicting handwriting using Preloaded BD Drug Vocabulary...'));
+        ? (language === 'bn' ? 'Gemini AI Vision দিয়ে প্রেসক্রিপশনের হস্তাক্ষর বিশ্লেষণ করা হচ্ছে...' : 'Analyzing handwritten notes with Gemini AI Vision...') 
+        : (language === 'bn' ? 'রিয়েল ইমেজ OCR ও ক্যারেক্টার অ্যালগরিদম দিয়ে ওষুধের নাম স্ক্যান হচ্ছে...' : 'Extracting text with OCR & matching against 21,700+ BD medicines...'));
     }, 400);
 
     const pTimer2 = setTimeout(() => {
       setScanProgress(75);
-      setScanStepText(language === 'bn' ? 'DGDA ও মাস্টার মেডিসিন ডেটাসেটের সাথে মিল যাচাই করা হচ্ছে...' : 'Matching drug names against DGDA Bangladeshi Medicine Registry...');
+      setScanStepText(language === 'bn' ? '২১,৭১৪টি ওষুধের মাস্টার ডেটাসেটের সাথে নাম ও ডোজ যাচাই করা হচ্ছে...' : 'Matching drug names against 21,714 BD medicine dataset...');
     }, 850);
 
     try {
