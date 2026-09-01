@@ -357,7 +357,7 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
       return;
     }
     setApiKeyStatus({ saved: false, testing: true, msg: 'Testing connection to Google Gemini API...' });
-    const modelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    const modelsToTry = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-3.7-flash', 'gemini-flash-latest'];
     let success = false;
 
     for (const m of modelsToTry) {
