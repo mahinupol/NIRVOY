@@ -79,7 +79,7 @@ export default function PharmacyFinder() {
                   cursor: 'pointer'
                 }}
               >
-                {BANGLADESHI_MEDICINES.map(m => (
+                {BANGLADESHI_MEDICINES.slice(0, 100).map(m => (
                   <option key={m.id} value={m.brandName}>{m.brandName} ({m.generic})</option>
                 ))}
               </select>

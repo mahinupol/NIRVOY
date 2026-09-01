@@ -61,7 +61,7 @@ export function generateBanglaVoiceScript(patientName, items = []) {
     const medName = item.detectedMedicine || item.brandName || item.rawText;
     const dosageInfo = parseDosageInstruction(item.dosage, item.timing);
     const duration = item.duration ? `টানা ${item.duration}` : '';
-    const medData = BANGLADESHI_MEDICINES.find(m => m.brandName.toLowerCase().includes((medName || '').toLowerCase()));
+    const medData = BANGLADESHI_MEDICINES.find(m => m.brandName && m.brandName.toLowerCase().includes((medName || '').toLowerCase()));
     const purpose = medData ? `এটি ${medData.purposeBn}` : '';
 
     return `ওষুধ নম্বর ${index + 1}: ${medName}। ${dosageInfo.bn} ${duration} পর্যন্ত চলবে। ${purpose}`;
@@ -82,7 +82,7 @@ export function generateEnglishVoiceScript(patientName, items = []) {
     const medName = item.detectedMedicine || item.brandName || item.rawText;
     const dosageInfo = parseDosageInstruction(item.dosage, item.timing);
     const duration = item.duration ? `for ${item.duration}` : '';
-    const medData = BANGLADESHI_MEDICINES.find(m => m.brandName.toLowerCase().includes((medName || '').toLowerCase()));
+    const medData = BANGLADESHI_MEDICINES.find(m => m.brandName && m.brandName.toLowerCase().includes((medName || '').toLowerCase()));
     const purpose = medData ? `indicated for ${medData.purposeEn || medData.category}` : '';
 
     return `Medication number ${index + 1}: ${medName}. ${dosageInfo.en} ${duration}. ${purpose}`;

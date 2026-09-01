@@ -256,7 +256,7 @@ export default function DoctorDashboard({ onNewPrescriptionCreated }) {
                 onChange={(e) => setSelectedMedToAdd(e.target.value)}
                 style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.82rem', fontWeight: 600 }}
               >
-                {BANGLADESHI_MEDICINES.map(med => (
+                {BANGLADESHI_MEDICINES.slice(0, 100).map(med => (
                   <option key={med.id} value={med.brandName}>
                     {med.brandName} ({med.generic})
                   </option>

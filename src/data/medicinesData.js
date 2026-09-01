@@ -2,45 +2,50 @@
 // Auto-generated & Standardized from Dataset/medicine.csv
 import COMPACT_MEDICINES from './allMedicinesDataset.json';
 
-// Expand compact records into full standardized objects
-export const BANGLADESHI_MEDICINES = COMPACT_MEDICINES.map(m => ({
-  id: m.id,
-  brandName: m.b,
-  baseBrand: m.base,
-  generic: m.g,
-  strength: m.s,
-  dosageForm: m.f,
-  manufacturer: m.m,
-  category: m.c,
-  unitPrice: m.p,
-  purposeBn: m.pb,
-  purposeEn: m.pe,
-  commonDosage: m.cd,
-  defaultTiming: m.dt,
-  defaultDuration: m.dd,
-  dgdaRegNo: m.dg,
-  inStockCount: 250,
-  aliases: [
-    m.base.toLowerCase(),
-    m.b.toLowerCase(),
-    m.base.toLowerCase().replace(/[^a-z0-9]/g, ''),
-    m.g ? m.g.toLowerCase() : '',
-    m.g ? m.g.toLowerCase().split('+')[0].trim() : ''
-  ].filter(Boolean)
-}));
+// Expand compact records into full standardized objects with null-safety
+export const BANGLADESHI_MEDICINES = (COMPACT_MEDICINES || []).map((m, idx) => {
+  const brand = m?.b || 'Medicine';
+  const base = m?.base || brand;
+  const gen = m?.g || '';
+  return {
+    id: m?.id || `med-${idx}`,
+    brandName: brand,
+    baseBrand: base,
+    generic: gen,
+    strength: m?.s || '',
+    dosageForm: m?.f || 'Tablet',
+    manufacturer: m?.m || 'Pharmaceuticals Ltd.',
+    category: m?.c || 'Prescription Drug',
+    unitPrice: m?.p || '10.00',
+    purposeBn: m?.pb || 'চিকিৎসকের পরামর্শ অনুযায়ী সেব্য।',
+    purposeEn: m?.pe || 'As directed by physician.',
+    commonDosage: m?.cd || '1+0+1',
+    defaultTiming: m?.dt || 'খাবার পর',
+    defaultDuration: m?.dd || '৭ দিন (7 days)',
+    dgdaRegNo: m?.dg || '',
+    inStockCount: 250,
+    aliases: [
+      base.toLowerCase(),
+      brand.toLowerCase(),
+      base.toLowerCase().replace(/[^a-z0-9]/g, ''),
+      gen ? gen.toLowerCase() : '',
+      gen ? gen.toLowerCase().split('+')[0].trim() : ''
+    ].filter(Boolean)
+  };
+});
 
 // Quick Indexed Maps for O(1) & O(log N) lookup
 export const MEDICINE_BRAND_INDEX = new Map();
 export const MEDICINE_CLEAN_INDEX = new Map();
 
 for (const med of BANGLADESHI_MEDICINES) {
-  const cleanBrand = med.baseBrand.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const cleanFull = med.brandName.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const cleanBrand = (med.baseBrand || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const cleanFull = (med.brandName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
   
-  if (!MEDICINE_BRAND_INDEX.has(cleanBrand)) {
+  if (cleanBrand && !MEDICINE_BRAND_INDEX.has(cleanBrand)) {
     MEDICINE_BRAND_INDEX.set(cleanBrand, med);
   }
-  if (!MEDICINE_CLEAN_INDEX.has(cleanFull)) {
+  if (cleanFull && !MEDICINE_CLEAN_INDEX.has(cleanFull)) {
     MEDICINE_CLEAN_INDEX.set(cleanFull, med);
   }
 }
@@ -58,6 +63,7 @@ export const MEDICAL_SHORTHAND_DICTIONARY = {
   "OD": { bn: "দিনে একবার নির্দিষ্ট সময়ে", en: "Once daily (Omni Die)", timesPerDay: 1, timing: "দিনে ১ বার" },
   "BD": { bn: "দিনে দুইবার ১২ ঘণ্টা পর পর", en: "Twice daily (Bis in Die)", timesPerDay: 2, timing: "দিনে ২ বার" },
   "TDS": { bn: "দিনে তিনবার ৮ ঘণ্টা পর পর", en: "Three times daily (Ter Die Sumendum)", timesPerDay: 3, timing: "দিনে ৩ বার" },
-  "SOS": { bn: "প্রয়োজন অনুযায়ী (যেমন: তীব্র জ্বর বা ব্যথা হলে)", en: "As needed / when required (Si Opus Sit)", timesPerDay: null, timing: "জরুরি হলে" },
-  "STAT": { bn: "অবিলম্বে এখনই একটি ডোজ গ্রহণ করুন", en: "Immediately / at once", timesPerDay: 1, timing: "তাত্ক্ষণিক" }
+  "HS": { bn: "ঘুমানোর আগে", en: "At bedtime (Hora Somni)", timesPerDay: 1, timing: "রাতে ঘুমানোর আগে" },
+  "SOS": { bn: "শুধুমাত্র প্রয়োজন হলে", en: "As needed / if required (Si Opus Sit)", timesPerDay: null, timing: "প্রয়োজনে" },
+  "STAT": { bn: "অবিলম্বে এক ডোজ সেব্য", en: "Immediately / Single stat dose", timesPerDay: 1, timing: "এখনই" }
 };

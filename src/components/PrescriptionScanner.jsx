@@ -1078,13 +1078,16 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                   const medInfo = pred?.med || BANGLADESHI_MEDICINES[0];
                   const isActive = activeBoxIndex === idx;
                   const isSuggesting = activeSuggestIdx === idx;
-
                   // Autocomplete candidate suggestions
                   const suggestions = isSuggesting
-                    ? BANGLADESHI_MEDICINES.filter(m => 
-                        m.brandName.toLowerCase().includes((suggestQuery || item.detectedMedicine).toLowerCase()) ||
-                        m.generic.toLowerCase().includes((suggestQuery || item.detectedMedicine).toLowerCase())
-                      ).slice(0, 5)
+                    ? BANGLADESHI_MEDICINES.filter(m => {
+                        const q = (suggestQuery || item.detectedMedicine || '').toLowerCase();
+                        if (!q) return false;
+                        return (
+                          (m.brandName && m.brandName.toLowerCase().includes(q)) ||
+                          (m.generic && m.generic.toLowerCase().includes(q))
+                        );
+                      }).slice(0, 5)
                     : [];
 
                   return (

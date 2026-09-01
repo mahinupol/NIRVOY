@@ -335,7 +335,7 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
           gap: '20px'
         }}>
           {items.map((item, idx) => {
-            const medInfo = BANGLADESHI_MEDICINES.find(m => m.brandName.toLowerCase().includes((item.detectedMedicine || '').toLowerCase())) || BANGLADESHI_MEDICINES[0];
+            const medInfo = BANGLADESHI_MEDICINES.find(m => m.brandName && m.brandName.toLowerCase().includes((item.detectedMedicine || '').toLowerCase())) || BANGLADESHI_MEDICINES[0];
             const parsedDosage = parseDosageInstruction(item.dosage, item.timing);
             const isCardActive = highlightedIndex === idx;
 
