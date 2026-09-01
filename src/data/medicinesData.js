@@ -1,6 +1,6 @@
 // Master Database of 21,700+ Bangladeshi Medicines & Formulations
 // Auto-generated & Standardized from Dataset/medicine.csv
-import COMPACT_MEDICINES from './allMedicinesDataset.json';
+import COMPACT_MEDICINES from './allMedicinesDataset.json' with { type: 'json' };
 
 // Expand compact records into full standardized objects with null-safety
 export const BANGLADESHI_MEDICINES = (COMPACT_MEDICINES || []).map((m, idx) => {
