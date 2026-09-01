@@ -450,7 +450,8 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
               >
                 <span>
                   {sample.id === 'rx-real-1' ? '📝 Slip 1 (Mitford)' : 
-                   sample.id === 'rx-real-2' ? '📝 Slip 2 (Mugda)' : 
+                   sample.id === 'rx-real-2' ? '📝 Slip 2 (Mugda RTI)' : 
+                   sample.id === 'rx-real-3' ? '📝 Slip 3 (Mugda PUD)' : 
                    sample.id === 'rx-demo-1' ? '🌡️ Flu & Acidity' : 
                    sample.id === 'rx-demo-2' ? '🫁 Asthma' : 
                    sample.id === 'rx-demo-3' ? '❤️ Cardio' :

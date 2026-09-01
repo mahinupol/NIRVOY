@@ -944,20 +944,22 @@ export function generateSmartFallbackPrescriptionWithDataset(imageFileOrUrl, fil
   // Match against clinical sample presets by filename/tag if provided
   let matchedPreset = null;
 
-  if (hintLower.includes('8391') || hintLower.includes('mitford')) {
+  if (hintLower.includes('fayzunnessa') || hintLower.includes('pud') || hintLower.includes('39633') || hintLower.includes('rheum') || hintLower.includes('panicol') || hintLower.includes('moxacil') || hintLower.includes('levoxin') || hintLower.includes('gaviscon') || hintLower.includes('gravilac')) {
+    matchedPreset = SAMPLE_PRESCRIPTIONS[2];
+  } else if (hintLower.includes('8391') || hintLower.includes('mitford')) {
     matchedPreset = SAMPLE_PRESCRIPTIONS[0];
   } else if (hintLower.includes('8392') || hintLower.includes('mugda')) {
     matchedPreset = SAMPLE_PRESCRIPTIONS[1];
   } else if (hintLower.includes('flu') || hintLower.includes('fever') || hintLower.includes('acidity')) {
-    matchedPreset = SAMPLE_PRESCRIPTIONS[2];
-  } else if (hintLower.includes('asthma') || hintLower.includes('chest') || hintLower.includes('respiratory')) {
     matchedPreset = SAMPLE_PRESCRIPTIONS[3];
-  } else if (hintLower.includes('cardio') || hintLower.includes('hypertension') || hintLower.includes('diabetes')) {
+  } else if (hintLower.includes('asthma') || hintLower.includes('chest') || hintLower.includes('respiratory')) {
     matchedPreset = SAMPLE_PRESCRIPTIONS[4];
+  } else if (hintLower.includes('cardio') || hintLower.includes('hypertension') || hintLower.includes('diabetes')) {
+    matchedPreset = SAMPLE_PRESCRIPTIONS[5];
   } else if (hintLower.includes('gastro') || hintLower.includes('ulcer')) {
-    matchedPreset = SAMPLE_PRESCRIPTIONS[5] || SAMPLE_PRESCRIPTIONS[2];
+    matchedPreset = SAMPLE_PRESCRIPTIONS[6] || SAMPLE_PRESCRIPTIONS[2];
   } else if (hintLower.includes('ortho') || hintLower.includes('pain') || hintLower.includes('bone')) {
-    matchedPreset = SAMPLE_PRESCRIPTIONS[6] || SAMPLE_PRESCRIPTIONS[4];
+    matchedPreset = SAMPLE_PRESCRIPTIONS[7] || SAMPLE_PRESCRIPTIONS[4];
   }
 
   if (!matchedPreset) {

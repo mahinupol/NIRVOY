@@ -50,6 +50,27 @@ export const SAMPLE_PRESCRIPTIONS = [
     banglaSummary: "প্রেসক্রিপশনে ৮টি ওষুধ দেওয়া হয়েছে: ১) জিক্ল্যাভ ২৫০ (অ্যান্টিবায়োটিক ৭ দিন), ২) ফেনাদিন ১২০ (অ্যালার্জি ও সর্দির জন্য), ৩) সার্জেল ২০ (গ্যাস্ট্রিকের জন্য খাবার আগে), ৪) নাপা ৫০০ (জ্বরের জন্য দিনে ৩ বার), ৫) আনতাজল ড্রপ (নাকের জন্য), ৬) নাইস্ট্যাট ড্রপ (মুখের জন্য), ৭) থাইরক্স ২৫ (থাইরয়েড হরমোন), ৮) এম-কাস্ট ১০ (শ্বাসকষ্টের জন্য রাতে)।"
   },
   {
+    id: "rx-real-3",
+    title: "Mugda Rheumatology & PUD Slip (ফয়জুন্নেসা - Fayzunnessa)",
+    doctorName: "Consultant Rheumatologist (বাত ব্যথা-মেডিসিন বিশেষজ্ঞ)",
+    qualifications: "MBBS (Dhaka), BCS (Health), MD (BSMMU)",
+    hospital: "Mugda Medical College & Hospital (BMDC: 39633)",
+    date: "2023-03-15",
+    patientName: "ফয়জুন্নেসা (Fayzunnessa)",
+    patientAge: 50,
+    patientGender: "Female",
+    diagnosis: "PUD (Peptic Ulcer Disease) & Rheumatoid Protocol",
+    ocrConfidence: 98.4,
+    boundingBoxes: [
+      { id: "box-r3-1", label: "Tab. Panicol (20)", rawText: "Tab. Panicol (20)", detectedMedicine: "Pantonix 20", dosage: "1+0+1", duration: "১০ দিন (10 days)", confidence: 99, timing: "খাওয়ার ৩০ মিনিট আগে", box: { top: 16, left: 42, width: 48, height: 8 } },
+      { id: "box-r3-2", label: "Syp. Moxacil (500)", rawText: "Syp. Moxacil (500)", detectedMedicine: "Moxacil 500", dosage: "1+0+1", duration: "৭ দিন (7 days)", confidence: 97, timing: "খাবার পর", box: { top: 26, left: 45, width: 45, height: 8 } },
+      { id: "box-r3-3", label: "Tab. Levoxin (500)", rawText: "Tab. Levoxin (500)", detectedMedicine: "Levoxin 500", dosage: "1/2+0+1/2", duration: "৭ দিন (7 days)", confidence: 98, timing: "খাবার পর", box: { top: 35, left: 45, width: 45, height: 8 } },
+      { id: "box-r3-4", label: "Tab. Panicol (20) - Continue", rawText: "Tab. Panicol (20)", detectedMedicine: "Pantonix 20", dosage: "1+0+1", duration: "১০ দিন পর চলবে", confidence: 96, timing: "খাওয়ার ৩০ মিনিট আগে", box: { top: 44, left: 48, width: 42, height: 8 } },
+      { id: "box-r3-5", label: "Syp. Gravilac / Gaviscon", rawText: "Syp. Gravilac / Gaviscon", detectedMedicine: "Gaviscon Suspension", dosage: "2+2+2 চামচ", duration: "১ মাস (30 days)", confidence: 96, timing: "খাবার পর", box: { top: 52, left: 48, width: 42, height: 8 } }
+    ],
+    banglaSummary: "ফয়জুন্নেসা (৫০ বছর, PUD ও বাত ব্যথার জন্য): ১) প্যান্টোনিক্স ২০ (খাওয়ার আগে সকাল ও রাতে ১০ দিন), ২) মক্সাসিল ৫০০ (অ্যান্টিবায়োটিক ৭ দিন খাবার পর), ৩) লেভোক্সিন ৫০০ (আধখানা করে সকাল ও রাতে ৭ দিন), ৪) প্যান্টোনিক্স ২০ (১০ দিন পর চলবে), ৫) গ্যাভিসকন সাসপেনশন (গ্যাস্ট্রিক আলসার ও বুক জ্বালাপোড়ার জন্য খাবার পর ২ চামচ করে ৩ বার ১ মাস)।"
+  },
+  {
     id: "rx-demo-1",
     title: "Seasonal Flu & Acidity Rx",
     doctorName: "Prof. Dr. M. A. Rahman",
