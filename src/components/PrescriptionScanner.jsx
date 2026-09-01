@@ -1273,6 +1273,59 @@ export default function PrescriptionScanner({ onScanComplete, selectedPrescripti
                         </span>
                       </div>
 
+                      {/* Top Closest Matches Alternatives Row */}
+                      {item.topAlternatives && item.topAlternatives.length > 0 && (
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          flexWrap: 'wrap',
+                          padding: '6px 10px',
+                          background: '#f8fafc',
+                          borderRadius: '8px',
+                          border: '1px dashed #cbd5e1'
+                        }}>
+                          <span style={{ fontSize: '0.72rem', color: '#475569', fontWeight: 700 }}>
+                            {language === 'bn' ? '🎯 নিকটবর্তী সম্ভাব্য ওষুধসমূহ:' : '🎯 Closest Pharmaceutical Matches:'}
+                          </span>
+                          {item.topAlternatives.slice(0, 4).map((alt, altIdx) => {
+                            const isCurrent = alt.med.brandName === item.detectedMedicine;
+                            const altPercent = Math.round((alt.score || 0.9) * 100);
+                            return (
+                              <button
+                                key={alt.med.id || altIdx}
+                                onClick={() => {
+                                  handleUpdateMedicine(idx, 'detectedMedicine', alt.med.brandName);
+                                  handleUpdateMedicine(idx, 'dosage', alt.med.commonDosage || item.dosage);
+                                  handleUpdateMedicine(idx, 'timing', alt.med.defaultTiming || item.timing);
+                                  handleUpdateMedicine(idx, 'duration', alt.med.defaultDuration || item.duration);
+                                }}
+                                style={{
+                                  background: isCurrent ? '#0284c7' : '#ffffff',
+                                  color: isCurrent ? '#ffffff' : '#334155',
+                                  border: isCurrent ? '1px solid #0284c7' : '1px solid #cbd5e1',
+                                  borderRadius: '6px',
+                                  padding: '2px 8px',
+                                  fontSize: '0.72rem',
+                                  fontWeight: 600,
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  transition: 'all 0.15s ease'
+                                }}
+                                title={alt.reason || `${altPercent}% Match`}
+                              >
+                                <span>{alt.med.brandName}</span>
+                                <span style={{ opacity: isCurrent ? 0.9 : 0.65, fontSize: '0.65rem' }}>
+                                  ({altPercent}%)
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+
                       {/* Dosage, Duration, Timing Input Grid with Generous Spacing */}
                       <div style={{
                         display: 'grid',

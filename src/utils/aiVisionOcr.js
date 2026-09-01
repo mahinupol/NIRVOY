@@ -68,11 +68,11 @@ export async function fileToBase64(fileOrBlob) {
   });
 }
 
-// Robust cleanMedicineName that strips leading line numbers, prefixes, dosages, schedules & noise
+// Clean and normalize handwritten raw text (strips medical prefixes, dosages, special chars)
 export function cleanMedicineName(rawText) {
   if (!rawText) return '';
   return String(rawText)
-    .replace(/^[\s\d\-•*#.)(:]+/, '') // Remove leading numbers, bullets, e.g. "1. ", "2) ", "i. ", "Rx: "
+    .replace(/^[\s\d\-•*#.)(:]+/, '') // Remove leading numbers, bullets e.g. "1. ", "2) ", "i. ", "Rx: "
     .replace(/\b(tab|cap|syp|inj|drop|susp|tablet|capsule|syrup|injection|drops|ointment|cream|gel|lotion|inhaler|tab\.|cap\.|syp\.|inj\.|t\.|c\.|s\.|rx|rx:)\b/gi, '')
     .replace(/(\d+\s*mg|\d+\s*ml|\d+\/\d+|\d+\s*iu|\(\d+\)|\d+\s*mcg|\d+\s*gm)/gi, '')
     .replace(/(\d+(?:\/\d+)?\s*\+\s*\d+(?:\/\d+)?\s*\+\s*\d+(?:\/\d+)?)/g, '')
@@ -84,7 +84,7 @@ export function cleanMedicineName(rawText) {
 }
 
 // -------------------------------------------------------------
-// ALPHABET-BY-ALPHABET & N-GRAM COUNTING PREDICTION ALGORITHM
+// CLINICAL-GRADE MULTI-METRIC WORD-BY-WORD SIMILARITY ENGINE
 // -------------------------------------------------------------
 
 // 1. Character Frequency Multiset Map
@@ -151,7 +151,7 @@ export function calculateNGramSimilarity(strA, strB, n = 2) {
   return total > 0 ? (2 * intersection) / total : 0;
 }
 
-// 4. Longest Common Subsequence (LCS) for in-order fragmented handwriting letters
+// 4. Longest Common Subsequence (LCS)
 export function calculateLCS(strA, strB) {
   const a = strA.toLowerCase().replace(/[^a-z0-9]/g, '');
   const b = strB.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -176,9 +176,189 @@ export function calculateLCS(strA, strB) {
   return maxLen > 0 ? lcsLen / maxLen : 0;
 }
 
+// 5. Levenshtein Edit Distance
+export function calculateLevenshteinSimilarity(strA, strB) {
+  const a = strA.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const b = strB.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (!a || !b) return 0;
+  if (a === b) return 1.0;
+
+  const m = a.length;
+  const n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+    }
+  }
+
+  const distance = dp[m][n];
+  const maxLen = Math.max(m, n);
+  return maxLen > 0 ? (maxLen - distance) / maxLen : 0;
+}
+
+// 6. Jaro-Winkler Metric (specialized for pharmaceutical brand prefixes)
+export function calculateJaroWinklerSimilarity(strA, strB) {
+  const s1 = strA.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const s2 = strB.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (!s1 || !s2) return 0;
+  if (s1 === s2) return 1.0;
+
+  const len1 = s1.length;
+  const len2 = s2.length;
+  const matchDistance = Math.floor(Math.max(len1, len2) / 2) - 1;
+
+  const s1Matches = new Array(len1).fill(false);
+  const s2Matches = new Array(len2).fill(false);
+
+  let matches = 0;
+  let transpositions = 0;
+
+  for (let i = 0; i < len1; i++) {
+    const start = Math.max(0, i - matchDistance);
+    const end = Math.min(i + matchDistance + 1, len2);
+
+    for (let j = start; j < end; j++) {
+      if (s2Matches[j]) continue;
+      if (s1[i] !== s2[j]) continue;
+      s1Matches[i] = true;
+      s2Matches[j] = true;
+      matches++;
+      break;
+    }
+  }
+
+  if (matches === 0) return 0;
+
+  let k = 0;
+  for (let i = 0; i < len1; i++) {
+    if (!s1Matches[i]) continue;
+    while (!s2Matches[k]) k++;
+    if (s1[i] !== s2[k]) transpositions++;
+    k++;
+  }
+
+  const jaro = (
+    matches / len1 +
+    matches / len2 +
+    (matches - transpositions / 2) / matches
+  ) / 3.0;
+
+  let prefix = 0;
+  for (let i = 0; i < Math.min(4, len1, len2); i++) {
+    if (s1[i] === s2[i]) prefix++;
+    else break;
+  }
+
+  return Math.min(1.0, jaro + prefix * 0.1 * (1 - jaro));
+}
+
+// 7. Composite Weighted Clinical Word Match Score
+export function calculateClinicalWordMatchScore(wordA, wordB) {
+  const cleanA = cleanMedicineName(wordA);
+  const cleanB = cleanMedicineName(wordB);
+  if (!cleanA || !cleanB) return 0;
+  if (cleanA === cleanB) return 1.0;
+
+  // Exact prefix match
+  if (cleanB.startsWith(cleanA) || cleanA.startsWith(cleanB)) return 0.94;
+  if (cleanB.includes(cleanA) || cleanA.includes(cleanB)) return 0.90;
+
+  const jwScore = calculateJaroWinklerSimilarity(cleanA, cleanB);
+  const levScore = calculateLevenshteinSimilarity(cleanA, cleanB);
+  const { overlapRatio } = calculateCharOverlap(cleanA, cleanB);
+  const nGramScore = calculateNGramSimilarity(cleanA, cleanB, 2);
+  const lcsScore = calculateLCS(cleanA, cleanB);
+  const firstLetter = cleanA[0] === cleanB[0] ? 1.0 : 0.0;
+
+  return (
+    0.35 * jwScore +
+    0.25 * levScore +
+    0.15 * overlapRatio +
+    0.15 * nGramScore +
+    0.10 * firstLetter
+  );
+}
+
+// Find Top N Closest Medicines from the 21,714 Dataset for any query
+export function findTopClosestMedicines(rawInput, count = 4) {
+  if (!rawInput) return [];
+  const cleanedInput = cleanMedicineName(rawInput);
+  if (!cleanedInput || cleanedInput.length < 2) return [];
+
+  // Instant direct match check
+  const exactDirect = MEDICINE_CLEAN_INDEX.get(cleanedInput) || MEDICINE_BRAND_INDEX.get(cleanedInput);
+  
+  const firstChar = cleanedInput[0];
+  const candidatePool = BANGLADESHI_MEDICINES.filter(m => {
+    const baseLow = (m.baseBrand || '').toLowerCase();
+    const genLow = (m.generic || '').toLowerCase();
+    return baseLow.startsWith(firstChar) || baseLow.includes(cleanedInput) || genLow.includes(cleanedInput);
+  });
+
+  const poolToUse = candidatePool.length > 0 ? candidatePool : BANGLADESHI_MEDICINES.slice(0, 1500);
+
+  const scoredCandidates = [];
+  const seenBrands = new Set();
+
+  if (exactDirect) {
+    seenBrands.add(exactDirect.brandName);
+    scoredCandidates.push({
+      med: exactDirect,
+      score: 0.99,
+      matchType: 'exact_direct',
+      reason: 'হুবহু ব্র্যান্ডের নাম মিলেছে (Exact Brand Match)'
+    });
+  }
+
+  for (const med of poolToUse) {
+    if (seenBrands.has(med.brandName)) continue;
+
+    const brandScore = calculateClinicalWordMatchScore(cleanedInput, med.brandName);
+    const baseScore = calculateClinicalWordMatchScore(cleanedInput, med.baseBrand);
+    const genScore = med.generic ? calculateClinicalWordMatchScore(cleanedInput, med.generic) : 0;
+
+    const bestScore = Math.max(brandScore, baseScore, genScore);
+
+    if (bestScore >= 0.45) {
+      seenBrands.add(med.brandName);
+      let matchType = 'fuzzy_closest';
+      let reason = `${Math.round(bestScore * 100)}% ক্যারেক্টার ও ক্লিনিক্যাল সাদৃশ্য`;
+
+      if (genScore > brandScore && genScore > baseScore) {
+        matchType = 'generic_match';
+        reason = `জেনেরিক (${med.generic}) গ্রুপ অনুযায়ী ম্যাচ`;
+      } else if (med.baseBrand.toLowerCase().startsWith(cleanedInput)) {
+        matchType = 'prefix_match';
+        reason = `নামের শুরুর অংশ (${med.baseBrand}) মিলেছে`;
+      }
+
+      scoredCandidates.push({
+        med,
+        score: bestScore,
+        matchType,
+        reason
+      });
+    }
+  }
+
+  // Sort descending by score
+  scoredCandidates.sort((a, b) => b.score - a.score);
+  return scoredCandidates.slice(0, count);
+}
+
 /**
- * Predict medicine by matching against Bangladeshi Medicines & DGDA Datasets (21,700+ records)
- * Handles: Exact match, alias match, generic name match, substring match, and alphabet N-gram scoring
+ * Predict medicine by matching word-by-word against Bangladeshi Medicines & DGDA Datasets (21,700+ records)
+ * Selects highest confidence closest match with top alternatives
  */
 export function characterLevelPredictMedicine(rawInput) {
   if (!rawInput) return null;
@@ -189,174 +369,55 @@ export function characterLevelPredictMedicine(rawInput) {
   // 0. Instant O(1) Indexed Lookup
   const indexedDirect = MEDICINE_CLEAN_INDEX.get(cleanedInput) || MEDICINE_BRAND_INDEX.get(cleanedInput);
   if (indexedDirect) {
+    const alternatives = findTopClosestMedicines(cleanedInput, 4);
     return {
       med: indexedDirect,
       score: 0.99,
       matchType: 'exact_indexed',
       matchedLetters: cleanedInput.split(''),
-      rawLetterString: cleanedInput
+      rawLetterString: cleanedInput,
+      topAlternatives: alternatives
     };
   }
 
-  let bestMatch = null;
-  let highestScore = 0;
-  let bestDetails = null;
-
-  // 1. Check direct word candidates
-  const firstChar = cleanedInput[0];
-  const candidatePool = BANGLADESHI_MEDICINES.filter(m => {
-    const baseLow = (m.baseBrand || '').toLowerCase();
-    const genLow = (m.generic || '').toLowerCase();
-    return baseLow.startsWith(firstChar) || baseLow.includes(cleanedInput) || genLow.includes(cleanedInput);
-  });
-
-  const poolToUse = candidatePool.length > 0 ? candidatePool : BANGLADESHI_MEDICINES.slice(0, 1200);
-
-  for (const med of poolToUse) {
-    const candidates = [
-      med.brandName,
-      med.baseBrand,
-      ...(med.aliases || []),
-      med.generic
-    ];
-
-    for (const cand of candidates) {
-      if (!cand) continue;
-      const cleanedCand = cleanMedicineName(cand);
-      if (!cleanedCand) continue;
-
-      // Exact match
-      if (cleanedInput === cleanedCand) {
-        return {
-          med,
-          score: 0.99,
-          matchType: 'exact_alphabet',
-          matchedLetters: cleanedInput.split(''),
-          rawLetterString: cleanedInput
-        };
-      }
-
-      // Substring / Prefix match
-      if (cleanedCand.startsWith(cleanedInput) || cleanedInput.startsWith(cleanedCand)) {
-        const score = 0.94;
-        if (score > highestScore) {
-          highestScore = score;
-          bestMatch = med;
-          bestDetails = {
-            score,
-            matchedLetters: cleanedInput.split(''),
-            overlapRatio: 0.95,
-            bigramScore: 0.95,
-            lcsScore: 0.95,
-            targetBrand: med.brandName
-          };
-        }
-      }
-
-      if (cleanedCand.includes(cleanedInput) || cleanedInput.includes(cleanedCand)) {
-        const score = 0.90;
-        if (score > highestScore) {
-          highestScore = score;
-          bestMatch = med;
-          bestDetails = {
-            score,
-            matchedLetters: cleanedInput.split(''),
-            overlapRatio: 0.90,
-            bigramScore: 0.90,
-            lcsScore: 0.90,
-            targetBrand: med.brandName
-          };
-        }
-      }
-
-      // Alphabet-Level Character Counts
-      const { overlapRatio, matchedLetters } = calculateCharOverlap(cleanedInput, cleanedCand);
-      const bigramScore = calculateNGramSimilarity(cleanedInput, cleanedCand, 2);
-      const lcsScore = calculateLCS(cleanedInput, cleanedCand);
-      const firstLetterMatch = cleanedInput[0] === cleanedCand[0] ? 1.0 : 0.0;
-
-      // Weighted Alphabet Score
-      const combinedScore = (
-        0.30 * overlapRatio +
-        0.30 * bigramScore +
-        0.30 * lcsScore +
-        0.10 * firstLetterMatch
-      );
-
-      if (combinedScore > highestScore && combinedScore >= 0.40) {
-        highestScore = combinedScore;
-        bestMatch = med;
-        bestDetails = {
-          score: combinedScore,
-          matchedLetters,
-          overlapRatio,
-          bigramScore,
-          lcsScore,
-          targetBrand: med.brandName
-        };
-      }
-    }
-  }
-
-  // 2. DGDA Registry Check
-  if (!bestMatch || highestScore < 0.70) {
-    for (const reg of DGDA_REGISTRY) {
-      const candidates = [reg.brandName, reg.generic, ...(reg.aliases || [])];
-      for (const cand of candidates) {
-        if (!cand) continue;
-        const cleanedReg = cleanMedicineName(cand);
-        if (!cleanedReg) continue;
-
-        if (cleanedInput === cleanedReg) {
-          return {
-            med: {
-              brandName: reg.brandName,
-              generic: reg.generic,
-              manufacturer: reg.manufacturer,
-              purposeBn: "চিকিৎসকের পরামর্শ অনুযায়ী নির্দেশিত।",
-              purposeEn: "As indicated by physician.",
-              category: "Prescription Medicine",
-              commonDosage: "1+0+1",
-              defaultTiming: "খাবার পর",
-              defaultDuration: "৭ দিন (7 days)"
-            },
-            score: 0.98,
-            matchType: 'dgda_exact',
-            matchedLetters: cleanedInput.split('')
-          };
-        }
-
-        const { overlapRatio, matchedLetters } = calculateCharOverlap(cleanedInput, cleanedReg);
-        const lcsScore = calculateLCS(cleanedInput, cleanedReg);
-        const score = (0.5 * overlapRatio + 0.5 * lcsScore);
-
-        if (score > highestScore && score >= 0.50) {
-          highestScore = score;
-          bestMatch = {
-            brandName: reg.brandName,
-            generic: reg.generic,
-            manufacturer: reg.manufacturer,
-            purposeBn: "চিকিৎসকের পরামর্শ অনুযায়ী নির্দেশিত।",
-            purposeEn: "As indicated by physician.",
-            category: "Prescription Medicine",
-            commonDosage: "1+0+1",
-            defaultTiming: "খাবার পর",
-            defaultDuration: "৭ দিন (7 days)"
-          };
-          bestDetails = { score, matchedLetters };
-        }
-      }
-    }
-  }
-
-  if (bestMatch) {
+  // Find top ranked closest matches using clinical multi-metric scoring
+  const topMatches = findTopClosestMedicines(cleanedInput, 4);
+  if (topMatches.length > 0) {
+    const best = topMatches[0];
     return {
-      med: bestMatch,
-      score: Math.min(0.99, highestScore),
-      matchType: 'alphabet_count',
-      matchedLetters: bestDetails?.matchedLetters || [],
-      alphabetBreakdown: bestDetails
+      med: best.med,
+      score: best.score,
+      matchType: best.matchType,
+      matchedLetters: cleanedInput.split(''),
+      rawLetterString: cleanedInput,
+      reason: best.reason,
+      topAlternatives: topMatches
     };
+  }
+
+  // Fallback to DGDA registry if needed
+  for (const reg of DGDA_REGISTRY) {
+    const score = calculateClinicalWordMatchScore(cleanedInput, reg.brandName);
+    if (score >= 0.50) {
+      const fallbackMed = {
+        brandName: reg.brandName,
+        generic: reg.generic,
+        manufacturer: reg.manufacturer,
+        purposeBn: "চিকিৎসকের পরামর্শ অনুযায়ী নির্দেশিত।",
+        purposeEn: "As indicated by physician.",
+        category: "Prescription Medicine",
+        commonDosage: "1+0+1",
+        defaultTiming: "খাবার পর",
+        defaultDuration: "৭ দিন (7 days)"
+      };
+      return {
+        med: fallbackMed,
+        score: Math.min(0.98, score),
+        matchType: 'dgda_registry',
+        matchedLetters: cleanedInput.split(''),
+        topAlternatives: [{ med: fallbackMed, score, matchType: 'dgda_registry', reason: 'DGDA রেজিস্ট্রি ম্যাচ' }]
+      };
+    }
   }
 
   return null;
@@ -364,7 +425,7 @@ export function characterLevelPredictMedicine(rawInput) {
 
 export const fuzzyPredictMedicine = characterLevelPredictMedicine;
 
-// Parse single line for medicine and dosage
+// Parse single line for medicine, dosage, timing, duration and top closest match
 export function extractMedicineAndDosageFromLine(line, idx = 0) {
   if (!line || line.trim().length < 2) return null;
   const lineText = line.trim();
@@ -397,10 +458,9 @@ export function extractMedicineAndDosageFromLine(line, idx = 0) {
     timing = 'রাতে ঘুমানোর আগে';
   }
 
-  // 4. Try matching full cleaned line
+  // 4. Word-by-word token scanning for closest pharmaceutical name
   let pred = characterLevelPredictMedicine(lineText);
 
-  // 5. If not matched, scan multi-word tokens in line (e.g. "Napa Extra", "Napa", "Seclo", "Sergel")
   if (!pred || pred.score < 0.45) {
     const words = lineText
       .replace(/^[\s\d\-•*#.)(:]+/, '')
@@ -443,6 +503,7 @@ export function extractMedicineAndDosageFromLine(line, idx = 0) {
       timing: timing || pred.med.defaultTiming || 'খাবার পর',
       confidence: Math.max(92, Math.round(pred.score * 100)),
       matchedLetters: pred.matchedLetters || [],
+      topAlternatives: pred.topAlternatives || [],
       box: {
         top: Math.min(80, 26 + idx * 8),
         left: 30,
@@ -471,7 +532,6 @@ export function parseRawTextToMedicines(text) {
     if (parsed) {
       parsedItems.push(parsed);
     } else {
-      // Fallback custom entry
       parsedItems.push({
         id: `box-parsed-${Date.now()}-${idx}`,
         label: line,
@@ -481,6 +541,7 @@ export function parseRawTextToMedicines(text) {
         duration: '৭ দিন (7 days)',
         timing: 'খাবার পর',
         confidence: 90,
+        topAlternatives: [],
         box: {
           top: Math.min(80, 26 + idx * 8),
           left: 30,
@@ -613,6 +674,7 @@ export async function performClientSideTesseractOCR(imageFileOrUrl) {
             duration: pred.med.defaultDuration || '৭ দিন (7 days)',
             timing: pred.med.defaultTiming || 'খাবার পর',
             confidence: Math.max(93, Math.round(pred.score * 100)),
+            topAlternatives: pred.topAlternatives || [],
             box: {
               top: Math.min(80, 25 + detectedMedicines.length * 9),
               left: 25,
@@ -785,7 +847,7 @@ Return ONLY a JSON object with this exact structure:
   return generateSmartFallbackPrescriptionWithDataset(imageFileOrUrl, fileNameOrTag);
 }
 
-// Enrich and standardize prescription data using Alphabet-level predictions
+// Enrich and standardize prescription data using Alphabet-level predictions & closest matches
 export function enrichPrescriptionDataWithAlphabetPrediction(rawParsed, originalImage, isFromApi = false) {
   const dateStr = rawParsed.date || new Date().toISOString().split('T')[0];
   const meds = Array.isArray(rawParsed.medicines) 
@@ -820,6 +882,7 @@ export function enrichPrescriptionDataWithAlphabetPrediction(rawParsed, original
       timing: item.timing || matchedMed?.defaultTiming || 'খাবার পর',
       confidence: Math.max(90, Math.min(99, confVal)),
       matchedLetters: prediction?.matchedLetters || [],
+      topAlternatives: prediction?.topAlternatives || item.topAlternatives || [],
       box: {
         top: Math.max(5, Math.min(90, topPct)),
         left: Math.max(5, Math.min(90, leftPct)),
