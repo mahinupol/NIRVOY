@@ -748,28 +748,29 @@ export async function analyzePrescriptionWithAI(imageFileOrUrl, apiKeyInput = nu
     ];
 
     const systemPrompt = `You are an expert AI Medical Transcriptionist and Handwriting Specialist specializing in Bangladeshi prescriptions.
-You have access to the OFFICIAL BANGLADESHI MEDICINE DATASET:
-[${preloadedList}]
+Examine the prescription image exhaustively from top to bottom.
+Detect EVERY SINGLE medicine, tablet, capsule, syrup, drop, or suspension written on this slip without missing any.
 
 INSTRUCTIONS:
-1. Examine the prescription image line by line. Focus on handwritten doctor notes and medicine names.
-2. Read the handwritten text LETTER BY LETTER. Match even fragmented cursive words against the PRELOADED BANGLADESHI MEDICINE DATASET to identify the exact intended medicine (e.g., Thyrox, M-Kast, Denvar, Renova, Napa, Zodef, Xiclav, Fenadin, Sergel, Seclo, Maxpro, Pantonix, Ciprocin, Filmet, Azithrocin, Bizoran, Compathik, Beklo, Calbo-D, D-Rise, Ceevit, Ventolin, Ambrox, Adovas, etc.).
-3. Extract doctor details, hospital, patient information, diagnosis, dosage schedules (1+0+1, 1+0+0, 0+0+1, 1+1+1), duration, and timings.
+1. Scan every line under the Rx/Rp or prescription section carefully.
+2. Read the handwritten text LETTER BY LETTER. Match even fragmented cursive words against common Bangladeshi brand names (e.g., Thyrox, M-Kast, Denvar, Renova, Napa, Zodef, Xiclav, Fenadin, Sergel, Seclo, Maxpro, Pantonix, Ciprocin, Filmet, Azithrocin, Bizoran, Compathik, Beklo, Calbo-D, D-Rise, Ceevit, Ventolin, Ambrox, Adovas, Panicol, Moxacil, Levoxin, Gaviscon, Gravilac, Antazol, Nystat, Thyrin, etc.).
+3. Extract doctor details, hospital, patient information, diagnosis, dosage schedules (1+0+1, 1+0+0, 0+0+1, 1+1+1, 1/2+0+1/2, 2+2+2), duration (e.g. ৭ দিন, ১৪ দিন, ১ মাস, ৫ দিন, চলবে), and timings (e.g. সকালে খালি পেটে, খাবার পর, খাওয়ার ৩০ মিনিট আগে, রাতে).
+4. Provide normalized percentage coordinates for each medicine bounding box (top, left, width, height in 0-100%).
 
 Return ONLY a JSON object with this exact structure:
 {
-  "doctorName": "Doctor name with qualifications (e.g. Dr. MD. Bellal Hossain, MBBS, FCPS)",
+  "doctorName": "Doctor name and qualifications (e.g. Dr. MD. Bellal Hossain, MBBS, FCPS)",
   "qualifications": "Qualifications",
-  "hospital": "Hospital / Chamber name",
-  "date": "Prescription date in YYYY-MM-DD format if visible, or today",
-  "patientName": "Patient name (e.g. Fikha, Rafiqul, Kamal)",
-  "patientAge": "Patient age",
+  "hospital": "Hospital / Chamber / Clinic name",
+  "date": "Prescription date in YYYY-MM-DD or readable format",
+  "patientName": "Patient name",
+  "patientAge": "Age",
   "patientGender": "Female / Male / Other",
   "diagnosis": "Clinical diagnosis (e.g. RTI, Hypothyroidism, Peptic Ulcer, Hypertension)",
-  "ocrConfidence": 97.5,
+  "ocrConfidence": 98.5,
   "medicines": [
     {
-      "rawText": "Exact visible handwritten characters (e.g. Tab. Thyrox (25))",
+      "rawText": "Exact visible handwritten text (e.g. Tab. Thyrox (25) 1+0+0 চলবে)",
       "detectedMedicine": "Predicted brand name from preloaded dataset (e.g. Thyrox 25)",
       "dosage": "Dosage like 1+0+0, 1+0+1, 0+0+1, 1+1+1",
       "duration": "Duration in Bangla/English e.g. চলবে, ৭ দিন, ১ মাস, ৫ দিন",
@@ -810,7 +811,7 @@ Return ONLY a JSON object with this exact structure:
               generationConfig: {
                 temperature: 0.1,
                 topP: 0.95,
-                maxOutputTokens: 2048,
+                maxOutputTokens: 8192,
                 responseMimeType: "application/json"
               }
             })
@@ -858,8 +859,8 @@ export function enrichPrescriptionDataWithAlphabetPrediction(rawParsed, original
     const rawName = item.rawText || item.detectedMedicine || item.label || 'Prescribed Medicine';
     
     // Character-by-character prediction against BANGLADESHI_MEDICINES
-    const prediction = characterLevelPredictMedicine(rawName) || 
-                       characterLevelPredictMedicine(item.detectedMedicine) ||
+    const prediction = characterLevelPredictMedicine(item.detectedMedicine) || 
+                       characterLevelPredictMedicine(rawName) || 
                        characterLevelPredictMedicine(item.label);
                        
     const matchedMed = prediction ? prediction.med : null;
@@ -870,7 +871,10 @@ export function enrichPrescriptionDataWithAlphabetPrediction(rawParsed, original
     const widthPct = item.box?.width ?? 55;
     const heightPct = item.box?.height ?? 6;
 
-    const confVal = item.confidence || (prediction ? Math.round(prediction.score * 100) : 95);
+    let confVal = item.confidence || (prediction ? Math.round(prediction.score * 100) : 95);
+    if (typeof confVal === 'number' && confVal <= 1) {
+      confVal = Math.round(confVal * 100);
+    }
 
     return {
       id: item.id || `box-ai-${Date.now()}-${idx}`,
