@@ -1,7 +1,19 @@
-import Tesseract from 'tesseract.js';
 import { BANGLADESHI_MEDICINES, MEDICINE_BRAND_INDEX, MEDICINE_CLEAN_INDEX } from '../data/medicinesData';
 import { DGDA_REGISTRY } from '../data/dgdaRegistry';
 import { SAMPLE_PRESCRIPTIONS } from '../data/samplePrescriptions';
+
+let tesseractModule = null;
+async function getTesseract() {
+  try {
+    if (!tesseractModule) {
+      tesseractModule = await import('tesseract.js');
+    }
+    return tesseractModule.default || tesseractModule;
+  } catch (e) {
+    console.warn('Tesseract dynamic load failed:', e);
+    return null;
+  }
+}
 
 const LOCAL_STORAGE_KEY = 'NIRVOY_GEMINI_API_KEY';
 
@@ -512,6 +524,12 @@ function extractJsonFromResponse(text) {
 // REAL Client-side OCR using Tesseract for Any Google / Custom Prescription
 export async function performClientSideTesseractOCR(imageFileOrUrl) {
   try {
+    const Tesseract = await getTesseract();
+    if (!Tesseract || !Tesseract.recognize) {
+      console.warn('Tesseract not available in this environment');
+      return null;
+    }
+
     const result = await Tesseract.recognize(
       imageFileOrUrl,
       'eng',
