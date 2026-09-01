@@ -1,6 +1,6 @@
-import { BANGLADESHI_MEDICINES, MEDICINE_BRAND_INDEX, MEDICINE_CLEAN_INDEX } from '../data/medicinesData';
-import { DGDA_REGISTRY } from '../data/dgdaRegistry';
-import { SAMPLE_PRESCRIPTIONS } from '../data/samplePrescriptions';
+import { BANGLADESHI_MEDICINES, MEDICINE_BRAND_INDEX, MEDICINE_CLEAN_INDEX } from '../data/medicinesData.js';
+import { DGDA_REGISTRY } from '../data/dgdaRegistry.js';
+import { SAMPLE_PRESCRIPTIONS } from '../data/samplePrescriptions.js';
 
 let tesseractModule = null;
 async function getTesseract() {
@@ -287,7 +287,7 @@ export function characterLevelPredictMedicine(rawInput) {
         highestScore = combinedScore;
         bestMatch = med;
         bestDetails = {
-          score,
+          score: combinedScore,
           matchedLetters,
           overlapRatio,
           bigramScore,
