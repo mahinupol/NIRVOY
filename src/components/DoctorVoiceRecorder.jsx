@@ -47,13 +47,17 @@ export default function DoctorVoiceRecorder({ onSaveToHistory }) {
     }
   ];
 
-  // Check Google Cloud Speech status
+  // Check Cloud Speech status
   useEffect(() => {
     fetch('/api/consultation/stt-status')
       .then(res => res.json())
       .then(data => {
-        if (data && data.googleSpeechConfigured) {
-          setGoogleSttStatus({ configured: true, project: data.projectId });
+        if (data && (data.googleSpeechConfigured || data.configured)) {
+          setGoogleSttStatus({ 
+            configured: true, 
+            project: data.projectId,
+            provider: data.provider || 'Google Cloud Speech v1'
+          });
         }
       })
       .catch(() => {});

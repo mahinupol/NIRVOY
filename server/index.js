@@ -194,9 +194,13 @@ Format structure strictly as:
 
 // Google Cloud Speech-to-Text Status Check
 app.get('/api/consultation/stt-status', (req, res) => {
+  const isConfigured = isGoogleSpeechConfigured();
   res.json({
-    googleSpeechConfigured: isGoogleSpeechConfigured(),
-    provider: 'Google Cloud Speech-to-Text v1 (Bengali/English)',
+    googleSpeechConfigured: isConfigured,
+    configured: isConfigured || Boolean(process.env.OPENAI_API_KEY),
+    provider: isConfigured 
+      ? 'Google Cloud Speech-to-Text v1 (Bengali/English)' 
+      : 'OpenAI Whisper Cloud Fallback (Bengali/English)',
     projectId: 'nirvoy-66787'
   });
 });
@@ -217,12 +221,13 @@ app.post('/api/consultation/google-transcribe', async (req, res) => {
     res.json({
       success: true,
       transcript: result.transcript,
-      confidence: result.confidence
+      confidence: result.confidence,
+      provider: result.provider
     });
   } catch (err) {
-    console.error('Google Cloud Speech transcription error:', err);
+    console.error('Audio transcription error:', err);
     res.status(500).json({
-      error: 'Google Cloud Speech Transcription Error: ' + err.message
+      error: 'Audio Transcription Error: ' + err.message
     });
   }
 });
