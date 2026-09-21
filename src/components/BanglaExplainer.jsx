@@ -77,7 +77,7 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
     <div style={{ padding: '8px 0 36px' }}>
       <div className="container-max">
         {/* Module Header */}
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -90,13 +90,16 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
             fontWeight: 700,
             marginBottom: '6px'
           }}>
-            {t('explainerBadge')}
+            <span>Prescription Audio & Dosage</span>
           </div>
-          <h2 style={{ fontSize: '1.75rem', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.02em' }}>
-            {t('explainerTitle')}
+          <h2 style={{ fontSize: '1.65rem', color: '#0f172a', marginBottom: '4px', letterSpacing: '-0.02em', fontWeight: 800 }}>
+            Prescription Dosage & Voice Guide
           </h2>
-          <p style={{ color: '#64748b', fontSize: '0.9rem', maxWidth: '600px', margin: '0 auto' }}>
-            {t('explainerDesc')}
+          <p style={{ color: '#64748b', fontSize: '0.88rem', maxWidth: '560px', margin: '0 auto' }}>
+            Listen to medicine schedules, meal timings, and dosage in clear voice.
+            <span style={{ display: 'block', color: '#0284c7', fontSize: '0.82rem', marginTop: '2px', fontWeight: 600 }}>
+              (ঔষধের সেবনবিধি ও খাওয়ার নিয়ম অডিওতে পরিষ্কার শুনুন)
+            </span>
           </p>
         </div>
 
@@ -334,14 +337,14 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
           gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
           gap: '20px'
         }}>
-          {items.map((item, idx) => {
-            const medInfo = BANGLADESHI_MEDICINES.find(m => m.brandName && m.brandName.toLowerCase().includes((item.detectedMedicine || '').toLowerCase())) || BANGLADESHI_MEDICINES[0];
-            const parsedDosage = parseDosageInstruction(item.dosage, item.timing);
+          {(items || []).map((item, idx) => {
+            const medInfo = BANGLADESHI_MEDICINES.find(m => m.brandName && m.brandName.toLowerCase().includes(((item?.detectedMedicine || item?.rawText || '')).toLowerCase())) || BANGLADESHI_MEDICINES[0] || {};
+            const parsedDosage = parseDosageInstruction(item?.dosage, item?.timing);
             const isCardActive = highlightedIndex === idx;
 
             return (
               <div
-                key={item.id || idx}
+                key={item?.id || idx}
                 className="clean-card"
                 style={{
                   padding: '22px',
@@ -376,11 +379,11 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                           {idx + 1}
                         </span>
                         <h3 style={{ fontSize: '1.15rem', color: '#0f172a', margin: 0, fontWeight: 800 }}>
-                          {item.detectedMedicine}
+                          {item?.detectedMedicine || item?.rawText || 'Prescription Medicine'}
                         </h3>
                       </div>
                       <p style={{ margin: '4px 0 0 34px', fontSize: '0.8rem', color: '#64748b', lineHeight: 1.5 }}>
-                        {medInfo.generic}
+                        {item?.generic || medInfo?.generic || 'Allopathic Prescription Medicine'}
                       </p>
                     </div>
 
@@ -417,7 +420,7 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                       <span>{t('indicationLabel')}</span>
                     </div>
                     <div style={{ fontSize: '0.88rem', color: '#1e293b', fontWeight: 600, lineHeight: 1.6 }}>
-                      {language === 'bn' ? medInfo.purposeBn : (medInfo.purposeEn || medInfo.purposeBn)}
+                      {language === 'bn' ? (item?.purposeBn || medInfo?.purposeBn || 'চিকিৎসকের পরামর্শ অনুযায়ী সেব্য।') : (item?.purposeEn || medInfo?.purposeEn || medInfo?.purposeBn || 'As directed by physician.')}
                     </div>
                   </div>
 
@@ -438,7 +441,7 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                     <div style={{ fontSize: '0.94rem', fontWeight: 800, color: '#92400e', lineHeight: 1.5 }}>
                       {language === 'bn' ? parsedDosage.bn : parsedDosage.en}
                     </div>
-                    {item.duration && (
+                    {item?.duration && (
                       <div style={{ fontSize: '0.78rem', color: '#b45309', display: 'flex', alignItems: 'center', gap: '5px' }}>
                         <Clock size={13} />
                         <span>{language === 'bn' ? 'চলবে / মেয়াদ:' : 'Duration:'} <strong>{item.duration}</strong></span>
@@ -449,7 +452,7 @@ export default function BanglaExplainer({ prescription, elderlyMode }) {
                   {/* Time of day cards with Non-Distorting Responsive Visuals */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))', gap: '8px' }}>
                     {(() => {
-                      const dParts = (item.dosage || '1+0+1').split('+');
+                      const dParts = (item?.dosage || '1+0+1').split('+');
                       const morning = (dParts[0] || '0').trim();
                       const noon = (dParts[1] || '0').trim();
                       const night = (dParts[2] || '0').trim();

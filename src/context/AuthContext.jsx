@@ -5,6 +5,7 @@ const AuthContext = createContext();
 const AUTH_TOKEN_KEY = 'NIRVOY_AUTH_TOKEN';
 const AUTH_USER_KEY = 'NIRVOY_AUTH_USER';
 const AUTH_PROFILE_KEY = 'NIRVOY_AUTH_PROFILE';
+const AUTH_DOCTOR_PROFILE_KEY = 'NIRVOY_AUTH_DOCTOR_PROFILE';
 
 function safeParseJSON(val) {
   if (!val || val === 'undefined' || val === 'null') return null;
@@ -42,9 +43,14 @@ export function AuthProvider({ children }) {
     return normalizeProfile(safeParseJSON(localStorage.getItem(AUTH_PROFILE_KEY)));
   });
 
+  const [doctorProfile, setDoctorProfile] = useState(() => {
+    return safeParseJSON(localStorage.getItem(AUTH_DOCTOR_PROFILE_KEY));
+  });
+
   const [token, setToken] = useState(() => localStorage.getItem(AUTH_TOKEN_KEY) || null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalConfig, setAuthModalConfig] = useState({ mode: 'login', role: 'patient' });
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   // Sync with backend on startup if token exists
@@ -63,17 +69,26 @@ export function AuthProvider({ children }) {
         const contentType = res.headers.get('content-type');
         if (res.ok && contentType && contentType.includes('application/json')) {
           const data = await res.json();
-          const normProfile = normalizeProfile(data.profile);
           setUser(data.user || null);
-          setPatientProfile(normProfile);
+
+          if (data.user?.role === 'doctor') {
+            const docProf = data.doctorProfile || data.profile || null;
+            setDoctorProfile(docProf);
+            if (docProf) {
+              localStorage.setItem(AUTH_DOCTOR_PROFILE_KEY, JSON.stringify(docProf));
+            }
+          } else {
+            const normProfile = normalizeProfile(data.profile);
+            setPatientProfile(normProfile);
+            if (normProfile) {
+              localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(normProfile));
+            }
+          }
+
           if (data.user) {
             localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
           }
-          if (normProfile) {
-            localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(normProfile));
-          }
         } else if (res.status === 401 || res.status === 403) {
-          // Token expired or invalid
           logout();
         }
       } catch (err) {
@@ -104,25 +119,33 @@ export function AuthProvider({ children }) {
       throw new Error(data.error || 'Login failed');
     }
 
-    const normProfile = normalizeProfile(data.profile);
     setToken(data.token);
     setUser(data.user || null);
-    setPatientProfile(normProfile);
-
     localStorage.setItem(AUTH_TOKEN_KEY, data.token);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
-    if (normProfile) {
-      localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(normProfile));
+
+    if (data.user?.role === 'doctor') {
+      const docProf = data.doctorProfile || data.profile || null;
+      setDoctorProfile(docProf);
+      if (docProf) {
+        localStorage.setItem(AUTH_DOCTOR_PROFILE_KEY, JSON.stringify(docProf));
+      }
+    } else {
+      const normProfile = normalizeProfile(data.profile);
+      setPatientProfile(normProfile);
+      if (normProfile) {
+        localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(normProfile));
+      }
     }
 
     return data;
   };
 
-  const register = async (patientData) => {
+  const register = async (userData) => {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(patientData)
+      body: JSON.stringify(userData)
     });
 
     let data;
@@ -136,15 +159,23 @@ export function AuthProvider({ children }) {
       throw new Error(data.error || 'Registration failed');
     }
 
-    const normProfile = normalizeProfile(data.profile);
     setToken(data.token);
     setUser(data.user || null);
-    setPatientProfile(normProfile);
-
     localStorage.setItem(AUTH_TOKEN_KEY, data.token);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
-    if (normProfile) {
-      localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(normProfile));
+
+    if (data.user?.role === 'doctor') {
+      const docProf = data.doctorProfile || data.profile || null;
+      setDoctorProfile(docProf);
+      if (docProf) {
+        localStorage.setItem(AUTH_DOCTOR_PROFILE_KEY, JSON.stringify(docProf));
+      }
+    } else {
+      const normProfile = normalizeProfile(data.profile);
+      setPatientProfile(normProfile);
+      if (normProfile) {
+        localStorage.setItem(AUTH_PROFILE_KEY, JSON.stringify(normProfile));
+      }
     }
 
     return data;
@@ -190,12 +221,17 @@ export function AuthProvider({ children }) {
     setToken(null);
     setUser(null);
     setPatientProfile(null);
+    setDoctorProfile(null);
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
     localStorage.removeItem(AUTH_PROFILE_KEY);
+    localStorage.removeItem(AUTH_DOCTOR_PROFILE_KEY);
   };
 
-  const openAuthModal = () => setIsAuthModalOpen(true);
+  const openAuthModal = (mode = 'login', role = 'patient') => {
+    setAuthModalConfig({ mode, role });
+    setIsAuthModalOpen(true);
+  };
   const closeAuthModal = () => setIsAuthModalOpen(false);
 
   const openProfileModal = () => setIsProfileModalOpen(true);
@@ -206,6 +242,8 @@ export function AuthProvider({ children }) {
       value={{
         user,
         patientProfile,
+        doctorProfile,
+        isDoctor: user?.role === 'doctor',
         token,
         isAuthenticated: !!user,
         isLoading,
@@ -214,6 +252,8 @@ export function AuthProvider({ children }) {
         logout,
         updateProfile,
         isAuthModalOpen,
+        authModalConfig,
+        setAuthModalConfig,
         openAuthModal,
         closeAuthModal,
         isProfileModalOpen,

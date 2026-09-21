@@ -737,7 +737,42 @@ export async function analyzePrescriptionWithAI(imageFileOrUrl, apiKeyInput = nu
   // Sample top representative medicines for prompt vocabulary
   const preloadedList = BANGLADESHI_MEDICINES.slice(0, 400).map(m => `${m.brandName} (${m.generic})`).join(', ');
 
-  // 1. If API Key is available, call Gemini Vision
+  // 1. Primary: Backend Google Cloud Vision OCR + 21,714 Dataset Search + ChatGPT Predictor
+  try {
+    const scanPayload = {
+      image: imgData?.base64 || '',
+      mimeType: imgData?.mimeType || 'image/jpeg',
+      fileName: fileNameOrTag
+    };
+
+    const serverRes = await fetch('/api/prescription/scan-and-predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(scanPayload)
+    });
+
+    if (serverRes.ok) {
+      const scanData = await serverRes.json();
+      if (scanData.success && scanData.prescription && scanData.prescription.boundingBoxes?.length > 0) {
+        let imageUrl = null;
+        if (typeof imageFileOrUrl === 'string') {
+          imageUrl = imageFileOrUrl;
+        } else if (imageFileOrUrl instanceof Blob || imageFileOrUrl instanceof File) {
+          imageUrl = URL.createObjectURL(imageFileOrUrl);
+        }
+
+        const rx = scanData.prescription;
+        rx.customImageUrl = imageUrl || rx.customImageUrl;
+        rx.googleVisionStatus = scanData.googleVisionStatus || null;
+        rx.ocrProvider = scanData.ocrProvider || 'NIRVOY AI Multimodal Vision';
+        return rx;
+      }
+    }
+  } catch (serverErr) {
+    console.warn('Backend scan-and-predict call notice:', serverErr);
+  }
+
+  // 2. If API Key is available, call Gemini Vision
   if (apiKey && imgData && imgData.base64) {
     const modelsToTry = [
       'gemini-3.6-flash',

@@ -50,7 +50,24 @@ export async function initDB() {
       );
     `);
 
-    console.log('✅ Database tables initialized (users, patient_profiles)');
+    // Doctor Profiles table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS doctor_profiles (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+        bmdc_reg VARCHAR(100),
+        specialty VARCHAR(150),
+        qualifications VARCHAR(255),
+        hospital_chamber VARCHAR(255),
+        phone VARCHAR(50),
+        consultation_fee VARCHAR(50),
+        chamber_schedule VARCHAR(255),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    console.log('✅ Database tables initialized (users, patient_profiles, doctor_profiles)');
     client.release();
   } catch (error) {
     console.error('❌ Error initializing database tables:', error);

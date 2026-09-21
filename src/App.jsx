@@ -8,6 +8,7 @@ import DoctorDashboard from './components/DoctorDashboard';
 import PharmacyFinder from './components/PharmacyFinder';
 import FakeMedicineVerifier from './components/FakeMedicineVerifier';
 import HealthChatbot from './components/HealthChatbot';
+import DoctorVoiceRecorder from './components/DoctorVoiceRecorder';
 import TeamShowcase from './components/TeamShowcase';
 import AuthModal from './components/AuthModal';
 import PatientProfileModal from './components/PatientProfileModal';
@@ -85,11 +86,9 @@ export default function App() {
               const scannerElem = document.getElementById('ocr-scanner-section');
               if (scannerElem) scannerElem.scrollIntoView({ behavior: 'smooth' });
             }}
-            onOpenDemo={() => {
-              setSelectedPrescription(SAMPLE_PRESCRIPTIONS[1]);
-              const scannerElem = document.getElementById('ocr-scanner-section');
-              if (scannerElem) scannerElem.scrollIntoView({ behavior: 'smooth' });
-            }}
+            onOpenConsult={() => setCurrentTab('consult')}
+            onOpenChatbot={() => setCurrentTab('assistant')}
+            onOpenVerify={() => setCurrentTab('verify')}
           />
         )}
 
@@ -108,6 +107,14 @@ export default function App() {
             </>
           )}
 
+          {currentTab === 'consult' && (
+            <DoctorVoiceRecorder
+              onSaveToHistory={() => {
+                // Consultation saved to localStorage
+              }}
+            />
+          )}
+
           {currentTab === 'history' && (
             <PatientHistory
               onSelectPrescription={handleSelectFromHistory}
@@ -117,6 +124,7 @@ export default function App() {
           {currentTab === 'doctor' && (
             <DoctorDashboard
               onNewPrescriptionCreated={handleNewPrescriptionCreated}
+              onNavigateTab={setCurrentTab}
             />
           )}
 

@@ -1,16 +1,34 @@
-import React, { useState } from 'react';
-import { UserCheck, Plus, Trash2, Download, Stethoscope } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { UserCheck, Plus, Trash2, Download, Stethoscope, Award, Zap, Mic, Scan, ShieldCheck } from 'lucide-react';
 import { BANGLADESHI_MEDICINES } from '../data/medicinesData';
 import { exportPrescriptionPDF } from '../utils/pdfGenerator';
+import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import confetti from 'canvas-confetti';
 
-export default function DoctorDashboard({ onNewPrescriptionCreated }) {
+export default function DoctorDashboard({ onNewPrescriptionCreated, onNavigateTab }) {
+  const { user, isDoctor, doctorProfile, openAuthModal } = useAuth();
+  const { language } = useLanguage();
+  const isBn = language === 'bn';
+
   const [doctorInfo, setDoctorInfo] = useState({
     name: "Prof. Dr. M. A. Rahman",
     qualifications: "MBBS, FCPS (Medicine), MACP (USA)",
     hospital: "Dhaka Medical College & Hospital",
     regNumber: "BMDC-A-45892"
   });
+
+  // Auto-sync with authenticated doctor profile
+  useEffect(() => {
+    if (isDoctor && user) {
+      setDoctorInfo({
+        name: user.name?.startsWith('Dr.') || user.name?.startsWith('ডা.') ? user.name : `Dr. ${user.name}`,
+        qualifications: doctorProfile?.qualifications || "MBBS, FCPS (Medicine)",
+        hospital: doctorProfile?.hospital_chamber || "Dhaka Medical College & Hospital",
+        regNumber: doctorProfile?.bmdc_reg || "BMDC-A-46050"
+      });
+    }
+  }, [isDoctor, user, doctorProfile]);
 
   const [patientInfo, setPatientInfo] = useState({
     name: "Mohammad Tanvir",
@@ -98,19 +116,191 @@ export default function DoctorDashboard({ onNewPrescriptionCreated }) {
     });
 
     exportPrescriptionPDF(rxObject);
-    if (onNewPrescriptionCreated) onNewPrescriptionCreated(rxObject);
+
+    if (onNewPrescriptionCreated) {
+      onNewPrescriptionCreated(rxObject);
+    }
   };
 
   return (
     <div style={{ padding: '8px 0 36px' }}>
       <div className="container-max">
+        {/* DOCTOR PORTAL STATUS OR INVITATION BANNER */}
+        {isDoctor && user ? (
+          <div style={{
+            background: 'linear-gradient(135deg, #064e3b 0%, #065f46 60%, #047857 100%)',
+            borderRadius: '18px',
+            padding: '18px 24px',
+            marginBottom: '22px',
+            color: '#ffffff',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '14px',
+            boxShadow: '0 10px 25px -5px rgba(5, 150, 105, 0.25)',
+            border: '1px solid rgba(52, 211, 153, 0.3)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{
+                width: '46px',
+                height: '46px',
+                borderRadius: '12px',
+                background: 'rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(8px)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.4rem',
+                flexShrink: 0
+              }}>
+                🩺
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#ffffff' }}>
+                    {doctorInfo.name}
+                  </h3>
+                  <span style={{
+                    background: '#34d399',
+                    color: '#064e3b',
+                    fontSize: '0.68rem',
+                    fontWeight: 800,
+                    padding: '2px 8px',
+                    borderRadius: '999px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <Award size={12} /> {doctorInfo.regNumber}
+                  </span>
+                </div>
+                <p style={{ margin: '3px 0 0', fontSize: '0.8rem', color: '#a7f3d0' }}>
+                  {doctorProfile?.specialty || 'General Medicine'} • {doctorInfo.hospital}
+                </p>
+              </div>
+            </div>
+
+            {/* Quick feature shortcuts */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {onNavigateTab && (
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab('consult')}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    color: '#ffffff',
+                    padding: '7px 14px',
+                    borderRadius: '10px',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Mic size={14} />
+                  <span>{isBn ? '🎙️ ভয়েস কনসালটেশন' : 'Voice Consultation'}</span>
+                </button>
+              )}
+              {onNavigateTab && (
+                <button
+                  type="button"
+                  onClick={() => onNavigateTab('scanner')}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    color: '#ffffff',
+                    padding: '7px 14px',
+                    borderRadius: '10px',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Scan size={14} />
+                  <span>{isBn ? '🔍 প্রেসক্রিপশন স্ক্যানার' : 'Rx Scanner'}</span>
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
+            border: '1.5px solid #a7f3d0',
+            borderRadius: '16px',
+            padding: '16px 22px',
+            marginBottom: '22px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '12px',
+            boxShadow: '0 4px 12px rgba(5, 150, 105, 0.08)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '42px',
+                height: '42px',
+                borderRadius: '12px',
+                background: '#059669',
+                color: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <Stethoscope size={22} />
+              </div>
+              <div>
+                <h4 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 800, color: '#065f46' }}>
+                  {isBn ? '🩺 চিকিৎসক পোর্টাল ও অটোমেটেড প্যাড' : '🩺 Doctor Portal & Automated Pad'}
+                </h4>
+                <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: '#047857' }}>
+                  {isBn 
+                    ? 'আপনার BMDC রেজিস্ট্রেশন নম্বর ও চেম্বারের তথ্যাদি স্বয়ংক্রিয়ভাবে প্রেসক্রিপশনে সংযুক্ত করতে ডাক্তার অ্যাকাউন্টে প্রবেশ করুন।' 
+                    : 'Sign in with your BMDC credentials to automatically brand your prescriptions and unlock the live consultation recorder.'}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => openAuthModal('login', 'doctor')}
+              style={{
+                background: '#059669',
+                color: '#ffffff',
+                border: 'none',
+                padding: '9px 18px',
+                borderRadius: '10px',
+                fontSize: '0.84rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Zap size={15} />
+              <span>{isBn ? 'ডাক্তার লগইন / সাইন আপ' : 'Doctor Sign In / Register'}</span>
+            </button>
+          </div>
+        )}
+
         {/* Module Header */}
         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
           <h2 style={{ fontSize: '1.6rem', color: '#0f172a', marginBottom: '4px', letterSpacing: '-0.02em' }}>
-            ডিজিটাল প্রেসক্রিপশন তৈরি (Doctor Portal)
+            {isBn ? 'ডিজিটাল প্রেসক্রিপশন তৈরি (Doctor Portal)' : 'Digital Prescription Generator (Doctor Pad)'}
           </h2>
           <p style={{ color: '#64748b', fontSize: '0.88rem', maxWidth: '540px', margin: '0 auto' }}>
-            চিকিৎসকদের জন্য স্পষ্ট ও নির্ভুল ডিজিটাল প্রেসক্রিপশন জেনারেটর।
+            {isBn 
+              ? '২১,৭১৪টি বাংলাদেশি ওষুধের ডাটাবেজ থেকে স্বয়ংক্রিয়ভাবে সাজিয়ে প্রেসক্রিপশন তৈরি ও পিডিএফ এক্সপোর্ট করুন।' 
+              : 'Generate verified prescriptions with 21,714 Bangladeshi medicines and instant PDF export.'}
           </p>
         </div>
 

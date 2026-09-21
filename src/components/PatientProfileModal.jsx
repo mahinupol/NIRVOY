@@ -12,7 +12,13 @@ import {
   AlertCircle, 
   LogOut,
   Database,
-  Tag
+  Tag,
+  Stethoscope,
+  Award,
+  Building2,
+  Clock,
+  Coins,
+  Briefcase
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -33,9 +39,10 @@ const COMMON_DISEASES = [
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
 
 export default function PatientProfileModal() {
-  const { isProfileModalOpen, closeProfileModal, user, patientProfile, updateProfile, logout } = useAuth();
+  const { isProfileModalOpen, closeProfileModal, user, patientProfile, doctorProfile, updateProfile, logout } = useAuth();
   const { language } = useLanguage();
   const isBn = language === 'bn';
+  const isDoctor = user?.role === 'doctor';
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
@@ -152,7 +159,7 @@ export default function PatientProfileModal() {
         maxHeight: '92vh',
         overflowY: 'auto',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-        border: '1px solid #e2e8f0',
+        border: isDoctor ? '2px solid #10b981' : '1px solid #e2e8f0',
         position: 'relative'
       }}>
         {/* Header */}
@@ -162,7 +169,9 @@ export default function PatientProfileModal() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
+          background: isDoctor 
+            ? 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)' 
+            : 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
           borderTopLeftRadius: '20px',
           borderTopRightRadius: '20px'
         }}>
@@ -171,7 +180,9 @@ export default function PatientProfileModal() {
               width: '42px',
               height: '42px',
               borderRadius: '12px',
-              background: 'linear-gradient(135deg, #0284c7 0%, #059669 100%)',
+              background: isDoctor 
+                ? 'linear-gradient(135deg, #059669 0%, #0d9488 100%)' 
+                : 'linear-gradient(135deg, #0284c7 0%, #059669 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -179,16 +190,16 @@ export default function PatientProfileModal() {
               fontSize: '1.1rem',
               fontWeight: 800
             }}>
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'P'}
+              {isDoctor ? <Stethoscope size={22} /> : (user?.name ? user.name.charAt(0).toUpperCase() : 'P')}
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>
-                  {user?.name || 'Patient'}
+                  {user?.name || (isDoctor ? 'Doctor' : 'Patient')}
                 </h3>
                 <span style={{
-                  background: '#dcfce7',
-                  color: '#15803d',
+                  background: isDoctor ? '#d1fae5' : '#dcfce7',
+                  color: isDoctor ? '#065f46' : '#15803d',
                   fontSize: '0.68rem',
                   fontWeight: 700,
                   padding: '2px 8px',
@@ -197,11 +208,12 @@ export default function PatientProfileModal() {
                   alignItems: 'center',
                   gap: '4px'
                 }}>
-                  <Database size={11} /> Neon DB Synced
+                  {isDoctor ? <Award size={11} /> : <Database size={11} />}
+                  {isDoctor ? 'BMDC Verified Doctor' : 'Neon DB Synced'}
                 </span>
               </div>
               <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>
-                {user?.email || ''} • {isBn ? 'রোগী প্রোফাইল ও মেডিকেল হিস্ট্রি' : 'Patient Health Profile'}
+                {user?.email || ''} • {isDoctor ? (isBn ? 'নিবন্ধিত চিকিৎসক প্রোফাইল' : 'Registered Doctor Profile') : (isBn ? 'রোগী প্রোফাইল ও মেডিকেল হিস্ট্রি' : 'Patient Health Profile')}
               </p>
             </div>
           </div>
@@ -264,8 +276,93 @@ export default function PatientProfileModal() {
           )}
         </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSave} style={{ padding: '20px 24px 24px' }}>
+        {/* DOCTOR VIEW */}
+        {isDoctor ? (
+          <div style={{ padding: '20px 24px 24px' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+              gap: '12px',
+              marginBottom: '20px'
+            }}>
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, display: 'block', marginBottom: '2px' }}>BMDC Registration</span>
+                <strong style={{ fontSize: '0.95rem', color: '#047857' }}>{doctorProfile?.bmdc_reg || 'BMDC-A-46050'}</strong>
+              </div>
+
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, display: 'block', marginBottom: '2px' }}>Specialization</span>
+                <strong style={{ fontSize: '0.92rem', color: '#0f172a' }}>{doctorProfile?.specialty || 'General Medicine'}</strong>
+              </div>
+
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, display: 'block', marginBottom: '2px' }}>Degrees & Qualifications</span>
+                <strong style={{ fontSize: '0.9rem', color: '#0f172a' }}>{doctorProfile?.qualifications || 'MBBS, FCPS (Medicine)'}</strong>
+              </div>
+
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, display: 'block', marginBottom: '2px' }}>Hospital / Chamber</span>
+                <strong style={{ fontSize: '0.9rem', color: '#0f172a' }}>{doctorProfile?.hospital_chamber || 'Dhaka Medical College Hospital'}</strong>
+              </div>
+
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, display: 'block', marginBottom: '2px' }}>Chamber Timing</span>
+                <strong style={{ fontSize: '0.88rem', color: '#0f172a' }}>{doctorProfile?.chamber_schedule || 'Sat - Thu: 5:00 PM - 9:00 PM'}</strong>
+              </div>
+
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600, display: 'block', marginBottom: '2px' }}>Consultation Fee</span>
+                <strong style={{ fontSize: '0.9rem', color: '#0f172a' }}>{doctorProfile?.consultation_fee ? `${doctorProfile.consultation_fee} BDT` : '1000 BDT'}</strong>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  closeProfileModal();
+                }}
+                style={{
+                  padding: '10px 18px',
+                  borderRadius: '10px',
+                  border: '1px solid #fecaca',
+                  background: '#fef2f2',
+                  color: '#dc2626',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <LogOut size={16} />
+                <span>{isBn ? 'লগআউট করুন' : 'Sign Out'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={closeProfileModal}
+                style={{
+                  padding: '10px 22px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: '#059669',
+                  color: '#ffffff',
+                  fontWeight: 700,
+                  fontSize: '0.88rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 10px rgba(5, 150, 105, 0.25)'
+                }}
+              >
+                {isBn ? 'ঠিক আছে' : 'OK'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* Form Body for Patient */
+          <form onSubmit={handleSave} style={{ padding: '20px 24px 24px' }}>
           
           {/* Vitals Grid */}
           <div style={{
@@ -545,6 +642,7 @@ export default function PatientProfileModal() {
             </div>
           </div>
         </form>
+        )}
       </div>
     </div>
   );

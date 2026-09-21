@@ -11,7 +11,8 @@ import {
   Menu, 
   X, 
   Languages,
-  LogIn
+  LogIn,
+  Mic
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
@@ -19,17 +20,18 @@ import { useAuth } from '../context/AuthContext';
 export default function Navbar({ currentTab, setCurrentTab }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { language, toggleLanguage } = useLanguage();
-  const { user, isAuthenticated, openAuthModal, openProfileModal } = useAuth();
+  const { user, isAuthenticated, isDoctor, openAuthModal, openProfileModal } = useAuth();
 
   const isBn = language === 'bn';
 
   const tabs = [
     { id: 'scanner', label: isBn ? 'স্ক্যানার' : 'Scanner', icon: Scan },
-    { id: 'history', label: isBn ? 'আর্কাইভ' : 'History', icon: History },
-    { id: 'doctor', label: isBn ? 'ডাক্তার' : 'Doctor', icon: Stethoscope },
-    { id: 'pharmacy', label: isBn ? 'ফার্মেসি' : 'Pharmacy', icon: Building2 },
-    { id: 'verify', label: isBn ? 'যাচাই' : 'Verify', icon: ShieldCheck },
+    { id: 'consult', label: isBn ? 'ডক্টর রেকর্ড' : 'Doctor Record', icon: Mic },
     { id: 'assistant', label: isBn ? 'AI সহকারী' : 'AI Assistant', icon: Bot },
+    { id: 'verify', label: isBn ? 'যাচাই' : 'Verify', icon: ShieldCheck },
+    { id: 'history', label: isBn ? 'আর্কাইভ' : 'History', icon: History },
+    { id: 'doctor', label: isBn ? 'ডাক্তার প্যাড' : 'Doctor Pad', icon: Stethoscope },
+    { id: 'pharmacy', label: isBn ? 'ফার্মেসি' : 'Pharmacy', icon: Building2 },
     { id: 'team', label: isBn ? 'টিম' : 'Team', icon: Users }
   ];
 
@@ -95,13 +97,14 @@ export default function Navbar({ currentTab, setCurrentTab }) {
             {tabs.map(tab => {
               const Icon = tab.icon;
               const isActive = currentTab === tab.id;
+              const isDoctorTab = tab.id === 'doctor' || tab.id === 'consult';
               return (
                 <button
                   key={tab.id}
                   onClick={() => handleTabClick(tab.id)}
                   style={{
                     border: 'none',
-                    background: isActive ? '#0284c7' : 'transparent',
+                    background: isActive ? (isDoctorTab ? '#059669' : '#0284c7') : 'transparent',
                     color: isActive ? '#ffffff' : '#475569',
                     padding: '7px 14px',
                     borderRadius: '999px',
@@ -125,7 +128,7 @@ export default function Navbar({ currentTab, setCurrentTab }) {
 
           {/* Right Action Controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-            {/* Auth / Patient Profile Button */}
+            {/* Auth / Doctor / Patient Profile Button */}
             {isAuthenticated && user ? (
               <button
                 onClick={openProfileModal}
@@ -135,56 +138,100 @@ export default function Navbar({ currentTab, setCurrentTab }) {
                   gap: '7px',
                   padding: '5px 12px 5px 6px',
                   borderRadius: '999px',
-                  border: '1px solid #bbf7d0',
-                  background: '#f0fdf4',
-                  color: '#166534',
+                  border: isDoctor ? '1.5px solid #10b981' : '1px solid #bbf7d0',
+                  background: isDoctor ? '#ecfdf5' : '#f0fdf4',
+                  color: isDoctor ? '#065f46' : '#166534',
                   fontSize: '0.82rem',
                   fontWeight: 700,
                   cursor: 'pointer',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  transition: 'all 0.15s'
                 }}
               >
                 <div style={{
                   width: '24px',
                   height: '24px',
                   borderRadius: '50%',
-                  background: '#059669',
+                  background: isDoctor ? '#059669' : '#0284c7',
                   color: 'white',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '0.75rem',
+                  fontSize: '0.72rem',
                   fontWeight: 800,
                   flexShrink: 0
                 }}>
-                  {user?.name ? user.name.charAt(0).toUpperCase() : 'P'}
+                  {isDoctor ? '🩺' : (user?.name ? user.name.charAt(0).toUpperCase() : 'P')}
                 </div>
-                <span style={{ maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {(user?.name || 'Patient').split(' ')[0]}
+                <span style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {isDoctor 
+                    ? (user?.name?.startsWith('Dr.') || user?.name?.startsWith('ডা.') ? user.name : `Dr. ${user?.name || 'Doctor'}`)
+                    : (user?.name || 'Patient').split(' ')[0]}
                 </span>
+                {isDoctor && (
+                  <span style={{
+                    background: '#059669',
+                    color: '#ffffff',
+                    fontSize: '0.62rem',
+                    padding: '1px 6px',
+                    borderRadius: '999px',
+                    fontWeight: 800,
+                    letterSpacing: '0.02em'
+                  }}>
+                    BMDC
+                  </span>
+                )}
               </button>
             ) : (
-              <button
-                onClick={openAuthModal}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '7px 14px',
-                  borderRadius: '999px',
-                  border: 'none',
-                  background: '#0284c7',
-                  color: '#ffffff',
-                  fontSize: '0.82rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <LogIn size={14} />
-                <span>{isBn ? 'লগইন' : 'Login'}</span>
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {/* Dedicated Doctor Portal Button */}
+                <button
+                  onClick={() => openAuthModal('login', 'doctor')}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    padding: '6px 12px',
+                    borderRadius: '999px',
+                    border: '1.5px solid #059669',
+                    background: '#f0fdf4',
+                    color: '#047857',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    whiteSpace: 'nowrap',
+                    transition: 'all 0.15s'
+                  }}
+                  title={isBn ? 'ডাক্তার লগইন ও সাইনআপ পোর্টাল' : 'Doctor Login & Registration Portal'}
+                >
+                  <Stethoscope size={14} color="#059669" />
+                  <span>{isBn ? 'ডাক্তার পোর্টাল' : 'Doctor Portal'}</span>
+                </button>
+
+                {/* Patient Login Button */}
+                <button
+                  onClick={() => openAuthModal('login', 'patient')}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    padding: '6px 12px',
+                    borderRadius: '999px',
+                    border: 'none',
+                    background: '#0284c7',
+                    color: '#ffffff',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <LogIn size={13} />
+                  <span>{isBn ? 'লগইন' : 'Sign In'}</span>
+                </button>
+              </div>
             )}
 
             {/* Clean Language Switcher */}
@@ -295,10 +342,10 @@ export default function Navbar({ currentTab, setCurrentTab }) {
       >
         {[
           { id: 'scanner', label: isBn ? 'স্ক্যানার' : 'Scanner', icon: Scan },
-          { id: 'history', label: isBn ? 'আর্কাইভ' : 'History', icon: History },
-          { id: 'doctor', label: isBn ? 'ডাক্তার' : 'Doctor', icon: Stethoscope },
+          { id: 'consult', label: isBn ? 'রেকর্ড' : 'Record', icon: Mic },
+          { id: 'assistant', label: isBn ? 'AI বট' : 'AI Bot', icon: Bot },
           { id: 'verify', label: isBn ? 'যাচাই' : 'Verify', icon: ShieldCheck },
-          { id: 'assistant', label: isBn ? 'AI বট' : 'AI Bot', icon: Bot }
+          { id: 'history', label: isBn ? 'আর্কাইভ' : 'History', icon: History }
         ].map(item => {
           const Icon = item.icon;
           const isActive = currentTab === item.id;

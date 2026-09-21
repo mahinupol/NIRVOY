@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   LogIn, 
@@ -15,7 +15,13 @@ import {
   AlertCircle, 
   CheckCircle2, 
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  Stethoscope,
+  Award,
+  Zap,
+  Building,
+  Clock,
+  Coins
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -35,21 +41,36 @@ const COMMON_DISEASES = [
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
 
+const DOCTOR_SPECIALTIES = [
+  'Medicine Specialist (মেডিসিন বিশেষজ্ঞ)',
+  'Cardiologist (হৃদরোগ বিশেষজ্ঞ)',
+  'Chest & Pulmonology (বক্ষব্যাধি ও শ্বাসকষ্ট)',
+  'Gastroenterology (লিভার ও পরিপাকতন্ত্র)',
+  'Endocrinology & Diabetology (ডায়াবেটিস বিশেষজ্ঞ)',
+  'General Physician (জেনারেল ফিজিশিয়ান)',
+  'Pediatrician (শিশু বিশেষজ্ঞ)',
+  'Gynecologist (স্ত্রীরোগ ও প্রসূতি বিশেষজ্ঞ)',
+  'Neurologist (নিউরোমেডিসিন বিশেষজ্ঞ)',
+  'Orthopedic Surgeon (হাড় ও জোড়া বিশেষজ্ঞ)',
+  'Dermatologist (চর্ম ও যৌন রোগ বিশেষজ্ঞ)'
+];
+
 export default function AuthModal() {
-  const { isAuthModalOpen, closeAuthModal, login, register } = useAuth();
+  const { isAuthModalOpen, closeAuthModal, login, register, authModalConfig } = useAuth();
   const { language } = useLanguage();
   const isBn = language === 'bn';
 
+  const [activeRole, setActiveRole] = useState('patient'); // 'patient' or 'doctor'
   const [mode, setMode] = useState('register'); // 'login' or 'register'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Login form state
+  // Patient Login form state
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
-  // Register form state
+  // Patient Register form state
   const [regData, setRegData] = useState({
     name: '',
     email: '',
@@ -66,6 +87,36 @@ export default function AuthModal() {
     allergies: '',
     emergency_contact: ''
   });
+
+  // Doctor Registration form state
+  const [drData, setDrData] = useState({
+    name: '',
+    bmdc_reg: '',
+    specialty: DOCTOR_SPECIALTIES[0],
+    qualifications: 'MBBS, FCPS (Medicine)',
+    hospital_chamber: 'Dhaka Medical College Hospital',
+    phone: '',
+    email: '',
+    password: '',
+    consultation_fee: '1000',
+    chamber_schedule: 'Sat - Thu: 5:00 PM - 9:00 PM'
+  });
+
+  // Synchronize initial configuration when modal opens
+  useEffect(() => {
+    if (isAuthModalOpen) {
+      if (authModalConfig?.role) {
+        setActiveRole(authModalConfig.role);
+      }
+      if (authModalConfig?.mode) {
+        setMode(authModalConfig.mode);
+      } else if (authModalConfig?.role === 'doctor') {
+        setMode('login'); // Default doctor to login for quick demo access
+      }
+      setError('');
+      setSuccessMsg('');
+    }
+  }, [isAuthModalOpen, authModalConfig]);
 
   if (!isAuthModalOpen) return null;
 
@@ -95,6 +146,7 @@ export default function AuthModal() {
     }
   };
 
+  // Login submit for both patient and doctor
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -113,7 +165,26 @@ export default function AuthModal() {
     }
   };
 
-  const handleRegisterSubmit = async (e) => {
+  // Instant 1-click Demo Doctor Login
+  const handleDemoDoctorLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await login('doctor@nirvoy.ai', 'doctor123');
+      setSuccessMsg(isBn ? 'ডা. মো. বেলায়েত হোসেন হিসেবে সফলভাবে লগইন হয়েছে!' : 'Logged in successfully as Demo Doctor (Dr. MD. Bellal Hossain)!');
+      setTimeout(() => {
+        closeAuthModal();
+        setSuccessMsg('');
+      }, 700);
+    } catch (err) {
+      setError(err.message || 'Demo doctor login failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Patient registration submit
+  const handlePatientRegisterSubmit = async (e) => {
     e.preventDefault();
     setError('');
     
@@ -131,6 +202,7 @@ export default function AuthModal() {
         name: regData.name,
         email: regData.email,
         password: regData.password,
+        role: 'patient',
         age: regData.age ? parseInt(regData.age, 10) : null,
         height: heightStr,
         weight_kg: regData.weight_kg ? parseFloat(regData.weight_kg) : null,
@@ -153,6 +225,52 @@ export default function AuthModal() {
     }
   };
 
+  // Doctor registration submit
+  const handleDoctorRegisterSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!drData.name || !drData.email || !drData.password || !drData.bmdc_reg) {
+      setError(isBn ? 'নাম, BMDC নম্বর, ইমেইল এবং পাসওয়ার্ড আবশ্যক।' : 'Name, BMDC Reg No., Email, and Password are required.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const drFormattedName = drData.name.startsWith('Dr.') || drData.name.startsWith('ডা.') 
+        ? drData.name 
+        : `Dr. ${drData.name}`;
+
+      await register({
+        name: drFormattedName,
+        email: drData.email,
+        password: drData.password,
+        role: 'doctor',
+        doctorProfile: {
+          bmdc_reg: drData.bmdc_reg.trim(),
+          specialty: drData.specialty,
+          qualifications: drData.qualifications,
+          hospital_chamber: drData.hospital_chamber,
+          phone: drData.phone || drData.email,
+          consultation_fee: drData.consultation_fee,
+          chamber_schedule: drData.chamber_schedule
+        }
+      });
+
+      setSuccessMsg(isBn ? 'চিকিৎসক প্রোফাইল সফলভাবে নিবন্ধন ও ডাটাবেজে সংরক্ষণ করা হয়েছে!' : 'Doctor profile registered and saved to database!');
+      setTimeout(() => {
+        closeAuthModal();
+        setSuccessMsg('');
+      }, 900);
+    } catch (err) {
+      setError(err.message || 'Doctor registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isDoctor = activeRole === 'doctor';
+
   return (
     <div style={{
       position: 'fixed',
@@ -169,12 +287,12 @@ export default function AuthModal() {
       <div style={{
         background: '#ffffff',
         borderRadius: '20px',
-        maxWidth: mode === 'register' ? '680px' : '440px',
+        maxWidth: (mode === 'register' || isDoctor) ? '680px' : '440px',
         width: '100%',
         maxHeight: '92vh',
         overflowY: 'auto',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-        border: '1px solid #e2e8f0',
+        border: isDoctor ? '2px solid #10b981' : '1px solid #e2e8f0',
         position: 'relative',
         animation: 'fadeIn 0.2s ease-out'
       }}>
@@ -185,34 +303,62 @@ export default function AuthModal() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          background: 'linear-gradient(135deg, #f8fafc 0%, #f0fdf4 100%)',
+          background: isDoctor
+            ? 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)'
+            : 'linear-gradient(135deg, #f8fafc 0%, #f0fdf4 100%)',
           borderTopLeftRadius: '20px',
           borderTopRightRadius: '20px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '40px',
-              height: '40px',
+              width: '42px',
+              height: '42px',
               borderRadius: '12px',
-              background: 'linear-gradient(135deg, #0284c7 0%, #059669 100%)',
+              background: isDoctor 
+                ? 'linear-gradient(135deg, #059669 0%, #0d9488 100%)' 
+                : 'linear-gradient(135deg, #0284c7 0%, #059669 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: 'white',
-              boxShadow: '0 4px 12px rgba(2, 132, 199, 0.3)'
+              boxShadow: isDoctor ? '0 4px 12px rgba(5, 150, 105, 0.35)' : '0 4px 12px rgba(2, 132, 199, 0.3)'
             }}>
-              <HeartPulse size={22} />
+              {isDoctor ? <Stethoscope size={24} /> : <HeartPulse size={24} />}
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
-                {mode === 'register' 
-                  ? (isBn ? 'রোগী নিবন্ধন ও স্বাস্থ্য প্রোফাইল' : 'Patient Registration & Health Profile')
-                  : (isBn ? 'রোগী অ্যাকাউন্ট লগইন' : 'Patient Account Login')}
-              </h3>
-              <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>
-                {mode === 'register'
-                  ? (isBn ? 'ডাটাবেজে স্থায়ীভাবে আপনার তথ্য সংরক্ষণ করুন' : 'Save your medical records securely in Neon PostgreSQL')
-                  : (isBn ? 'আপনার পূর্বের স্বাস্থ্য তথ্যে প্রবেশ করুন' : 'Access your saved medical profile & prescriptions')}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
+                  {isDoctor
+                    ? (mode === 'register' 
+                        ? (isBn ? 'চিকিৎসক নিবন্ধন পোর্টাল' : 'Doctor Registration Portal')
+                        : (isBn ? 'চিকিৎসক পোর্টাল লগইন' : 'Doctor Portal Sign In'))
+                    : (mode === 'register' 
+                        ? (isBn ? 'রোগী নিবন্ধন ও স্বাস্থ্য প্রোফাইল' : 'Patient Registration & Health Profile')
+                        : (isBn ? 'রোগী অ্যাকাউন্ট লগইন' : 'Patient Account Login'))}
+                </h3>
+                {isDoctor && (
+                  <span style={{
+                    background: '#dcfce7',
+                    color: '#047857',
+                    fontSize: '0.68rem',
+                    fontWeight: 800,
+                    padding: '2px 8px',
+                    borderRadius: '999px',
+                    border: '1px solid #86efac',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <Award size={12} /> BMDC Verified
+                  </span>
+                )}
+              </div>
+              <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: '#64748b' }}>
+                {isDoctor
+                  ? (isBn ? 'ডিজিটাল প্রেসক্রিপশন প্যাড, ড্রাগ ইন্টারেকশন ও লাইভ ভয়েস কনসালটেশন' : 'Digital Prescription Pad, Interaction Shield & Live Consultation Voice Recorder')
+                  : (mode === 'register'
+                      ? (isBn ? 'ডাটাবেজে স্থায়ীভাবে আপনার তথ্য সংরক্ষণ করুন' : 'Save your medical records securely in Neon PostgreSQL')
+                      : (isBn ? 'আপনার পূর্বের স্বাস্থ্য তথ্যে প্রবেশ করুন' : 'Access your saved medical profile & prescriptions'))}
               </p>
             </div>
           </div>
@@ -220,8 +366,8 @@ export default function AuthModal() {
           <button
             onClick={closeAuthModal}
             style={{
-              background: '#f1f5f9',
-              border: 'none',
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
               borderRadius: '50%',
               width: '34px',
               height: '34px',
@@ -237,60 +383,132 @@ export default function AuthModal() {
           </button>
         </div>
 
-        {/* Tab Toggle (Login / Register) */}
+        {/* PRIMARY ROLE SWITCHER (Patient vs Doctor) */}
         <div style={{ padding: '16px 24px 0' }}>
           <div style={{
-            display: 'flex',
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
             background: '#f1f5f9',
             padding: '4px',
-            borderRadius: '12px',
-            gap: '4px'
+            borderRadius: '14px',
+            gap: '6px'
           }}>
             <button
               type="button"
-              onClick={() => { setMode('register'); setError(''); }}
+              onClick={() => {
+                setActiveRole('patient');
+                setError('');
+              }}
               style={{
-                flex: 1,
-                padding: '9px 12px',
-                borderRadius: '8px',
+                padding: '10px 14px',
+                borderRadius: '10px',
                 border: 'none',
-                background: mode === 'register' ? '#ffffff' : 'transparent',
-                color: mode === 'register' ? '#0284c7' : '#64748b',
-                fontWeight: mode === 'register' ? 700 : 500,
-                fontSize: '0.85rem',
+                background: !isDoctor ? '#ffffff' : 'transparent',
+                color: !isDoctor ? '#0284c7' : '#64748b',
+                fontWeight: !isDoctor ? 800 : 600,
+                fontSize: '0.88rem',
                 cursor: 'pointer',
-                boxShadow: mode === 'register' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+                boxShadow: !isDoctor ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '6px'
+                gap: '8px',
+                transition: 'all 0.2s'
               }}
             >
-              <UserPlus size={16} />
-              {isBn ? 'নতুন রোগী নিবন্ধন (Sign Up)' : 'New Patient (Sign Up)'}
+              <User size={17} />
+              <span>{isBn ? '👤 সাধারণ রোগী (Patient)' : '👤 Patient Account'}</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveRole('doctor');
+                setError('');
+              }}
+              style={{
+                padding: '10px 14px',
+                borderRadius: '10px',
+                border: 'none',
+                background: isDoctor ? '#ffffff' : 'transparent',
+                color: isDoctor ? '#059669' : '#64748b',
+                fontWeight: isDoctor ? 800 : 600,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                boxShadow: isDoctor ? '0 2px 8px rgba(5, 150, 105, 0.15)' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: 'all 0.2s'
+              }}
+            >
+              <Stethoscope size={17} />
+              <span>{isBn ? '🩺 নিবন্ধিত চিকিৎসক (Doctor)' : '🩺 Doctor Portal'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Toggle (Sign Up / Sign In) */}
+        <div style={{ padding: '12px 24px 0' }}>
+          <div style={{
+            display: 'flex',
+            background: '#f8fafc',
+            padding: '3px',
+            borderRadius: '10px',
+            border: '1px solid #e2e8f0',
+            gap: '4px'
+          }}>
             <button
               type="button"
               onClick={() => { setMode('login'); setError(''); }}
               style={{
                 flex: 1,
-                padding: '9px 12px',
+                padding: '8px 12px',
                 borderRadius: '8px',
                 border: 'none',
-                background: mode === 'login' ? '#ffffff' : 'transparent',
-                color: mode === 'login' ? '#0284c7' : '#64748b',
+                background: mode === 'login' ? (isDoctor ? '#059669' : '#0284c7') : 'transparent',
+                color: mode === 'login' ? '#ffffff' : '#64748b',
                 fontWeight: mode === 'login' ? 700 : 500,
-                fontSize: '0.85rem',
+                fontSize: '0.82rem',
                 cursor: 'pointer',
-                boxShadow: mode === 'login' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '6px'
+                gap: '6px',
+                transition: 'all 0.15s'
               }}
             >
-              <LogIn size={16} />
-              {isBn ? 'লগইন (Sign In)' : 'Sign In'}
+              <LogIn size={15} />
+              {isDoctor 
+                ? (isBn ? 'চিকিৎসক লগইন (Doctor Sign In)' : 'Doctor Sign In')
+                : (isBn ? 'রোগী লগইন (Sign In)' : 'Patient Sign In')}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setMode('register'); setError(''); }}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                background: mode === 'register' ? (isDoctor ? '#059669' : '#0284c7') : 'transparent',
+                color: mode === 'register' ? '#ffffff' : '#64748b',
+                fontWeight: mode === 'register' ? 700 : 500,
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                transition: 'all 0.15s'
+              }}
+            >
+              <UserPlus size={15} />
+              {isDoctor 
+                ? (isBn ? 'নতুন চিকিৎসক নিবন্ধন (Register Doctor)' : 'Register Doctor')
+                : (isBn ? 'নতুন রোগী নিবন্ধন (Sign Up)' : 'New Patient (Sign Up)')}
             </button>
           </div>
         </div>
@@ -334,8 +552,377 @@ export default function AuthModal() {
           )}
         </div>
 
-        {/* LOGIN FORM */}
-        {mode === 'login' && (
+        {/* ============================================================ */}
+        {/* DOCTOR LOGIN / SIGN IN */}
+        {/* ============================================================ */}
+        {isDoctor && mode === 'login' && (
+          <div style={{ padding: '16px 24px 24px' }}>
+            {/* Quick 1-Click Demo Doctor Button */}
+            <div style={{
+              background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
+              border: '1px solid #a7f3d0',
+              borderRadius: '14px',
+              padding: '14px',
+              marginBottom: '18px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '1.1rem' }}>⚡</span>
+                  <strong style={{ fontSize: '0.88rem', color: '#065f46' }}>
+                    {isBn ? '১-ক্লিকে পরীক্ষামূলক চিকিৎসক লগইন' : 'Instant Demo Doctor Access'}
+                  </strong>
+                </div>
+                <span style={{ fontSize: '0.72rem', background: '#059669', color: 'white', padding: '2px 8px', borderRadius: '999px', fontWeight: 700 }}>
+                  BMDC Verified
+                </span>
+              </div>
+              <p style={{ fontSize: '0.75rem', color: '#047857', margin: '0 0 10px' }}>
+                {isBn 
+                  ? 'দ্রুত মূল্যায়নের জন্য ডা. বেলায়েত হোসেন (BMDC-A-46050)-এর লাইভ প্রেফাইলে ১ ক্লিকেই প্রবেশ করুন।' 
+                  : 'Instantly sign in as Dr. MD. Bellal Hossain (BMDC-A-46050) with full prescription and live recorder suite.'}
+              </p>
+              <button
+                type="button"
+                onClick={handleDemoDoctorLogin}
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: '#059669',
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '0.86rem',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 10px rgba(5, 150, 105, 0.25)'
+                }}
+              >
+                <Zap size={16} />
+                <span>{loading ? (isBn ? 'লগইন হচ্ছে...' : 'Signing in...') : (isBn ? '🚀 ১-ক্লিকে ডেমো ডাক্তার হিসেবে লগইন' : '🚀 1-Click Demo Doctor Sign In')}</span>
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '14px 0' }}>
+              <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>
+                {isBn ? 'অথবা আপনার অ্যাকাউন্টে লগইন করুন' : 'Or sign in with doctor email/phone'}
+              </span>
+              <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+            </div>
+
+            <form onSubmit={handleLoginSubmit}>
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '5px' }}>
+                  {isBn ? 'চিকিৎসকের ইমেইল অথবা মোবাইল নম্বর' : 'Doctor Email or Phone'} *
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                  <input
+                    type="text"
+                    required
+                    placeholder="doctor@nirvoy.ai"
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px 10px 36px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.88rem',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '18px' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '5px' }}>
+                  {isBn ? 'পাসওয়ার্ড' : 'Password'} *
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                  <input
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px 10px 36px',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.88rem',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '0.95rem',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)'
+                }}
+              >
+                <LogIn size={18} />
+                <span>{loading ? (isBn ? 'লগইন হচ্ছে...' : 'Signing in...') : (isBn ? 'ডাক্তার পোর্টালে প্রবেশ করুন' : 'Access Doctor Portal')}</span>
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* ============================================================ */}
+        {/* DOCTOR REGISTRATION */}
+        {/* ============================================================ */}
+        {isDoctor && mode === 'register' && (
+          <form onSubmit={handleDoctorRegisterSubmit} style={{ padding: '16px 24px 24px' }}>
+            <div style={{
+              background: '#f8fafc',
+              borderRadius: '14px',
+              padding: '14px 16px',
+              marginBottom: '14px',
+              border: '1px solid #e2e8f0'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
+                <span style={{ background: '#059669', color: 'white', fontSize: '0.7rem', fontWeight: 800, padding: '2px 7px', borderRadius: '6px' }}>1</span>
+                <h4 style={{ margin: 0, fontSize: '0.88rem', color: '#0f172a', fontWeight: 700 }}>
+                  {isBn ? 'চিকিৎসকের অফিসিয়াল পরিচিতি ও BMDC তথ্য' : 'Doctor Credentials & BMDC Info'}
+                </h4>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'চিকিৎসকের পূর্ণ নাম' : 'Doctor Full Name'} *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder={isBn ? 'যেমন: ডা. মো. বেলায়েত হোসেন' : 'e.g. Dr. MD. Bellal Hossain'}
+                    value={drData.name}
+                    onChange={(e) => setDrData({ ...drData, name: e.target.value })}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'BMDC রেজিস্ট্রেশন নম্বর' : 'BMDC Registration Number'} *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. BMDC-A-46050"
+                    value={drData.bmdc_reg}
+                    onChange={(e) => setDrData({ ...drData, bmdc_reg: e.target.value })}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.84rem', fontWeight: 700, color: '#047857' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'বিশেষজ্ঞতা (Specialty)' : 'Specialty / Field'} *
+                  </label>
+                  <select
+                    value={drData.specialty}
+                    onChange={(e) => setDrData({ ...drData, specialty: e.target.value })}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.84rem', background: '#ffffff' }}
+                  >
+                    {DOCTOR_SPECIALTIES.map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'ডিগ্রি ও শিক্ষাগত যোগ্যতা' : 'Qualifications'} *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. MBBS, BCS (Health), FCPS (Medicine)"
+                    value={drData.qualifications}
+                    onChange={(e) => setDrData({ ...drData, qualifications: e.target.value })}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Hospital & Chamber Schedule */}
+            <div style={{
+              background: '#f8fafc',
+              borderRadius: '14px',
+              padding: '14px 16px',
+              marginBottom: '14px',
+              border: '1px solid #e2e8f0'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
+                <span style={{ background: '#059669', color: 'white', fontSize: '0.7rem', fontWeight: 800, padding: '2px 7px', borderRadius: '6px' }}>2</span>
+                <h4 style={{ margin: 0, fontSize: '0.88rem', color: '#0f172a', fontWeight: 700 }}>
+                  {isBn ? 'হাসপাতাল, চেম্বার ও কনসালটেশন শিডিউল' : 'Hospital, Chamber & Schedule'}
+                </h4>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'বর্তমান হাসপাতাল / চেম্বার নাম' : 'Hospital / Chamber'} *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Dhaka Medical College Hospital / Popular"
+                    value={drData.hospital_chamber}
+                    onChange={(e) => setDrData({ ...drData, hospital_chamber: e.target.value })}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'পরামর্শ ফি (টাকায়)' : 'Consultation Fee (BDT)'}
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 1000"
+                    value={drData.consultation_fee}
+                    onChange={(e) => setDrData({ ...drData, consultation_fee: e.target.value })}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
+                  />
+                </div>
+
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'রোগী দেখার সময়সূচী' : 'Chamber Schedule'}
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. শনিবার - বৃহস্পতিবার: বিকাল ৫:০০ - রাত ৯:০০"
+                    value={drData.chamber_schedule}
+                    onChange={(e) => setDrData({ ...drData, chamber_schedule: e.target.value })}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Login Credentials */}
+            <div style={{
+              background: '#f8fafc',
+              borderRadius: '14px',
+              padding: '14px 16px',
+              marginBottom: '16px',
+              border: '1px solid #e2e8f0'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
+                <span style={{ background: '#059669', color: 'white', fontSize: '0.7rem', fontWeight: 800, padding: '2px 7px', borderRadius: '6px' }}>3</span>
+                <h4 style={{ margin: 0, fontSize: '0.88rem', color: '#0f172a', fontWeight: 700 }}>
+                  {isBn ? 'অ্যাকাউন্ট লগইন তথ্য' : 'Account Login Details'}
+                </h4>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'মোবাইল নম্বর' : 'Phone Number'}
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="017xxxxxxxx"
+                    value={drData.phone}
+                    onChange={(e) => setDrData({ ...drData, phone: e.target.value })}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'ইমেইল অ্যাড্রেস' : 'Email Address'} *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="doctor@nirvoy.ai"
+                    value={drData.email}
+                    onChange={(e) => setDrData({ ...drData, email: e.target.value })}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'গোপন পাসওয়ার্ড' : 'Password'} *
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={drData.password}
+                    onChange={(e) => setDrData({ ...drData, password: e.target.value })}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.84rem' }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '13px',
+                borderRadius: '12px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+                color: 'white',
+                fontWeight: 700,
+                fontSize: '0.95rem',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                boxShadow: '0 4px 14px rgba(5, 150, 105, 0.3)'
+              }}
+            >
+              {loading ? (
+                <span>{isBn ? 'ডাটাবেজে সংরক্ষণ করা হচ্ছে...' : 'Saving Doctor Profile...'}</span>
+              ) : (
+                <>
+                  <ShieldCheck size={18} />
+                  <span>{isBn ? 'চিকিৎসক নিবন্ধন সম্পন্ন ও ড্যাশবোর্ডে প্রবেশ করুন' : 'Complete Doctor Registration & Enter Portal'}</span>
+                </>
+              )}
+            </button>
+          </form>
+        )}
+
+        {/* ============================================================ */}
+        {/* PATIENT LOGIN */}
+        {/* ============================================================ */}
+        {!isDoctor && mode === 'login' && (
           <form onSubmit={handleLoginSubmit} style={{ padding: '20px 24px 24px' }}>
             <div style={{ marginBottom: '14px' }}>
               <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '5px' }}>
@@ -410,17 +997,18 @@ export default function AuthModal() {
               ) : (
                 <>
                   <LogIn size={18} />
-                  <span>{isBn ? 'অ্যাকাউন্টে প্রবেশ করুন' : 'Sign In to Account'}</span>
+                  <span>{isBn ? 'রোগী অ্যাকাউন্টে প্রবেশ করুন' : 'Sign In to Patient Account'}</span>
                 </>
               )}
             </button>
           </form>
         )}
 
-        {/* REGISTER & ONBOARDING FORM */}
-        {mode === 'register' && (
-          <form onSubmit={handleRegisterSubmit} style={{ padding: '20px 24px 24px' }}>
-            
+        {/* ============================================================ */}
+        {/* PATIENT REGISTRATION & ONBOARDING */}
+        {/* ============================================================ */}
+        {!isDoctor && mode === 'register' && (
+          <form onSubmit={handlePatientRegisterSubmit} style={{ padding: '20px 24px 24px' }}>
             {/* Step 1: Account Credentials */}
             <div style={{
               background: '#f8fafc',
@@ -449,24 +1037,24 @@ export default function AuthModal() {
                       placeholder={isBn ? 'যেমন: রহিম আহমেদ' : 'e.g. Rahim Ahmed'}
                       value={regData.name}
                       onChange={(e) => setRegData({ ...regData, name: e.target.value })}
-                      style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.82rem' }}
+                      style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
                     />
                   </div>
                 </div>
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
-                    {isBn ? 'ইমেইল / মোবাইল' : 'Email / Mobile'} *
+                    {isBn ? 'ইমেইল অথবা মোবাইল নম্বর' : 'Email or Phone'} *
                   </label>
                   <div style={{ position: 'relative' }}>
                     <Mail size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                     <input
                       type="text"
                       required
-                      placeholder="patient@gmail.com"
+                      placeholder={isBn ? 'patient@gmail.com বা 017xxxxxxxx' : 'patient@gmail.com or 017xxxxxxxx'}
                       value={regData.email}
                       onChange={(e) => setRegData({ ...regData, email: e.target.value })}
-                      style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.82rem' }}
+                      style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
                     />
                   </div>
                 </div>
@@ -483,149 +1071,138 @@ export default function AuthModal() {
                       placeholder="••••••••"
                       value={regData.password}
                       onChange={(e) => setRegData({ ...regData, password: e.target.value })}
-                      style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.82rem' }}
+                      style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
                     />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Step 2: Physical Vitals (Age, Height, Weight, Blood Group) */}
+            {/* Step 2: Physical Vitals */}
             <div style={{
-              background: '#f0fdf4',
+              background: '#f8fafc',
               borderRadius: '14px',
               padding: '14px 16px',
               marginBottom: '16px',
-              border: '1px solid #bbf7d0'
+              border: '1px solid #e2e8f0'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
-                <span style={{ background: '#059669', color: 'white', fontSize: '0.7rem', fontWeight: 800, padding: '2px 7px', borderRadius: '6px' }}>2</span>
-                <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#065f46', fontWeight: 700 }}>
-                  {isBn ? 'শারীরিক পরিমাপ ও তথ্য (Vitals)' : 'Physical Vitals & Body Metrics'}
+                <span style={{ background: '#0284c7', color: 'white', fontSize: '0.7rem', fontWeight: 800, padding: '2px 7px', borderRadius: '6px' }}>2</span>
+                <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#0f172a', fontWeight: 700 }}>
+                  {isBn ? 'শারীরিক পরিমাপ ও রক্ত গ্রুপ' : 'Physical Vitals & Blood Group'}
                 </h4>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
-                {/* Age */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#374151', marginBottom: '3px' }}>
-                    {isBn ? 'বয়স (Age)' : 'Age (Years)'} *
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'বয়স (বছর)' : 'Age (Years)'}
                   </label>
                   <div style={{ position: 'relative' }}>
                     <Calendar size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                     <input
                       type="number"
-                      min="1"
-                      max="120"
-                      required
-                      placeholder="45"
+                      placeholder="35"
                       value={regData.age}
                       onChange={(e) => setRegData({ ...regData, age: e.target.value })}
-                      style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: '8px', border: '1px solid #86efac', background: '#ffffff', fontSize: '0.82rem' }}
+                      style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
                     />
                   </div>
                 </div>
 
-                {/* Height */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#374151', marginBottom: '3px' }}>
-                    {isBn ? 'উচ্চতা (Height)' : 'Height'}
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'লিঙ্গ' : 'Gender'}
+                  </label>
+                  <select
+                    value={regData.gender}
+                    onChange={(e) => setRegData({ ...regData, gender: e.target.value })}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem', background: '#ffffff' }}
+                  >
+                    <option value="Male">{isBn ? 'পুরুষ (Male)' : 'Male'}</option>
+                    <option value="Female">{isBn ? 'নারী (Female)' : 'Female'}</option>
+                    <option value="Other">{isBn ? 'অন্যান্য (Other)' : 'Other'}</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'উচ্চতা (ফুট ও ইঞ্চি)' : 'Height (Ft & In)'}
                   </label>
                   <div style={{ display: 'flex', gap: '4px' }}>
                     <select
                       value={regData.heightFeet}
                       onChange={(e) => setRegData({ ...regData, heightFeet: e.target.value })}
-                      style={{ width: '50%', padding: '8px 4px', borderRadius: '8px', border: '1px solid #86efac', background: '#ffffff', fontSize: '0.8rem' }}
+                      style={{ flex: 1, padding: '8px 4px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem', background: '#ffffff' }}
                     >
-                      {[3,4,5,6,7].map(f => <option key={f} value={f}>{f} ft</option>)}
+                      {[3, 4, 5, 6, 7].map(f => (
+                        <option key={f} value={f}>{f} ft</option>
+                      ))}
                     </select>
                     <select
                       value={regData.heightInches}
                       onChange={(e) => setRegData({ ...regData, heightInches: e.target.value })}
-                      style={{ width: '50%', padding: '8px 4px', borderRadius: '8px', border: '1px solid #86efac', background: '#ffffff', fontSize: '0.8rem' }}
+                      style={{ flex: 1, padding: '8px 4px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem', background: '#ffffff' }}
                     >
-                      {[0,1,2,3,4,5,6,7,8,9,10,11].map(i => <option key={i} value={i}>{i} in</option>)}
+                      {[...Array(12).keys()].map(i => (
+                        <option key={i} value={i}>{i} in</option>
+                      ))}
                     </select>
                   </div>
                 </div>
 
-                {/* Weight */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#374151', marginBottom: '3px' }}>
-                    {isBn ? 'ওজন (Weight)' : 'Weight (kg)'}
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
+                    {isBn ? 'ওজন (কেজি)' : 'Weight (kg)'}
                   </label>
                   <div style={{ position: 'relative' }}>
                     <Weight size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                     <input
                       type="number"
-                      step="0.5"
+                      step="0.1"
                       placeholder="68"
                       value={regData.weight_kg}
                       onChange={(e) => setRegData({ ...regData, weight_kg: e.target.value })}
-                      style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: '8px', border: '1px solid #86efac', background: '#ffffff', fontSize: '0.82rem' }}
+                      style={{ width: '100%', padding: '8px 10px 8px 30px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem' }}
                     />
                   </div>
                 </div>
 
-                {/* Gender */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#374151', marginBottom: '3px' }}>
-                    {isBn ? 'লিঙ্গ (Gender)' : 'Gender'}
-                  </label>
-                  <select
-                    value={regData.gender}
-                    onChange={(e) => setRegData({ ...regData, gender: e.target.value })}
-                    style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #86efac', background: '#ffffff', fontSize: '0.82rem' }}
-                  >
-                    <option value="Male">{isBn ? 'পুরুষ (Male)' : 'Male'}</option>
-                    <option value="Female">{isBn ? 'মহিলা (Female)' : 'Female'}</option>
-                    <option value="Other">{isBn ? 'অন্যান্য (Other)' : 'Other'}</option>
-                  </select>
-                </div>
-
-                {/* Blood Group */}
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#374151', marginBottom: '3px' }}>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
                     {isBn ? 'রক্তের গ্রুপ' : 'Blood Group'}
                   </label>
                   <select
                     value={regData.blood_group}
                     onChange={(e) => setRegData({ ...regData, blood_group: e.target.value })}
-                    style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid #86efac', background: '#ffffff', fontSize: '0.82rem' }}
+                    style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.8rem', background: '#ffffff', fontWeight: 700, color: '#be123c' }}
                   >
-                    {BLOOD_GROUPS.map(bg => <option key={bg} value={bg}>{bg}</option>)}
+                    {BLOOD_GROUPS.map(bg => (
+                      <option key={bg} value={bg}>{bg}</option>
+                    ))}
                   </select>
                 </div>
               </div>
             </div>
 
-            {/* Step 3: Chronic Diseases & Health Conditions Questionnaire */}
+            {/* Step 3: Chronic Diseases Checklist */}
             <div style={{
-              background: '#fef3c7',
+              background: '#f8fafc',
               borderRadius: '14px',
               padding: '14px 16px',
               marginBottom: '16px',
-              border: '1px solid #fde68a'
+              border: '1px solid #e2e8f0'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ background: '#d97706', color: 'white', fontSize: '0.7rem', fontWeight: 800, padding: '2px 7px', borderRadius: '6px' }}>3</span>
-                  <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#92400e', fontWeight: 700 }}>
-                    {isBn ? 'দীর্ঘস্থায়ী রোগ ও শারীরিক অবস্থা নির্বাচন করুন' : 'Select Common Diseases / Health Conditions'}
+                  <span style={{ background: '#0284c7', color: 'white', fontSize: '0.7rem', fontWeight: 800, padding: '2px 7px', borderRadius: '6px' }}>3</span>
+                  <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#0f172a', fontWeight: 700 }}>
+                    {isBn ? 'পূর্ববর্তী বা দীর্ঘমেয়াদী রোগসমূহ (সংশ্লিষ্টটিতে টিক দিন)' : 'Chronic Diseases & Existing Conditions'}
                   </h4>
                 </div>
-                <span style={{ fontSize: '0.72rem', color: '#b45309', fontWeight: 600 }}>
-                  {regData.chronic_diseases.length} {isBn ? 'টি নির্বাচিত' : 'selected'}
-                </span>
               </div>
-              <p style={{ margin: '0 0 10px', fontSize: '0.75rem', color: '#78350f' }}>
-                {isBn 
-                  ? 'আপনার কোনো বিদ্যমান রোগ বা এলার্জি থাকলে সিলেক্ট করুন (এটি প্রেসক্রিপশন ড্রাগ ইন্টারঅ্যাকশন সতর্কতায় সাহায্য করবে):'
-                  : 'Select any known conditions (used for personalized AI medication contraindication alerts):'}
-              </p>
 
-              {/* Disease Tags / Badges Grid */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', marginBottom: '12px' }}>
                 {COMMON_DISEASES.map(disease => {
                   const isSelected = regData.chronic_diseases.includes(disease.en);
                   return (
@@ -634,52 +1211,46 @@ export default function AuthModal() {
                       type="button"
                       onClick={() => handleDiseaseToggle(disease.en)}
                       style={{
-                        padding: '6px 10px',
-                        borderRadius: '999px',
-                        fontSize: '0.76rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        border: isSelected ? `2px solid ${disease.color}` : '1px solid #e5e7eb',
-                        background: isSelected ? `${disease.color}15` : '#ffffff',
-                        color: isSelected ? disease.color : '#4b5563',
-                        display: 'inline-flex',
+                        display: 'flex',
                         alignItems: 'center',
-                        gap: '5px',
-                        transition: 'all 0.15s ease'
+                        justifyContent: 'space-between',
+                        padding: '8px 12px',
+                        borderRadius: '10px',
+                        border: isSelected ? '1.5px solid #0284c7' : '1px solid #e2e8f0',
+                        background: isSelected ? '#f0f9ff' : '#ffffff',
+                        color: isSelected ? '#0369a1' : '#334155',
+                        fontSize: '0.78rem',
+                        fontWeight: isSelected ? 700 : 500,
+                        cursor: 'pointer',
+                        textAlign: 'left'
                       }}
                     >
-                      <span>{disease.icon}</span>
-                      <span>{isBn ? disease.bn : disease.en}</span>
-                      {isSelected && <CheckCircle2 size={13} style={{ strokeWidth: 3 }} />}
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>{disease.icon}</span>
+                        <span>{isBn ? disease.bn : disease.en}</span>
+                      </span>
+                      {isSelected && <CheckCircle2 size={14} color="#0284c7" />}
                     </button>
                   );
                 })}
               </div>
 
-              {/* Custom Disease input */}
               <div style={{ display: 'flex', gap: '6px' }}>
                 <input
                   type="text"
-                  placeholder={isBn ? 'অন্য কোনো রোগ থাকলে লিখুন এবং যোগ করুন...' : 'Other conditions (e.g. Migraine, Fatty Liver)...'}
+                  placeholder={isBn ? 'অন্য কোনো রোগ থাকলে লিখুন...' : 'Other condition (e.g. Thyroid, Migraine)...'}
                   value={regData.customDisease}
                   onChange={(e) => setRegData({ ...regData, customDisease: e.target.value })}
-                  style={{
-                    flex: 1,
-                    padding: '6px 10px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.78rem',
-                    background: '#ffffff'
-                  }}
+                  style={{ flex: 1, padding: '6px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.78rem' }}
                 />
                 <button
                   type="button"
                   onClick={handleAddCustomDisease}
                   style={{
-                    padding: '6px 12px',
+                    padding: '6px 14px',
                     borderRadius: '8px',
                     border: 'none',
-                    background: '#d97706',
+                    background: '#0284c7',
                     color: 'white',
                     fontSize: '0.75rem',
                     fontWeight: 700,
@@ -691,7 +1262,7 @@ export default function AuthModal() {
               </div>
             </div>
 
-            {/* Step 4: Emergency Contact & Drug Allergies */}
+            {/* Step 4: Emergency Contact & Allergies */}
             <div style={{
               background: '#f8fafc',
               borderRadius: '14px',
@@ -717,7 +1288,7 @@ export default function AuthModal() {
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#475569', marginBottom: '3px' }}>
-                  {isBn ? 'জরুরি যোগাযোগ নম্বর (Emergency Contact)' : 'Emergency Contact Phone'}
+                  {isBn ? 'জরুরি যোগাযোগ নম্বর' : 'Emergency Contact Phone'}
                 </label>
                 <div style={{ position: 'relative' }}>
                   <Phone size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />

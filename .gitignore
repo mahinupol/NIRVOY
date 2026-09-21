@@ -14,6 +14,8 @@ dist-ssr
 .env
 .env.*
 !.env.example
+*google-credentials*.json
+server/google-credentials.json
 DIY_ventilator*
 
 # Editor directories and files
